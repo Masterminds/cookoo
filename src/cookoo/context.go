@@ -8,12 +8,17 @@ type Datasource struct {
 
 type ExecutionContext struct {
 	// Need the following:
-  // Datasources -- probably a hashtable
-  // Context vars -- hashtable
+	// Datasources -- probably a hashtable
+	// Context vars -- hashtable
+}
+
+func NewExecutionContext() *ExecutionContext {
+	cxt := new(ExecutionContext).Init()
+	return cxt
 }
 
 func (cxt *ExecutionContext) Init() *ExecutionContext {
-  return cxt
+	return cxt
 }
 
 func (cxt *ExecutionContext) Add(name string, value string) {
@@ -23,7 +28,7 @@ func (cxt *ExecutionContext) Get(name string) {
 }
 
 func (cxt *ExecutionContext) Datasource() *Datasource {
-  return null
+	return null
 }
 
 func (cxt *ExecutionContext) AddDatasource(*Datasource) {
