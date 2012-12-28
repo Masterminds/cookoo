@@ -1,3 +1,3 @@
 package cookoo
 
-const IS_ROUTER = True
+const IS_ROUTER = true

@@ -7,19 +7,19 @@ import (
 )
 
 type Registry struct {
-	var routes map[string]routeSpec
-	var loggers []loggerSpec
-	var currentRoute routeSpec
-	// var datasources map[string]datasourceSpec
-	// var currentDS datasourceSpec
+	routes map[string]*routeSpec
+	loggers []*loggerSpec
+	currentRoute *routeSpec
+	// datasources map[string]datasourceSpec
+	// currentDS datasourceSpec
 }
 
 type Command struct {
-	var name string
+	name string
 }
 
 type Logger struct {
-	var impl interface{}
+	impl interface{}
 }
 
 func (r *Registry) Route(name, description string) *Registry {
@@ -28,7 +28,7 @@ func (r *Registry) Route(name, description string) *Registry {
 	route := new(routeSpec)
 	route.name = name;
 	route.description = description;
-	route.commands = make(commandSpec, 2, 8)
+	route.commands = make([]*commandSpec, 2, 8)
 
 	// Add the route spec.
 	r.currentRoute = route
@@ -45,7 +45,7 @@ func (r *Registry) Does(cmd Command, commandName string) *Registry {
 	spec.command = cmd
 
 	// Add command spec.
-	append(r.currentRoute.commands, spec)
+	r.currentRoute.commands = append(r.currentRoute.commands, spec)
 
 	return r
 }
@@ -59,56 +59,56 @@ func (r *Registry) Using(name string) *Registry {
 	spec.name = name
 
 	// Add it to the list.
-	append(lastCommand.paramaters, spec)
+	lastCommand.parameters = append(lastCommand.parameters, spec)
 	return r
 }
 
-func (r *Registry) WithDefault(value interface{}) *Registry {
-	param := r.lookupLastParam()
+func (r *Registry) WithDefault(value *interface{}) *Registry {
+	param := r.lastParamAdded()
 	param.defaultValue = value
 	return r
 }
 
 func (r *Registry) From(fromVal string) *Registry {
-	param := r.lookupLastParam()
+	param := r.lastParamAdded()
 	param.from = fromVal
 	return r
 }
 
 // Get the last parameter for the last command added.
-func (r *Registry) lookupLastParam() *paramSpec {
-	cspec := r.lookupLastCommand()
+func (r *Registry) lastParamAdded() *paramSpec {
+	cspec := r.lastCommandAdded()
 	last := len(cspec.parameters) - 1
 	return cspec.parameters[last]
 }
 
 func (r *Registry) Includes(route string) *Registry {
-	fmt.println("Need to finish for ", route)
+	fmt.Println("Need to finish for ", route)
 	return r
 }
 
 // Add a logger to the registry.
 // Once at least one logger has been added, the application can begin logging.
-func (r *Registry) Logger(log Logger, options map[string]string) *Registry {
+func (r *Registry) Logger(log *Logger, options map[string]string) *Registry {
 	// Create a logger spec.
 	spec := new(loggerSpec)
 	spec.logger = log
 	spec.options = options
 
 	// Add the spec.
-	append(r.loggers, spec)
+	r.loggers = append(r.loggers, spec)
 	return r
 }
 
-func (r *Registry) Loggers() []Logger {
+func (r *Registry) Loggers() []*loggerSpec {
 	return r.loggers
 }
 
-func (r *Registry) RouteSpec(routeName string) routeSpec {
-	return r.routeSpec[routeName]
+func (r *Registry) RouteSpec(routeName string) *routeSpec {
+	return r.routes[routeName]
 }
 
-func (r *Registry) Routes() map[string]routeSpec {
+func (r *Registry) Routes() map[string]*routeSpec {
 	return r.routes
 }
 
@@ -119,23 +119,23 @@ func (r *Registry) lastCommandAdded() *commandSpec {
 }
 
 type routeSpec struct {
-	var name, description string
-	var commands []commandSpec
+	name, description string
+	commands []*commandSpec
 }
 
 type commandSpec struct {
-	var name string
-	var command Command
-	var parameters []paramSpec
+	name string
+	command Command
+	parameters []*paramSpec
 }
 
 type paramSpec struct {
-	var name string
-	var defaultValue interface{}
-	var from string
+	name string
+	defaultValue *interface{}
+	from string
 }
 
 type loggerSpec struct {
-	var logger Logger
-	var options map[string]string
+	logger *Logger
+	options map[string]string
 }
