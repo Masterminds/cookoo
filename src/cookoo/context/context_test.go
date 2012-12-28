@@ -6,7 +6,8 @@ package context
 import (
 	"github.com/bmizerany/assert"
 	"testing"
-	"fmt"
+	//"fmt"
+	"reflect"
 )
 
 // An example datasource as can add to our store.
@@ -52,8 +53,9 @@ func TestAddGet(t *testing.T) {
 	}
 
 	val, ok = cxt.Get("test3").(func()string)
+	fn := val
 	if ok {
-		fmt.Println(val)
+		assert.Equal(t, 1,  fn());
 	} else {
 		t.Error("! Expected a function.")
 	}
