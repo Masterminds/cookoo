@@ -60,3 +60,7 @@ func (cxt *ExecutionContext) Datasource(name string) interface{} {
 func (cxt *ExecutionContext) AddDatasource(name string, ds interface{}) {
 	cxt.datasources[name] = ds
 }
+
+func (cxt *ExecutionContext) RemoveDatasource(name string) {
+	delete(cxt.datasources, name)
+}

@@ -27,6 +27,10 @@ func TestDatasource(t *testing.T) {
 
 	assert.Equal(t, foo, foo2)
 	assert.Equal(t, "bar", foo2.name)
+
+	cxt.RemoveDatasource("foo")
+
+	assert.Equal(t, nil, cxt.Datasource("foo"))
 }
 
 func TestAddGet(t *testing.T) {
