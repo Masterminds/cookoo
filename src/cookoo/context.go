@@ -1,7 +1,7 @@
 // Copyright 2013 Masterminds
 
 // This package provides the execution context for a Cookoo request.
-package context
+package cookoo
 
 // An empty interface defining a context value.
 // Semantically, this is the same as interface{}
@@ -40,7 +40,7 @@ func (cxt *ExecutionContext) Get(name string) ContextValue {
 // found. This is useful in cases where the value may legitimately be 0.
 func (cxt *ExecutionContext) Has(name string) (value ContextValue, found bool) {
 	value, found = cxt.values[name]
-	return;
+	return
 }
 
 // Get a datasource from the map of datasources.

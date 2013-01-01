@@ -1,13 +1,13 @@
 // Copyright 2013 Masterminds
 
 // This package provides the execution context for a Cookoo request.
-package context
+package cookoo
 
 import (
 	"github.com/bmizerany/assert"
 	"testing"
 	//"fmt"
-	"reflect"
+	//"reflect"
 )
 
 // An example datasource as can add to our store.
@@ -34,7 +34,7 @@ func TestAddGet(t *testing.T) {
 
 	cxt.Add("test1", 42)
 	cxt.Add("test2", "Geronimo!")
-	cxt.Add("test3", func()string{return "Hello"})
+	cxt.Add("test3", func() string { return "Hello" })
 
 	// Test Get
 	assert.Equal(t, 42, cxt.Get("test1"))
@@ -52,10 +52,10 @@ func TestAddGet(t *testing.T) {
 		t.Error("! Unexpected result for 'test999'")
 	}
 
-	val, ok = cxt.Get("test3").(func()string)
-	fn := val
+	val, ok = cxt.Has("test3")
+	fn := val.(func() string)
 	if ok {
-		assert.Equal(t, 1,  fn());
+		assert.Equal(t, "Hello", fn())
 	} else {
 		t.Error("! Expected a function.")
 	}
