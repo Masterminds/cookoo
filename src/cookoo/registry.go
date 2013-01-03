@@ -14,12 +14,18 @@ type Registry struct {
 	// currentDS datasourceSpec
 }
 
-type Command struct {
+/*type Command struct {
 	name string
-}
+}*/
+type Command func(cxt *ExecutionContext, params map[string]*interface{}) bool
 
 type Logger struct {
 	impl interface{}
+}
+
+func (r *Registry) Init() *Registry {
+	r.routes = make(map[string]*routeSpec, 8)
+	return r
 }
 
 func (r *Registry) Route(name, description string) *Registry {
@@ -66,6 +72,12 @@ func (r *Registry) Using(name string) *Registry {
 func (r *Registry) WithDefault(value *interface{}) *Registry {
 	param := r.lastParamAdded()
 	param.defaultValue = value
+	return r
+}
+
+func (r *Registry) WithDefaultValue(value interface{}) *Registry {
+	param := r.lastParamAdded()
+	param.defaultValue = &value
 	return r
 }
 
