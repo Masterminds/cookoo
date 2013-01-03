@@ -17,7 +17,9 @@ type Registry struct {
 /*type Command struct {
 	name string
 }*/
-type Command func(cxt *ExecutionContext, params map[string]*interface{}) bool
+
+// Execute a command and return a result.
+type Command func(cxt *ExecutionContext, params map[string]*interface{}) interface{}
 
 type Logger struct {
 	impl interface{}
@@ -34,7 +36,7 @@ func (r *Registry) Route(name, description string) *Registry {
 	route := new(routeSpec)
 	route.name = name;
 	route.description = description;
-	route.commands = make([]*commandSpec, 2, 8)
+	route.commands = make([]*commandSpec, 0, 4)
 
 	// Add the route spec.
 	r.currentRoute = route

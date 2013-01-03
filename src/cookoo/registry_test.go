@@ -12,10 +12,21 @@ type FakeCommand struct {
 }
 */
 
-func FakeCommand(cxt *ExecutionContext, params map[string]*interface{}) bool {
+func FakeCommand(cxt *ExecutionContext, params map[string]*interface{}) interface{} {
 	fmt.Println("Got here")
 
-	return true
+	var ret bool = true
+
+	p := &ret
+
+	return p
+}
+
+
+func AnotherCommand(cxt *ExecutionContext, params map[string]*interface{}) interface{} {
+	ret := func() bool {return true;}
+
+	return ret
 }
 
 func TestBasicRoute (t *testing.T) {
@@ -23,7 +34,8 @@ func TestBasicRoute (t *testing.T) {
 	reg.Init()
 
 	reg.Route("foo", "A test route")
-	reg.Does(FakeCommand, "fakeCommand").Using("param").WithDefaultValue("value")
+	reg.Does(AnotherCommand, "fakeCommand").Using("param").WithDefaultValue("value")
+	//reg.Does(FakeCommand, "fakeCommand").Using("param").WithDefaultValue("value")
 
 	// Now do something to test.
 	routes := reg.Routes()
@@ -42,18 +54,17 @@ func TestBasicRoute (t *testing.T) {
 	}
 
 	if len(rspec.commands) != 1 {
-		t.Error("! Expected exactly one command.")
+		t.Error("! Expected exactly one command. Found ", len(rspec.commands))
 	}
 
 
 	cmd := rspec.commands[0]
-	fmt.Println(cmd)
 	if "fakeCommand" != cmd.name {
 		t.Error("! Expected to find fakeCommand command.")
 	}
 
 	if len(cmd.parameters) != 1 {
-		t.Error("! Expected exactly one paramter.")
+		t.Error("! Expected exactly one paramter. Found ", len(cmd.parameters))
 	}
 
 	pspec := cmd.parameters[0]
@@ -65,10 +76,10 @@ func TestBasicRoute (t *testing.T) {
 		t.Error("! Expected the value to be 'value'")
 	}
 	*/
-	fakeCommand := new(ExecutionContext)
+	fakeCxt:= new(ExecutionContext)
 	fakeParams := make(map[string]*interface{}, 2)
 	//fakeParams["foo"] = "bar"
 	//fakeParams["baz"] = 2
-	cmd.command(fakeCommand, fakeParams)
+	cmd.command(fakeCxt, fakeParams)
 
 }
