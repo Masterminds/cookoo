@@ -6,11 +6,9 @@ import (
 	"fmt"
 )
 
-/*
-type FakeCommand struct {
-	Command
+type FooType struct {
+	test int
 }
-*/
 
 func FakeCommand(cxt *ExecutionContext, params map[string]*interface{}) interface{} {
 	fmt.Println("Got here")
@@ -22,9 +20,10 @@ func FakeCommand(cxt *ExecutionContext, params map[string]*interface{}) interfac
 	return p
 }
 
-
 func AnotherCommand(cxt *ExecutionContext, params map[string]*interface{}) interface{} {
-	ret := func() bool {return true;}
+	//ret := func() bool {return true;}
+	ret := new(FooType)
+	ret.test = 5
 
 	return ret
 }
@@ -80,6 +79,10 @@ func TestBasicRoute (t *testing.T) {
 	fakeParams := make(map[string]*interface{}, 2)
 	//fakeParams["foo"] = "bar"
 	//fakeParams["baz"] = 2
-	cmd.command(fakeCxt, fakeParams)
+	var cRet *FooType = cmd.command(fakeCxt, fakeParams).(*FooType)
+
+	if cRet.test != 5 {
+		t.Error("! Expected 'test' to be 5")
+	}
 
 }
