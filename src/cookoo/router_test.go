@@ -4,15 +4,17 @@ import (
 	"testing"
 )
 
+// Mock resolver
 type FakeRequestResolver struct {
 	BasicRequestResolver
 }
-
+// Always returns FOO.
 func (self *FakeRequestResolver) Resolve(name string, cxt *ExecutionContext) string {
 	return "FOO"
 }
 
-func TestSetResolver (t *testing.T) {
+// Test the resolver.
+func TestResolver (t *testing.T) {
 	fakeCxt := new(ExecutionContext)
 	registry := new(Registry)
 	r := new(Router)

@@ -69,11 +69,12 @@ func (r *Router) ResolveRequest(name string, cxt *ExecutionContext) string {
 func (r *Router) HandleRequest(name string, cxt *ExecutionContext, taint bool) {
 }
 
-// Check whether the given request is in the registry.
-//
-// This will resolve the name first.
+// This checks whether or not the route exists.
+// Note that this does NOT resolve a request name into a route name. This
+// expects a route name.
 func (r *Router) HasRoute(name string) bool {
-	return false
+	_, ok := r.registry.RouteSpec(name)
+	return ok
 }
 
 
