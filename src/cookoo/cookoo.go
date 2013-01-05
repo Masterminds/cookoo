@@ -13,5 +13,5 @@ func Cookoo() (reg *Registry, router *Router, cxt Context) {
 // Execute a command and return a result.
 // A Cookoo app has a registry, which has zero or more routes. Each route
 // executes a sequence of zero or more commands. A command is of this type.
-type Command func(cxt Context, params map[string]*interface{}) interface{}
+type Command func(cxt Context, params Params) interface{}
 
