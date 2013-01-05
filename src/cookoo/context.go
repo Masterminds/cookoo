@@ -3,6 +3,16 @@
 // This package provides the execution context for a Cookoo request.
 package cookoo
 
+// Describes a context.
+type Context interface {
+	Add(string, ContextValue)
+	Get(string) ContextValue
+	Has(string) (ContextValue, bool)
+	Datasource(string) interface{}
+	AddDatasource(string, interface{})
+	RemoveDatasource(string)
+}
+
 // An empty interface defining a context value.
 // Semantically, this is the same as interface{}
 type ContextValue interface{}
@@ -14,7 +24,7 @@ type ExecutionContext struct {
 	values map[string]interface{}
 }
 
-func NewExecutionContext() *ExecutionContext {
+func NewContext() Context {
 	cxt := new(ExecutionContext).Init()
 	return cxt
 }

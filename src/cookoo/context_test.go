@@ -19,7 +19,7 @@ func TestDatasource(t *testing.T) {
 	foo := new(ExampleDatasource)
 	foo.name = "bar"
 
-	cxt := NewExecutionContext()
+	cxt := NewContext()
 
 	cxt.AddDatasource("foo", foo)
 
@@ -34,7 +34,7 @@ func TestDatasource(t *testing.T) {
 }
 
 func TestAddGet(t *testing.T) {
-	cxt := NewExecutionContext()
+	cxt := NewContext()
 
 	cxt.Add("test1", 42)
 	cxt.Add("test2", "Geronimo!")
