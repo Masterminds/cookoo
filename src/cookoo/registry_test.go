@@ -10,7 +10,7 @@ type FooType struct {
 	test int
 }
 
-func FakeCommand(cxt Context, params map[string]*interface{}) interface{} {
+func FakeCommand(cxt Context, params Params) interface{} {
 	fmt.Println("Got here")
 
 	var ret bool = true
@@ -20,7 +20,7 @@ func FakeCommand(cxt Context, params map[string]*interface{}) interface{} {
 	return p
 }
 
-func AnotherCommand(cxt Context, params map[string]*interface{}) interface{} {
+func AnotherCommand(cxt Context, params Params) interface{} {
 	//ret := func() bool {return true;}
 	ret := new(FooType)
 	ret.test = 5
@@ -76,9 +76,10 @@ func TestBasicRoute (t *testing.T) {
 	}
 	*/
 	fakeCxt:= new(ExecutionContext)
-	fakeParams := make(map[string]*interface{}, 2)
+	//fakeParams := make(map[string]*interface{}, 2)
 	//fakeParams["foo"] = "bar"
 	//fakeParams["baz"] = 2
+	fakeParams := Params{"foo": "bar", "baz": 2}
 	var cRet *FooType = cmd.command(fakeCxt, fakeParams).(*FooType)
 
 	if cRet.test != 5 {
