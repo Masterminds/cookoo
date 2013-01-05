@@ -118,8 +118,9 @@ func (r *Registry) Loggers() []*loggerSpec {
 	return r.loggers
 }
 
-func (r *Registry) RouteSpec(routeName string) *routeSpec {
-	return r.routes[routeName]
+func (r *Registry) RouteSpec(routeName string) (spec *routeSpec, ok bool) {
+	spec, ok =  r.routes[routeName]
+	return
 }
 
 func (r *Registry) Routes() map[string]*routeSpec {

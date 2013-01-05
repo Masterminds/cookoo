@@ -86,3 +86,21 @@ func TestBasicRoute (t *testing.T) {
 	}
 
 }
+
+func TestRouteSpec(t *testing.T) {
+	reg := new(Registry)
+	reg.Init()
+
+	reg.Route("foo", "A test route")
+	reg.Does(AnotherCommand, "fakeCommand").Using("param").WithDefaultValue("value")
+
+	spec, ok := reg.RouteSpec("foo")
+
+	if !ok {
+		t.Error("! Expected to find a route named 'foo'")
+	}
+
+	if spec.name != "foo" {
+		t.Error("! Expected a spec named 'foo'")
+	}
+}
