@@ -33,8 +33,7 @@ func TestBasicRoute (t *testing.T) {
 	reg.Init()
 
 	reg.Route("foo", "A test route")
-	reg.Does(AnotherCommand, "fakeCommand").Using("param").WithDefaultValue("value")
-	//reg.Does(FakeCommand, "fakeCommand").Using("param").WithDefaultValue("value")
+	reg.Does(AnotherCommand, "fakeCommand").Using("param").WithDefault("value")
 
 	// Now do something to test.
 	routes := reg.Routes()
@@ -70,15 +69,11 @@ func TestBasicRoute (t *testing.T) {
 	if pspec.name != "param" {
 		t.Error("! Expected the first param to be 'param'")
 	}
-	/*
-	if pspec.defaultValue.(string) != "value" {
+	
+	if pspec.defaultValue != "value" {
 		t.Error("! Expected the value to be 'value'")
 	}
-	*/
 	fakeCxt:= new(ExecutionContext)
-	//fakeParams := make(map[string]*interface{}, 2)
-	//fakeParams["foo"] = "bar"
-	//fakeParams["baz"] = 2
 	fakeParams := Params{"foo": "bar", "baz": 2}
 	var cRet *FooType = cmd.command(fakeCxt, fakeParams).(*FooType)
 
@@ -92,8 +87,10 @@ func TestRouteSpec(t *testing.T) {
 	reg := new(Registry)
 	reg.Init()
 
-	reg.Route("foo", "A test route")
-	reg.Does(AnotherCommand, "fakeCommand").Using("param").WithDefaultValue("value")
+	reg.Route("foo", "A test route").
+		Does(AnotherCommand, "fakeCommand").
+		Using("param").WithDefault("value").
+		Using("something").WithDefault(NewContext())
 
 	spec, ok := reg.RouteSpec("foo")
 
@@ -103,5 +100,13 @@ func TestRouteSpec(t *testing.T) {
 
 	if spec.name != "foo" {
 		t.Error("! Expected a spec named 'foo'")
+	}
+
+	param := spec.commands[0].parameters[1]
+	if v, ok := param.defaultValue.(Context); !ok {
+		t.Error("! Expected an execution context.")
+	} else {
+		// Canary
+		v.Add("test", "test")
 	}
 }

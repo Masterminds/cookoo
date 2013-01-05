@@ -14,10 +14,6 @@ type Registry struct {
 	// currentDS datasourceSpec
 }
 
-/*type Command struct {
-	name string
-}*/
-
 type Logger struct {
 	impl interface{}
 }
@@ -74,15 +70,9 @@ func (r *Registry) Using(name string) *Registry {
 	return r
 }
 
-func (r *Registry) WithDefault(value *interface{}) *Registry {
+func (r *Registry) WithDefault(value interface{}) *Registry {
 	param := r.lastParamAdded()
 	param.defaultValue = value
-	return r
-}
-
-func (r *Registry) WithDefaultValue(value interface{}) *Registry {
-	param := r.lastParamAdded()
-	param.defaultValue = &value
 	return r
 }
 
@@ -149,7 +139,7 @@ type commandSpec struct {
 
 type paramSpec struct {
 	name string
-	defaultValue *interface{}
+	defaultValue interface{}
 	from string
 }
 
