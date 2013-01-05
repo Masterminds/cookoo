@@ -26,6 +26,12 @@ type BasicRequestResolver struct {
 	resolver RequestResolver
 }
 
+func NewRouter(reg *Registry) *Router {
+	router := new(Router)
+	router.Init(reg)
+	return router
+}
+
 func (r *BasicRequestResolver) Init(registry *Registry) {
 	r.registry = registry
 }
@@ -42,6 +48,7 @@ func (r *Router) Init(registry *Registry) *Router {
 
 // Set the registry.
 func (r *Router) SetRegistry(reg *Registry) {
+	r.registry = reg
 }
 
 // Set the request resolver.
