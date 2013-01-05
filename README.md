@@ -13,7 +13,7 @@ Use it as follows:
 package main
 
 import (
-	"cookoo"
+	"github.com/masterminds/cookoo"
 	"fmt"
 )
 

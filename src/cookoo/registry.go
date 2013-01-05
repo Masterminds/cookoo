@@ -18,11 +18,14 @@ type Registry struct {
 	name string
 }*/
 
-// Execute a command and return a result.
-type Command func(cxt *ExecutionContext, params map[string]*interface{}) interface{}
-
 type Logger struct {
 	impl interface{}
+}
+
+func NewRegistry() *Registry {
+	r := new(Registry)
+	r.Init()
+	return r
 }
 
 func (r *Registry) Init() *Registry {
