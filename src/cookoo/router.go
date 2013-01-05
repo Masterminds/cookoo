@@ -72,12 +72,7 @@ func (r *Router) HandleRequest(name string, cxt *ExecutionContext, taint bool) {
 // Check whether the given request is in the registry.
 //
 // This will resolve the name first.
-func (r *Router) HasRequest(name string, cxt *ExecutionContext) bool {
-	route := r.ResolveRequest(name, cxt)
-
-	if len(route) > 0 {
-		return true
-	}
+func (r *Router) HasRoute(name string) bool {
 	return false
 }
 
