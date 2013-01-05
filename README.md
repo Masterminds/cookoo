@@ -23,7 +23,7 @@ func main() {
 	registry, router, context := cookoo.Cookoo()
 
 	// Fill the registry.
-	registry.Route("TEST", "A test route").Does(SomeCommandFunc, "a") //...
+	registry.Route("TEST", "A test route").Does(HelloWorld, "hi") //...
 
 	// Execute the route.
 	router.HandleRequest("TEST", context, false)
