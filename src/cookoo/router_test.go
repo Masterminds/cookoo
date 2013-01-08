@@ -9,7 +9,7 @@ type FakeRequestResolver struct {
 	BasicRequestResolver
 }
 // Always returns FOO.
-func (self *FakeRequestResolver) Resolve(name string, cxt *ExecutionContext) string {
+func (self *FakeRequestResolver) Resolve(name string, cxt Context) string {
 	return "FOO"
 }
 

@@ -7,7 +7,7 @@ package cookoo
 // route name.
 type RequestResolver interface {
 	Init(registry *Registry)
-	Resolve(path string, cxt *ExecutionContext) string
+	Resolve(path string, cxt Context) string
 }
 
 // The Cookoo router.
@@ -35,7 +35,7 @@ func NewRouter(reg *Registry) *Router {
 func (r *BasicRequestResolver) Init(registry *Registry) {
 	r.registry = registry
 }
-func (r *BasicRequestResolver) Resolve(path string, cxt *ExecutionContext) string {
+func (r *BasicRequestResolver) Resolve(path string, cxt Context) string {
 	return path
 }
 
@@ -66,14 +66,32 @@ func (r *Router) RequestResolver() RequestResolver {
 }
 
 // Resolve a given string into a route name.
-func (r *Router) ResolveRequest(name string, cxt *ExecutionContext) string {
+func (r *Router) ResolveRequest(name string, cxt Context) string {
 	routeName := r.resolver.Resolve(name, cxt)
 
 	return routeName
 }
 
 // Do a request.
-func (r *Router) HandleRequest(name string, cxt *ExecutionContext, taint bool) {
+// This executes a request "named" name (this string is passed through the
+// request resolver.) The context is cloned (shallow copy) and passed in as the
+// base context.
+//
+// If taint is `true`, then no routes that begin with `@` can be executed. Taint
+// should be set to true on anything that relies on a name supplied by an
+// external client.
+//
+// This will do the following:
+// - resolve the request name into a route name (using a RequestResolver)
+// - look up the route
+// - execute each command on the route in order
+//
+// No data is returned from a route.
+func (r *Router) HandleRequest(name string, cxt Context, taint bool) {
+	baseCxt := cxt.Copy()
+	routeName := r.ResolveRequest(name, baseCxt)
+
+	println(routeName)
 }
 
 // This checks whether or not the route exists.
@@ -84,5 +102,6 @@ func (r *Router) HasRoute(name string) bool {
 	return ok
 }
 
+// PRIVATE ==========================================================
 
 
