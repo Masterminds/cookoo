@@ -65,3 +65,39 @@ func TestAddGet(t *testing.T) {
 	}
 
 }
+
+type LameStruct struct {
+	stuff []string
+}
+
+func TestCopy(t *testing.T) {
+	lame := new(LameStruct)
+	lame.stuff = []string { "O", "Hai" }
+	c := NewContext()
+	c.Add("a", lame)
+	c.Add("b", "This is the song that never ends")
+
+	c2 := c.Copy()
+
+	c.Add("c", 1234)
+
+	if c.Len() != 3 {
+		t.Error("! Canary failed. c should be 3")
+	}
+
+	if c2.Len() != 2 {
+		t.Error("! c2 should be 2.")
+	}
+
+	c.Add("b", "FOO")
+	if c2.Get("b") == "FOO" {
+		t.Error("! b should not have changed in C2.")
+	}
+
+	lame.stuff[1] = "Noes"
+
+	v1 := c2.Get("a").(*LameStruct)
+	if v1.stuff[1] != "Noes" {
+		t.Error("! Expected shallow copy of array. Got ", v1)
+	}
+}

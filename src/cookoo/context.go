@@ -5,12 +5,25 @@ package cookoo
 
 // Describes a context.
 type Context interface {
+	// Add a name/value pair to the context.
 	Add(string, ContextValue)
+	// Given a name, get a value from the context.
 	Get(string) ContextValue
+	// Given a name, check if the key exists, and if it does return the value.
 	Has(string) (ContextValue, bool)
+	// Get a datasource by name.
 	Datasource(string) interface{}
+	// Get a map of all datasources.
+	Datasources() map[string]interface{}
+	// Add a datasource.
 	AddDatasource(string, interface{})
+	// Remove a datasource from the context.
 	RemoveDatasource(string)
+	// Get the length of the context. This is the number of context values.
+	// Datsources are not counted.
+	Len() int
+	// Make a shallow copy of the context.
+	Copy() Context
 }
 
 // An empty interface defining a context value.
@@ -21,7 +34,7 @@ type ExecutionContext struct {
 	datasources map[string]interface{} // Datasources are things like MySQL connections.
 
 	// The Context values.
-	values map[string]interface{}
+	values map[string]ContextValue
 }
 
 func NewContext() Context {
@@ -31,7 +44,7 @@ func NewContext() Context {
 
 func (cxt *ExecutionContext) Init() *ExecutionContext {
 	cxt.datasources = make(map[string]interface{})
-	cxt.values = make(map[string]interface{})
+	cxt.values = make(map[string]ContextValue)
 	return cxt
 }
 
@@ -43,6 +56,11 @@ func (cxt *ExecutionContext) Add(name string, value ContextValue) {
 // Given a name, return the corresponding value from the context.
 func (cxt *ExecutionContext) Get(name string) ContextValue {
 	return cxt.values[name]
+}
+
+// Get a map of all name/value pairs in the present context.
+func (cxt *ExecutionContext) GetAll() map[string]ContextValue {
+	return cxt.values
 }
 
 // A special form of Get that also returns a flag indicating if the value is found.
@@ -62,6 +80,10 @@ func (cxt *ExecutionContext) Datasource(name string) interface{} {
 	return cxt.datasources[name]
 }
 
+func (cxt *ExecutionContext) Datasources() map[string]interface{} {
+	return cxt.datasources
+}
+
 // Add a datasource to the map of datasources.
 // A datasource is typically something like a connection to a database that you
 // want to keep open persistently and share between requests. To add a datasource
@@ -73,4 +95,25 @@ func (cxt *ExecutionContext) AddDatasource(name string, ds interface{}) {
 
 func (cxt *ExecutionContext) RemoveDatasource(name string) {
 	delete(cxt.datasources, name)
+}
+
+func (cxt *ExecutionContext) Len() int {
+	return len(cxt.values)
+}
+
+// Copy the context into a new context.
+func (cxt *ExecutionContext) Copy() Context {
+	newCxt := NewContext()
+	vals := cxt.GetAll()
+	ds := cxt.Datasources()
+
+	for k, v := range vals {
+		newCxt.Add(k, v)
+	}
+
+	for k, datasource := range ds {
+		newCxt.AddDatasource(k, datasource)
+	}
+
+	return newCxt;
 }
