@@ -41,3 +41,20 @@ func TestResolver (t *testing.T) {
 		t.Error("Expected path to be 'test'")
 	}
 }
+
+func MockCommand(cxt Context, params Params) interface{} {
+	println("Mock command")
+	return true
+}
+
+func TestHandleRequest(t *testing.T) {
+	reg, router, context := Cookoo()
+	reg.
+	  Route("TEST", "A test route").Does(MockCommand, "fake").
+	  Route("@tainted", "Tainted route").Does(MockCommand, "fake2")
+
+	router.HandleRequest("TEST", context, true)
+	router.HandleRequest("@tainted", context, true)
+	router.HandleRequest("@tainted", context, false)
+	router.HandleRequest("NO Such Route", context, false)
+}
