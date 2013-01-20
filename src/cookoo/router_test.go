@@ -47,6 +47,95 @@ func MockCommand(cxt Context, params Params) interface{} {
 	return true
 }
 
+func TestParseFromStatement(t *testing.T) {
+	str := "foo:bar foo:baz blarg:urg"
+	res := parseFromStatement(str)
+	if len(res) != 3 {
+		t.Error("! Expected length 3, got ", len(res))
+	}
+	exp := res[0]
+	if exp.source != "foo" {
+		t.Error("! Expected foo, got ", exp.source)
+	}
+	if exp.key != "bar" {
+		t.Error("! Expected bar, got ", exp.source)
+	}
+
+	exp = res[1]
+	if exp.source != "foo" {
+		t.Error("! Expected foo, got ", exp.source)
+	}
+	if exp.key != "baz" {
+		t.Error("! Expected baz, got ", exp.source)
+	}
+
+	exp = res[2]
+	if exp.source != "blarg" {
+		t.Error("! Expected blarg, got ", exp.source)
+	}
+	if exp.key != "urg" {
+		t.Error("! Expected urg, got ", exp.source)
+	}
+}
+
+func TestParseFromVal(t *testing.T) {
+	fr := "test:foo"
+
+	r := parseFromVal(fr)
+	name := r.source
+	val := r.key
+	if name != "test" {
+		t.Error("Expected 'test', got ", name)
+	}
+	if val != "foo" {
+		t.Error("Expected 'foo', got ", val)
+	}
+
+	fr = "test"
+	r = parseFromVal(fr)
+	name = r.source
+	val = r.key
+	if name != "test" {
+		t.Error("Expected 'test', got ", name)
+	}
+	if val != "" {
+		t.Error("Expected an empty string, got ", val)
+	}
+
+	fr = "test:"
+	r = parseFromVal(fr)
+	name = r.source
+	val = r.key
+	if name != "test" {
+		t.Error("Expected 'test', got ", name)
+	}
+	if val != "" {
+		t.Error("Expected an empty string, got ", val)
+	}
+
+	fr = "test:foo:bar:baz"
+	r = parseFromVal(fr)
+	name = r.source
+	val = r.key
+	if name != "test" {
+		t.Error("Expected 'test', got ", name)
+	}
+	if val != "foo:bar:baz" {
+		t.Error("Expected 'foo:bar:baz' string, got ", val)
+	}
+
+	fr = ""
+	r = parseFromVal(fr)
+	name = r.source
+	val = r.key
+	if name != "" {
+		t.Error("Expected empty string, got ", name)
+	}
+	if val != "" {
+		t.Error("Expected an empty string string, got ", val)
+	}
+}
+
 func TestHandleRequest(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.

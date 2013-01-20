@@ -2,6 +2,7 @@ package cookoo
 
 import (
 	"fmt"
+	"strings"
 )
 
 // The request resolver.
@@ -131,6 +132,30 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) (ok bool, err e
 
 func (r *Router) doCommand(cmd *commandSpec, cxt Context) bool {
 	return false
+}
+
+// Parse a 'from' statement.
+func parseFromStatement (from string) []*fromVal {
+	toks := strings.Fields(from)
+	ret := make([]*fromVal, len(toks))
+	for i,tok := range toks {
+		ret[i] = parseFromVal(tok)
+	}
+	return ret
+}
+
+// Represents a 'from' value of a 'from' statement.
+type fromVal struct {
+	source, key string
+}
+
+// Parse a FROM string of the form NAME:VALUE
+func parseFromVal (from string) *fromVal {
+	vals := strings.SplitN(strings.TrimSpace(from), ":", 2)
+	if len(vals) == 1 {
+		return &fromVal{vals[0], ""}
+	}
+	return &fromVal{vals[0], vals[1]}
 }
 
 // Indicates that a route cannot be executed successfully.
