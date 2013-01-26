@@ -1,7 +1,7 @@
 package cookoo
 
 import (
-	"fmt"
+	//"fmt"
 	"strings"
 )
 
@@ -92,13 +92,15 @@ func (r *Router) ResolveRequest(name string, cxt Context) string {
 // - execute each command on the route in order
 //
 // No data is returned from a route.
-func (r *Router) HandleRequest(name string, cxt Context, taint bool) {
+func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 	baseCxt := cxt.Copy()
 	routeName := r.ResolveRequest(name, baseCxt)
 
+	// Let an outer routine call go HandleRequest()
 	//go r.runRoute(routeName, cxt, taint)
-	r.runRoute(routeName, cxt, taint)
+	e := r.runRoute(routeName, cxt, taint)
 
+	return e
 }
 
 // This checks whether or not the route exists.
@@ -111,23 +113,24 @@ func (r *Router) HasRoute(name string) bool {
 
 // PRIVATE ==========================================================
 
-func (r *Router) runRoute(route string, cxt Context, taint bool) (ok bool, err error ) {
+func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	if len(route) == 0 {
-		return true, &RouteError{"Empty route name."}
+		return &RouteError{"Empty route name."}
 	}
 	if taint && route[0] == '@' {
-		return true, &RouteError{"Route is tainted. Refusing to run."}
+		return &RouteError{"Route is tainted. Refusing to run."}
 	}
 	spec, ok := r.registry.RouteSpec(route)
 	if (!ok) {
-		return true, &RouteError{"Route does not exist."}
+		return &RouteError{"Route does not exist."}
 	}
-	fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
-	for i, cmd := range spec.commands {
-		fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
-		r.doCommand(cmd, cxt)
+	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
+	for _, cmd := range spec.commands {
+		// fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
+		res := r.doCommand(cmd, cxt)
+		cxt.Add(cmd.name, res)
 	}
-	return false, nil
+	return nil
 }
 
 func (r *Router) doCommand(cmd *commandSpec, cxt Context) bool {

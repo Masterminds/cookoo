@@ -140,10 +140,32 @@ func TestHandleRequest(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.
 	  Route("TEST", "A test route").Does(MockCommand, "fake").
-	  Route("@tainted", "Tainted route").Does(MockCommand, "fake2")
+	  Route("@tainted", "Tainted route").Does(MockCommand, "fake2").
+		Route("Several", "Test multiple.").
+			Does(MockCommand, "first").
+			Does(MockCommand, "second").
+			Does(MockCommand, "third")
 
-	router.HandleRequest("TEST", context, true)
-	router.HandleRequest("@tainted", context, true)
-	router.HandleRequest("@tainted", context, false)
+	e := router.HandleRequest("TEST", context, true)
+	if e != nil {
+		t.Error("Unexpected: ", e.Error());
+	}
+
+	e = router.HandleRequest("@tainted", context, true)
+	if e == nil {
+		t.Error("Expected tainted route to not run protected name.");
+	}
+
+	e = router.HandleRequest("@tainted", context, false)
+	if e != nil {
+		t.Error("Unexpected: ", e.Error());
+	}
+
 	router.HandleRequest("NO Such Route", context, false)
+
+	context = NewContext()
+	router.HandleRequest("Several", context, false)
+	if context.Len() != 3 {
+		t.Error("! Expected three items in the context, got ", context.Len())
+	}
 }
