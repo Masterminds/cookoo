@@ -4,15 +4,23 @@
 package cookoo
 
 import (
-	"github.com/bmizerany/assert"
+	"reflect"
+	"runtime"
 	"testing"
-	//"fmt"
-	//"reflect"
 )
 
 // An example datasource as can add to our store.
 type ExampleDatasource struct {
 	name string
+}
+
+// A simple equal function.
+func equal(t *testing.T, a interface{}, b interface{}) {
+	result := reflect.DeepEqual(a, b)
+	if !result {
+		_, file, line, _ := runtime.Caller(1)
+		t.Errorf("Failed equals in %s:%d", file, line)
+	}
 }
 
 func TestDatasource(t *testing.T) {
@@ -25,12 +33,12 @@ func TestDatasource(t *testing.T) {
 
 	foo2 := cxt.Datasource("foo").(*ExampleDatasource)
 
-	assert.Equal(t, foo, foo2)
-	assert.Equal(t, "bar", foo2.name)
+	equal(t, foo, foo2)
+	equal(t, "bar", foo2.name)
 
 	cxt.RemoveDatasource("foo")
 
-	assert.Equal(t, nil, cxt.Datasource("foo"))
+	equal(t, nil, cxt.Datasource("foo"))
 }
 
 func TestAddGet(t *testing.T) {
@@ -41,15 +49,15 @@ func TestAddGet(t *testing.T) {
 	cxt.Add("test3", func() string { return "Hello" })
 
 	// Test Get
-	assert.Equal(t, 42, cxt.Get("test1"))
-	assert.Equal(t, "Geronimo!", cxt.Get("test2"))
+	equal(t, 42, cxt.Get("test1"))
+	equal(t, "Geronimo!", cxt.Get("test2"))
 
 	// Test has
 	val, ok := cxt.Has("test1")
 	if !ok {
 		t.Error("! Failed to get 'test1'")
 	}
-	assert.Equal(t, 42, cxt.Get("test1"))
+	equal(t, 42, cxt.Get("test1"))
 
 	_, ok = cxt.Has("test999")
 	if ok {
@@ -59,7 +67,7 @@ func TestAddGet(t *testing.T) {
 	val, ok = cxt.Has("test3")
 	fn := val.(func() string)
 	if ok {
-		assert.Equal(t, "Hello", fn())
+		equal(t, "Hello", fn())
 	} else {
 		t.Error("! Expected a function.")
 	}
@@ -72,7 +80,7 @@ type LameStruct struct {
 
 func TestCopy(t *testing.T) {
 	lame := new(LameStruct)
-	lame.stuff = []string { "O", "Hai" }
+	lame.stuff = []string{"O", "Hai"}
 	c := NewContext()
 	c.Add("a", lame)
 	c.Add("b", "This is the song that never ends")
