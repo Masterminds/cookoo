@@ -43,7 +43,7 @@ func TestResolver (t *testing.T) {
 }
 
 func MockCommand(cxt Context, params *Params) interface{} {
-	println("Mock command")
+	//println("Mock command")
 	return true
 }
 
@@ -163,9 +163,10 @@ func TestFromValues(t *testing.T) {
 			Does(FetchParams, "first").
 				Using("test1").From("cxt:test1").
 				Using("test2").From("datasource:test2").
-				Using("test3").From("foo:test4").
+				Using("test3").From("foo:test3").
 				Using("test4").WithDefault("test4").From("NONE:none").
-				Using("test5").From("NONE:none foo:test4")
+				Using("test5").WithDefault("Z").From("NONE:none foo:test3 cxt:test1").
+				Using("test6").From("None:none")
 
 		e := router.HandleRequest("mock", cxt, true);
 		if e != nil {
@@ -182,10 +183,51 @@ func TestFromValues(t *testing.T) {
 			t.Error("! Expected a value in cxt:test1");
 		}
 		if test1.(int) != 1234 {
-			t.Error("! Expected test2 to return 1234. Got ", test1);
+			t.Error("! Expected test1 to return 1234. Got ", test1);
 		}
 
 
+		test2, ok := params.Has("test2");
+		if !ok {
+			t.Error("! Expected a value in cxt:test1");
+		}
+		if test2.(string) != "foo" {
+			t.Error("! Expected test2 to return 'foo'. Got ", test2);
+		}
+
+		test3, ok := params.Has("test3");
+		if !ok {
+			t.Error("! Expected default value");
+		}
+		if test3.(string) != "1234" {
+			t.Error("! Expected test4 to return '1234'. Got ", test3);
+		}
+
+		test4, ok := params.Has("test4");
+		if !ok {
+			t.Error("! Expected default value");
+		}
+		if test4.(string) != "test4" {
+			t.Error("! Expected test4 to return 'test4'. Got ", test4);
+		}
+
+		// We expect that in this case the first match in the From clause
+		// will be returned, which is the value of foo:test3.
+		test5, ok := params.Has("test3");
+		if !ok {
+			t.Error("! Expected default value");
+		}
+		if test5.(string) != "1234" {
+			t.Error("! Expected test5 to return '1234'. Got ", test5);
+		}
+
+		param, ok := params.Has("test6");
+		if !ok {
+			t.Error("! Expected a *Param with a nil value");
+		}
+		if param != nil {
+			t.Error("! Expected nil value");
+		}
 }
 
 func TestHandleRequest(t *testing.T) {
