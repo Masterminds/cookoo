@@ -20,7 +20,7 @@ func FakeCommand(cxt Context, params Params) interface{} {
 	return p
 }
 
-func AnotherCommand(cxt Context, params Params) interface{} {
+func AnotherCommand(cxt Context, params *Params) interface{} {
 	//ret := func() bool {return true;}
 	ret := new(FooType)
 	ret.test = 5
@@ -74,7 +74,7 @@ func TestBasicRoute (t *testing.T) {
 		t.Error("! Expected the value to be 'value'")
 	}
 	fakeCxt:= new(ExecutionContext)
-	fakeParams := Params{"foo": "bar", "baz": 2}
+	fakeParams := NewParamsWithValues(map[string]interface{} {"foo": "bar", "baz": 2})
 	var cRet *FooType = cmd.command(fakeCxt, fakeParams).(*FooType)
 
 	if cRet.test != 5 {

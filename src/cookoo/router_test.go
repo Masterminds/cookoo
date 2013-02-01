@@ -42,9 +42,21 @@ func TestResolver (t *testing.T) {
 	}
 }
 
-func MockCommand(cxt Context, params Params) interface{} {
+func MockCommand(cxt Context, params *Params) interface{} {
 	println("Mock command")
 	return true
+}
+
+func FetchParams(cxt Context, params *Params) interface{} {
+	return params;
+}
+
+type MockDatasource struct {
+	RetVal string;
+}
+
+func (ds *MockDatasource) Value(key string) interface{} {
+	return ds.RetVal;
 }
 
 func TestParseFromStatement(t *testing.T) {
@@ -134,6 +146,46 @@ func TestParseFromVal(t *testing.T) {
 	if val != "" {
 		t.Error("Expected an empty string string, got ", val)
 	}
+}
+
+func TestFromValues(t *testing.T) {
+	reg, router, cxt := Cookoo()
+
+	cxt.Add("test1", 1234)
+	cxt.AddDatasource("test2", "foo")
+
+	ds := new(MockDatasource);
+	ds.RetVal = "1234"
+	cxt.AddDatasource("foo", ds);
+
+	reg.
+		Route("mock", "Test from.").
+			Does(FetchParams, "first").
+				Using("test1").From("cxt:test1").
+				Using("test2").From("datasource:test2").
+				Using("test3").From("foo:test4").
+				Using("test4").WithDefault("test4").From("NONE:none").
+				Using("test5").From("NONE:none foo:test4")
+
+		e := router.HandleRequest("mock", cxt, true);
+		if e != nil {
+			t.Error("Unexpected: ", e.Error());
+		}
+
+		params, ok := cxt.Get("first").(*Params);
+		if !ok {
+			t.Error("! Expected a Params object.")
+		}
+
+		test1, ok := params.Has("test1");
+		if !ok {
+			t.Error("! Expected a value in cxt:test1");
+		}
+		if test1.(int) != 1234 {
+			t.Error("! Expected test2 to return 1234. Got ", test1);
+		}
+
+
 }
 
 func TestHandleRequest(t *testing.T) {

@@ -15,6 +15,8 @@ type Context interface {
 	Datasource(string) interface{}
 	// Get a map of all datasources.
 	Datasources() map[string]interface{}
+	// Check if a datasource exists, and return it if it does.
+	HasDatasource(string) (interface{}, bool)
 	// Add a datasource.
 	AddDatasource(string, interface{})
 	// Remove a datasource from the context.
@@ -35,6 +37,14 @@ type ExecutionContext struct {
 
 	// The Context values.
 	values map[string]ContextValue
+}
+
+// A datasource that can retrieve values by (string) keys.
+// Datsources can be just about anything. But a key/value datasource
+// can be used for a special purpose. They can be accessed in From()
+// clauses in a registry configuration.
+type KeyValueDatasource interface {
+	Value(key string) interface{}
 }
 
 func NewContext() Context {
@@ -82,6 +92,12 @@ func (cxt *ExecutionContext) Datasource(name string) interface{} {
 
 func (cxt *ExecutionContext) Datasources() map[string]interface{} {
 	return cxt.datasources
+}
+
+// Check whether the named datasource exists, and return it if it does.
+func (cxt *ExecutionContext) HasDatasource(name string) (interface{}, bool) {
+	value, found := cxt.datasources[name];
+	return value, found;
 }
 
 // Add a datasource to the map of datasources.

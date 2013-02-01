@@ -5,11 +5,11 @@ import (
 )
 
 func TestParams(t *testing.T) {
-	params := Params{
+	params := NewParamsWithValues(map[string]interface{}{
 		"Test": 123,
 		"Test2": "Hello",
 		"Test3": NewContext(),
-	}
+	})
 
 	if v, ok := params.Has("Test"); !ok {
 		t.Error("Expected to find 123, got NADA")

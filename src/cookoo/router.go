@@ -133,8 +133,53 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	return nil
 }
 
-func (r *Router) doCommand(cmd *commandSpec, cxt Context) bool {
-	return false
+func (r *Router) doCommand(cmd *commandSpec, cxt Context) interface{} {
+	params := r.resolveParams(cmd, cxt)
+
+	ret := cmd.command(cxt, params)
+
+	return ret;
+}
+
+func (r *Router) resolveParams(cmd *commandSpec, cxt Context) *Params {
+	parameters := NewParams(len(cmd.parameters));
+	for _, ps := range cmd.parameters {
+		sources := parseFromStatement(ps.from)
+		val := r.defaultFromSources(sources, cxt);
+		if val == nil {
+			parameters.set(ps.name, ps.defaultValue)
+			val = ps.defaultValue;
+		}
+		parameters.set(ps.name, val)
+	}
+	return parameters;
+}
+
+func (r *Router) defaultFromSources(sources []*fromVal, cxt Context) interface{} {
+	for _, src := range sources {
+		switch src.source {
+		case "c", "cxt", "context":
+			val, ok := cxt.Has(src.key)
+			if ok {
+				return val
+			}
+		case "datasource", "ds":
+			ds, ok := cxt.HasDatasource(src.key)
+			if ok {
+				return ds
+			}
+		default:
+			// If we have a datasource, and the datasource
+			// is a KeyValueDatasource, try to return the value.
+			if ds, ok := cxt.HasDatasource(src.source); ok {
+				store, ok := ds.(KeyValueDatasource);
+				if ok {
+					return store.Value(src.key);
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // Parse a 'from' statement.
