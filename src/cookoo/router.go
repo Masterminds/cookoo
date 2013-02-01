@@ -40,6 +40,8 @@ func NewRouter(reg *Registry) *Router {
 func (r *BasicRequestResolver) Init(registry *Registry) {
 	r.registry = registry
 }
+// Retirms the given path.
+// This is a non-transforming resolver.
 func (r *BasicRequestResolver) Resolve(path string, cxt Context) string {
 	return path
 }
@@ -91,7 +93,7 @@ func (r *Router) ResolveRequest(name string, cxt Context) string {
 // - look up the route
 // - execute each command on the route in order
 //
-// No data is returned from a route.
+// If an error occurred during processing, an error type is returned.
 func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 	baseCxt := cxt.Copy()
 	routeName := r.ResolveRequest(name, baseCxt)
@@ -113,6 +115,7 @@ func (r *Router) HasRoute(name string) bool {
 
 // PRIVATE ==========================================================
 
+// Given a router, context, and taint, run the route.
 func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	if len(route) == 0 {
 		return &RouteError{"Empty route name."}
@@ -133,6 +136,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	return nil
 }
 
+// Do an individual command.
 func (r *Router) doCommand(cmd *commandSpec, cxt Context) interface{} {
 	params := r.resolveParams(cmd, cxt)
 
@@ -141,6 +145,7 @@ func (r *Router) doCommand(cmd *commandSpec, cxt Context) interface{} {
 	return ret;
 }
 
+// Get the appropriate values for each param.
 func (r *Router) resolveParams(cmd *commandSpec, cxt Context) *Params {
 	parameters := NewParams(len(cmd.parameters));
 	for _, ps := range cmd.parameters {
@@ -155,6 +160,8 @@ func (r *Router) resolveParams(cmd *commandSpec, cxt Context) *Params {
 	return parameters;
 }
 
+// Get the values from a source.
+// Returns the value of the first source to return a non-nil value.
 func (r *Router) defaultFromSources(sources []*fromVal, cxt Context) interface{} {
 	for _, src := range sources {
 		switch src.source {
