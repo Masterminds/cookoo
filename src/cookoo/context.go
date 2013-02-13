@@ -12,13 +12,13 @@ type Context interface {
 	// Given a name, check if the key exists, and if it does return the value.
 	Has(string) (ContextValue, bool)
 	// Get a datasource by name.
-	Datasource(string) interface{}
+	Datasource(string) Datasource
 	// Get a map of all datasources.
-	Datasources() map[string]interface{}
+	Datasources() map[string]Datasource
 	// Check if a datasource exists, and return it if it does.
-	HasDatasource(string) (interface{}, bool)
+	HasDatasource(string) (Datasource, bool)
 	// Add a datasource.
-	AddDatasource(string, interface{})
+	AddDatasource(string, Datasource)
 	// Remove a datasource from the context.
 	RemoveDatasource(string)
 	// Get the length of the context. This is the number of context values.
@@ -32,8 +32,12 @@ type Context interface {
 // Semantically, this is the same as interface{}
 type ContextValue interface{}
 
+// An empty interface defining a Datasource.
+// Semantically, this is the same as interface{}
+type Datasource interface{}
+
 type ExecutionContext struct {
-	datasources map[string]interface{} // Datasources are things like MySQL connections.
+	datasources map[string]Datasource // Datasources are things like MySQL connections.
 
 	// The Context values.
 	values map[string]ContextValue
@@ -53,7 +57,7 @@ func NewContext() Context {
 }
 
 func (cxt *ExecutionContext) Init() *ExecutionContext {
-	cxt.datasources = make(map[string]interface{})
+	cxt.datasources = make(map[string]Datasource)
 	cxt.values = make(map[string]ContextValue)
 	return cxt
 }
@@ -86,16 +90,16 @@ func (cxt *ExecutionContext) Has(name string) (value ContextValue, found bool) {
 // so its type will need to be specified before it can be used. Take an example
 // of the variable foo that is a struct of type Foo.
 // foo = cxt.Datasource("foo").(*Foo)
-func (cxt *ExecutionContext) Datasource(name string) interface{} {
+func (cxt *ExecutionContext) Datasource(name string) Datasource {
 	return cxt.datasources[name]
 }
 
-func (cxt *ExecutionContext) Datasources() map[string]interface{} {
+func (cxt *ExecutionContext) Datasources() map[string]Datasource {
 	return cxt.datasources
 }
 
 // Check whether the named datasource exists, and return it if it does.
-func (cxt *ExecutionContext) HasDatasource(name string) (interface{}, bool) {
+func (cxt *ExecutionContext) HasDatasource(name string) (Datasource, bool) {
 	value, found := cxt.datasources[name];
 	return value, found;
 }
@@ -105,7 +109,7 @@ func (cxt *ExecutionContext) HasDatasource(name string) (interface{}, bool) {
 // want to keep open persistently and share between requests. To add a datasource
 // to the map just add it with a name. e.g. cxt.AddDatasource("mysql", foo) where
 // foo is the struct for the datasource.
-func (cxt *ExecutionContext) AddDatasource(name string, ds interface{}) {
+func (cxt *ExecutionContext) AddDatasource(name string, ds Datasource) {
 	cxt.datasources[name] = ds
 }
 
