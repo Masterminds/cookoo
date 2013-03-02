@@ -29,9 +29,9 @@ func main() {
 	router.HandleRequest("TEST", context, false)
 }
 
-func HelloWorld(cxt cookoo.Context, params cookoo.Params) {
+func HelloWorld(cxt cookoo.Context, params *cookoo.Params) interface{} {
 	fmt.Println("Hello World")
-	return
+	return true
 }
 
 ~~~
