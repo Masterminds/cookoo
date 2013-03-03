@@ -45,18 +45,18 @@ Here's what Skunk's registry looks like:
 
 ```go
 	registry.
-  Route("scaffold", "Scaffold a new app.").
+	Route("scaffold", "Scaffold a new app.").
 		Does(LoadSettings, "settings").
 			Using("file").WithDefault(homedir + "/settings.json").From("cxt:SettingsFile").
 		Does(MakeDirectories, "dirs").
-      Using("basedir").From("cxt:basedir").
+			Using("basedir").From("cxt:basedir").
 			Using("directories").From("cxt:directories").
-    Does(RenderTemplates, "template").
-      Using("tpldir").From("cxt:homedir").
-      Using("basedir").From("cxt:basedir").
-      Using("templates").From("cxt:templates").
-  Route("help", "Print help").
-    Does(Usage, "Testing").
+		Does(RenderTemplates, "template").
+			Using("tpldir").From("cxt:homedir").
+			Using("basedir").From("cxt:basedir").
+			Using("templates").From("cxt:templates").
+	Route("help", "Print help").
+		Does(Usage, "Testing").
 	Done()
 ```
 
@@ -103,30 +103,30 @@ With that in mind, let's look at the command:
 // interface{}
 func MakeDirectories(cxt cookoo.Context, params *cookoo.Params) interface{} {
 
-  // This is how we get something out of the Params object. This is the
-  // value that was passed in by `Using('basedir').From('cxt:basedir')
+	// This is how we get something out of the Params object. This is the
+	// value that was passed in by `Using('basedir').From('cxt:basedir')
 	basedir := params.Get("basedir", ".").(string)
 
-  // This is another way to get a parameter value. This form allows us
-  // to conveniently check that the parameter exists.
-  d, ok := params.Has("directories")
-  if !ok {
-    // Did nothing. But we don't want to raise an error.
-    return false
-  }
+	// This is another way to get a parameter value. This form allows us
+	// to conveniently check that the parameter exists.
+	d, ok := params.Has("directories")
+	if !ok {
+		// Did nothing. But we don't want to raise an error.
+		return false
+	}
 
-  // We do have to do an explicit type conversion.
+	// We do have to do an explicit type conversion.
 	directories := d.([]interface{})
 
-  // Here we do the work of creating directories.
-  for _, dir := range directories {
+	// Here we do the work of creating directories.
+	for _, dir := range directories {
 		dname := path.Join(basedir, dir.(string))
-    os.MkdirAll(dname, 0755)
-  }
+		os.MkdirAll(dname, 0755)
+	}
 
-  // We don't really have anything special to return, so we just
-  // indicate that the command was successful.
-  return true
+	// We don't really have anything special to return, so we just
+	// indicate that the command was successful.
+	return true
 }
 ```
 
