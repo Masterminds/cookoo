@@ -82,6 +82,10 @@ func (r *Registry) From(fromVal string) *Registry {
 	return r
 }
 
+func (r *Registry) Done() *Registry {
+	return r
+}
+
 // Get the last parameter for the last command added.
 func (r *Registry) lastParamAdded() *paramSpec {
 	cspec := r.lastCommandAdded()

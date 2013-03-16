@@ -26,6 +26,8 @@ type Context interface {
 	Len() int
 	// Make a shallow copy of the context.
 	Copy() Context
+	// Get the content (no datasources) as a map.
+	AsMap() map[string]ContextValue
 }
 
 // An empty interface defining a context value.
@@ -65,6 +67,10 @@ func (cxt *ExecutionContext) Init() *ExecutionContext {
 // Add a name/value pair to the context.
 func (cxt *ExecutionContext) Add(name string, value ContextValue) {
 	cxt.values[name] = value
+}
+
+func (cxt *ExecutionContext) AsMap() map[string]ContextValue {
+	return cxt.values
 }
 
 // Given a name, return the corresponding value from the context.
