@@ -79,20 +79,6 @@ func (l *LogManager) Log(category string, v ...interface{}) {
 	}
 }
 
-// Log a message.
-func (l *LogManager) Logf(category string, format string, v ...interface{}) {
-
-	entry := Entry{
-		Category: category,
-		Message:  fmt.Sprint(v...),
-		Created:  time.Now(),
-	}
-
-	for _, logger := range l.loggers {
-		logger.Send(entry)
-	}
-}
-
 func (l *LogManager) Logf(category string, format string, v ...interface{}) {
 	l.Log(category, fmt.Sprintf(format, v...))
 }
@@ -130,7 +116,7 @@ func (l *LogManager) Panicln(v ...interface{}) {
 }
 
 func (l *LogManager) Prefix() string {
-
+	return l.Category
 }
 
 func (l *LogManager) Print(v ...interface{}) {
@@ -138,11 +124,11 @@ func (l *LogManager) Print(v ...interface{}) {
 }
 
 func (l *LogManager) Printf(format string, v ...interface{}) {
-
+	l.Output(2, fmt.Srintf(format, v...))
 }
 
 func (l *LogManager) Println(v ...interface{}) {
-
+	l.Output(2, fmt.Sprintln(v...))
 }
 
 func (l *LogManager) SetFlags(flag int) {
@@ -150,5 +136,5 @@ func (l *LogManager) SetFlags(flag int) {
 }
 
 func (l *LogManager) SetPrefix(prefix string) {
-
+	l.Category = prefix
 }
