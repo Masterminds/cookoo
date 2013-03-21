@@ -48,7 +48,7 @@
 // Cookoo commands are just functions.
 //
 // To learn how to write Cookoo applications, you may wish to examine
-// the small Skunk application: https://gethub.com/technosophos/skunk.
+// the small Skunk application: https://github.com/technosophos/skunk.
 package cookoo
 
 const VERSION = "0.0.1"
