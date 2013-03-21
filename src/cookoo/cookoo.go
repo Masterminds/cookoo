@@ -1,3 +1,24 @@
+// Cookoo is a Chain-of-Command (CoCo) framework for writing
+// applications.
+//
+// A chain of command framework works as follows:
+// - A "route" is constructed as a chain of commands -- a series of
+//   single-purpose tasks that are run in sequence.
+// - An application is composed of one or more routes.
+// - Commands in a route communicate using a Context.
+// - An application Router is used to receive a route name and then
+//   execute the appropriate chain of commands.
+//
+// To create a new Cookoo application, use cookoo.Cookoo(). This will
+// configure and create a new registry, request router, and context.
+// From there, use the Registry to build chains of commands, and then
+// use the Router to execute chains of commands.
+//
+// Unlike other CoCo implementations (like Pronto.js or Fortissimo),
+// Cookoo commands are just functions.
+//
+// To learn how to write Cookoo applications, you may wish to examine
+// the small Skunk application: https://gethub.com/technosophos/skunk.
 package cookoo
 
 const VERSION = "0.0.1"
