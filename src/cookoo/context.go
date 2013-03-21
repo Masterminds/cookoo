@@ -1,6 +1,5 @@
 // Copyright 2013 Masterminds
 
-// This package provides the execution context for a Cookoo request.
 package cookoo
 
 // Describes a context.
