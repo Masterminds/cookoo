@@ -13,7 +13,8 @@ Use it as follows:
 package main
 
 import (
-	"github.com/masterminds/cookoo"
+	// This is the path to Cookoo
+	"github.com/masterminds/cookoo/src/cookoo"
 	"fmt"
 )
 
