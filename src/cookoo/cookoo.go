@@ -2,10 +2,14 @@
 // applications.
 //
 // A chain of command framework works as follows:
+//
 // * A "route" is constructed as a chain of commands -- a series of
 // single-purpose tasks that are run in sequence.
+//
 // * An application is composed of one or more routes.
+//
 // * Commands in a route communicate using a Context.
+//
 // * An application Router is used to receive a route name and then
 // execute the appropriate chain of commands.
 //
