@@ -5,7 +5,10 @@ A chain-of-command framework written in Go
 
 ## Usage
 
-- Go get Cookoo.
+```
+$ cd $GOPATH
+$ go get github.com/Masterminds/Cookoo
+```
 
 Use it as follows:
 
