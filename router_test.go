@@ -60,6 +60,10 @@ func RecoverableErrorCommand(cxt Context, params *Params) (interface{}, Interrup
 	return nil, &RecoverableError{"Blarg"}
 }
 
+func FatalErrorCommand(cxt Context, params *Params) (interface{}, Interrupt) {
+	return nil, &FatalError{"Blarg"}
+}
+
 type MockDatasource struct {
 	RetVal string;
 }
@@ -305,5 +309,23 @@ func TestRecoverableError(t *testing.T) {
 	p := context.Get("fake2")
 	if p == nil {
 		t.Error("! Expected data in fake2.")
+	}
+}
+
+func TestFatalError(t *testing.T) {
+	reg, router, context := Cookoo()
+	reg.
+	  Route("TEST", "A test route").
+	  Does(FatalErrorCommand, "fake").
+	  Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+	
+	e := router.HandleRequest("TEST", context, false)
+	if e == nil {
+		t.Error("! Expected error executing TEST")
+	}
+
+	p := context.Get("fake2")
+	if p != nil {
+		t.Error("! Expected fake2 to not get executed.")
 	}
 }
