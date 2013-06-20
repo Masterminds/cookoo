@@ -64,6 +64,10 @@ func FatalErrorCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 	return nil, &FatalError{"Blarg"}
 }
 
+func StopCommand(cxt Context, params *Params) (interface{}, Interrupt) {
+	return nil, &Stop{}
+}
+
 type MockDatasource struct {
 	RetVal string;
 }
@@ -322,6 +326,24 @@ func TestFatalError(t *testing.T) {
 	e := router.HandleRequest("TEST", context, false)
 	if e == nil {
 		t.Error("! Expected error executing TEST")
+	}
+
+	p := context.Get("fake2")
+	if p != nil {
+		t.Error("! Expected fake2 to not get executed.")
+	}
+}
+
+func TestStop(t *testing.T) {
+	reg, router, context := Cookoo()
+	reg.
+	  Route("TEST", "A test route").
+	  Does(StopCommand, "fake").
+	  Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+	
+	e := router.HandleRequest("TEST", context, false)
+	if e != nil {
+		t.Error("! Unexpected error executing TEST")
 	}
 
 	p := context.Get("fake2")

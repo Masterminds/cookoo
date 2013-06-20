@@ -132,6 +132,9 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 		// fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
 		res, irq := r.doCommand(cmd, cxt)
 
+		// This may store a nil.
+		cxt.Add(cmd.name, res)
+
 		// Handle interrupts.
 		if irq != nil {
 			// If this is a reroute, call runRoute() again.
@@ -141,6 +144,12 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 				//fmt.Printf("Routing to %s\n", routeName)
 				return r.runRoute(routeName, cxt, taint)
 			}
+
+			_, isType = irq.(*Stop)
+			if isType {
+				return nil
+			}
+
 			// If this is a recoverable error, recover and go on.
 			err, isType := irq.(*RecoverableError)
 			// Otherwise, terminate the route.
@@ -151,7 +160,6 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 				return err
 			}
 		}
-		cxt.Add(cmd.name, res)
 	}
 	return nil
 }

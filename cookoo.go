@@ -39,13 +39,21 @@
 //      router.HandleRequest("TEST", context, false)
 //    }
 //
-//    func HelloWorld(cxt cookoo.Context, params *cookoo.Params) interface{} {
+//    func HelloWorld(cxt cookoo.Context, params *cookoo.Params) (interface{}, Interrupt) {
 //      fmt.Println("Hello World")
-//      return true
+//      return true, nil
 //    }
 //
 // Unlike other CoCo implementations (like Pronto.js or Fortissimo),
 // Cookoo commands are just functions.
+//
+// Interrupts:
+//
+// There are four types of interrupts that you may wish to return:
+// - FatalError: This will stop the route immediately.
+// - RecoverableError: This will allow the route to continue moving.
+// - Stop: This will stop the current request, but not as an error.
+// - Reroute: This will stop executing the current route, and switch to executing another route.
 //
 // To learn how to write Cookoo applications, you may wish to examine
 // the small Skunk application: https://github.com/technosophos/skunk.
@@ -80,6 +88,9 @@ type Reroute struct {
 func (rr *Reroute) RouteTo() string {
 	return rr.route
 }
+
+// Stop a route, but not as an error condition.
+type Stop struct {}
 
 // An error that should not cause the router to stop processing.
 type RecoverableError struct {
