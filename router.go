@@ -130,12 +130,26 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
 	for _, cmd := range spec.commands {
 		// fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
-		res, err := r.doCommand(cmd, cxt)
-		if err != nil {
-			// FIXME: Need to handle different sorts of error here.
+		res, irq := r.doCommand(cmd, cxt)
+
+		// Handle interrupts.
+		if irq != nil {
 			// If this is a reroute, call runRoute() again.
+			reroute, isType := irq.(*Reroute)
+			if isType {
+				routeName := r.ResolveRequest(reroute.RouteTo(), cxt)
+				//fmt.Printf("Routing to %s\n", routeName)
+				return r.runRoute(routeName, cxt, taint)
+			}
 			// If this is a recoverable error, recover and go on.
+			err, isType := irq.(*RecoverableError)
 			// Otherwise, terminate the route.
+			if isType {
+				// Swallow the error.
+				// XXX: Should this be logged?
+			} else {
+				return err
+			}
 		}
 		cxt.Add(cmd.name, res)
 	}

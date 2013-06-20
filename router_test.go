@@ -47,6 +47,11 @@ func MockCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 	return true, nil
 }
 
+func RerouteCommand(cxt Context, params *Params) (interface{}, Interrupt) {
+	route := params.Get("route", "default").(string)
+	return nil, &Reroute{route}
+}
+
 func FetchParams(cxt Context, params *Params) (interface{}, Interrupt) {
 	return params, nil;
 }
@@ -262,4 +267,23 @@ func TestHandleRequest(t *testing.T) {
 	if context.Len() != 3 {
 		t.Error("! Expected three items in the context, got ", context.Len())
 	}
+}
+
+func TestReroute(t *testing.T) {
+	reg, router, context := Cookoo()
+	reg.
+	  Route("TEST", "A test route").Does(RerouteCommand, "fake").
+	  Using("route").WithDefault("TEST2").
+	  Route("TEST2", "Tainted route").Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+	e := router.HandleRequest("TEST", context, false)
+	if e != nil {
+		t.Error("! Unexpected error executing TEST")
+	}
+
+	p := context.Get("fake2")
+	if p == nil {
+		t.Error("! Expected data in TEST2.")
+	}
+
+
 }
