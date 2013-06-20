@@ -133,6 +133,9 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 		res, err := r.doCommand(cmd, cxt)
 		if err != nil {
 			// FIXME: Need to handle different sorts of error here.
+			// If this is a reroute, call runRoute() again.
+			// If this is a recoverable error, recover and go on.
+			// Otherwise, terminate the route.
 		}
 		cxt.Add(cmd.name, res)
 	}
@@ -140,11 +143,11 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 }
 
 // Do an individual command.
-func (r *Router) doCommand(cmd *commandSpec, cxt Context) (interface{}, error) {
+func (r *Router) doCommand(cmd *commandSpec, cxt Context) (interface{}, Interrupt) {
 	params := r.resolveParams(cmd, cxt)
 
-	ret, err := cmd.command(cxt, params)
-	return ret, err
+	ret, irq := cmd.command(cxt, params)
+	return ret, irq
 }
 
 // Get the appropriate values for each param.

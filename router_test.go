@@ -42,12 +42,12 @@ func TestResolver (t *testing.T) {
 	}
 }
 
-func MockCommand(cxt Context, params *Params) (interface{}, error) {
+func MockCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 	//println("Mock command")
 	return true, nil
 }
 
-func FetchParams(cxt Context, params *Params) (interface{}, error) {
+func FetchParams(cxt Context, params *Params) (interface{}, Interrupt) {
 	return params, nil;
 }
 

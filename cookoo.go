@@ -64,5 +64,35 @@ func Cookoo() (reg *Registry, router *Router, cxt Context) {
 // Execute a command and return a result.
 // A Cookoo app has a registry, which has zero or more routes. Each route
 // executes a sequence of zero or more commands. A command is of this type.
-type Command func(cxt Context, params *Params) (interface{}, error)
+type Command func(cxt Context, params *Params) (interface{}, Interrupt)
 
+// Generic return for a command.
+// Generally, a command should return one of the following in the interrupt slot:
+// - A FatalError, which will stop processing.
+// - A RecoverableError, which will continue the chain.
+// - A Reroute, which will cause a different route to be run.
+type Interrupt interface {}
+
+// A command can return a Reroute to tell the router to execute a different route.
+type Reroute struct {
+	route string
+}
+func (rr *Reroute) RouteTo() string {
+	return rr.route
+}
+
+// An error that should not cause the router to stop processing.
+type RecoverableError struct {
+	Message string
+}
+func (err *RecoverableError) Error() string {
+	return err.Message
+}
+
+// A fatal error, which will stop the router from continuing a route.
+type FatalError struct {
+	Message string
+}
+func (err *FatalError) Error() string {
+	return err.Message
+}

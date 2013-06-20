@@ -10,7 +10,7 @@ type FooType struct {
 	test int
 }
 
-func FakeCommand(cxt Context, params Params) (interface{}, error) {
+func FakeCommand(cxt Context, params Params) (interface{}, Interrupt) {
 	fmt.Println("Got here")
 
 	var ret bool = true
@@ -20,7 +20,7 @@ func FakeCommand(cxt Context, params Params) (interface{}, error) {
 	return p, nil
 }
 
-func AnotherCommand(cxt Context, params *Params) (interface{}, error) {
+func AnotherCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 	//ret := func() bool {return true;}
 	ret := new(FooType)
 	ret.test = 5
