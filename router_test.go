@@ -42,13 +42,13 @@ func TestResolver (t *testing.T) {
 	}
 }
 
-func MockCommand(cxt Context, params *Params) interface{} {
+func MockCommand(cxt Context, params *Params) (interface{}, error) {
 	//println("Mock command")
-	return true
+	return true, nil
 }
 
-func FetchParams(cxt Context, params *Params) interface{} {
-	return params;
+func FetchParams(cxt Context, params *Params) (interface{}, error) {
+	return params, nil;
 }
 
 type MockDatasource struct {

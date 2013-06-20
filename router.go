@@ -130,19 +130,21 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
 	for _, cmd := range spec.commands {
 		// fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
-		res := r.doCommand(cmd, cxt)
+		res, err := r.doCommand(cmd, cxt)
+		if err != nil {
+			// FIXME: Need to handle different sorts of error here.
+		}
 		cxt.Add(cmd.name, res)
 	}
 	return nil
 }
 
 // Do an individual command.
-func (r *Router) doCommand(cmd *commandSpec, cxt Context) interface{} {
+func (r *Router) doCommand(cmd *commandSpec, cxt Context) (interface{}, error) {
 	params := r.resolveParams(cmd, cxt)
 
-	ret := cmd.command(cxt, params)
-
-	return ret;
+	ret, err := cmd.command(cxt, params)
+	return ret, err
 }
 
 // Get the appropriate values for each param.
