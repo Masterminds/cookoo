@@ -56,6 +56,10 @@ func FetchParams(cxt Context, params *Params) (interface{}, Interrupt) {
 	return params, nil;
 }
 
+func RecoverableErrorCommand(cxt Context, params *Params) (interface{}, Interrupt) {
+	return nil, &RecoverableError{"Blarg"}
+}
+
 type MockDatasource struct {
 	RetVal string;
 }
@@ -282,8 +286,24 @@ func TestReroute(t *testing.T) {
 
 	p := context.Get("fake2")
 	if p == nil {
-		t.Error("! Expected data in TEST2.")
+		t.Error("! Expected data in fake2.")
+	}
+}
+
+func TestRecoverableError(t *testing.T) {
+	reg, router, context := Cookoo()
+	reg.
+	  Route("TEST", "A test route").
+	  Does(RecoverableErrorCommand, "fake").
+	  Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+	
+	e := router.HandleRequest("TEST", context, false)
+	if e != nil {
+		t.Error("! Unexpected error executing TEST")
 	}
 
-
+	p := context.Get("fake2")
+	if p == nil {
+		t.Error("! Expected data in fake2.")
+	}
 }
