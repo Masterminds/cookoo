@@ -35,6 +35,16 @@ func NewCookooHandler(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Co
 	return handler
 }
 
+func (h *CookooHandler) addDatasources(cxt cookoo.Context, req *http.Request) {
+	parsedURL := req.URL
+	urlDS := new(URLDatasource).Init(parsedURL)
+	queryDS := new(QueryParameterDatasource).Init(parsedURL.Query())
+
+	cxt.AddDatasource("url", urlDS)
+	cxt.AddDatasource("query", queryDS)
+	cxt.AddDatasource("q", queryDS)
+}
+
 func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Trap panics and make them 500 errors:
 	defer func() {
@@ -49,6 +59,9 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	cxt.Add("http.Request", req)
 	cxt.Add("http.ResponseWriter", res)
+
+	// Next, we add the datasources for URL and Query params.
+	h.addDatasources(cxt, req)
 
 	// Find the route
 	path := req.URL.Path;
