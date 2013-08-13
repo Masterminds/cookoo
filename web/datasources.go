@@ -3,21 +3,13 @@ package web
 
 import (
 	"net/url"
+	"net/http"
 )
 
 // Get the query parameters by name.
 type QueryParameterDatasource struct {
 	Parameters url.Values
 }
-func (d *QueryParameterDatasource) Init(vals url.Values) *QueryParameterDatasource {
-	d.Parameters = vals
-	return d
-}
-
-func (d *QueryParameterDatasource) Value(name string) interface{} {
-	return d.Parameters.Get(name)
-}
-
 // The datasource for URLs.
 // This datasource knows the following items:
 // - url: the URL struct
@@ -33,6 +25,37 @@ func (d *QueryParameterDatasource) Value(name string) interface{} {
 type URLDatasource struct {
 	URL *url.URL
 }
+
+// Access to name/value pairs in POST/PUT form data from the body.
+// This will attempt to access form data supplied in the HTTP request's body.
+// If the MIME type is not correct or if there is no POST data, no data will
+// be made available.
+//
+// Parsing is lazy: No form data is parsed until it is requested.
+type FormValuesDatasource struct {
+	req *http.Request
+}
+
+func (f *FormValuesDatasource) Init(req *http.Request) *FormValuesDatasource {
+	f.req = req
+	return f
+}
+
+// The return value will always be a string or nil.
+// To match the interface, we use interface{}.
+func (f *FormValuesDatasource) Value(name string) interface{} {
+	return f.req.PostFormValue(name)
+}
+
+func (d *QueryParameterDatasource) Init(vals url.Values) *QueryParameterDatasource {
+	d.Parameters = vals
+	return d
+}
+
+func (d *QueryParameterDatasource) Value(name string) interface{} {
+	return d.Parameters.Get(name)
+}
+
 
 func (d *URLDatasource) Init(parsedUrl *url.URL) *URLDatasource {
 	d.URL = parsedUrl

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"net/url"
 	"fmt"
+	"net/http"
+	"strings"
 )
 
 func TestURLDatasource(t *testing.T) {
@@ -65,4 +67,27 @@ func TestQueryParameterDatasource (t *testing.T) {
 		}
 	}
 
+}
+
+func TestFormValuesDatasource(t *testing.T) {
+	method := "POST"
+	urlString := "http://example.com/form/test"
+	body := strings.NewReader("name=Inigo+Montoya&fingers=6")
+
+	request, err := http.NewRequest(method, urlString, body)
+
+	// Canary
+	if err != nil {
+		t.Error("! Error constructing a request.", err)
+	}
+
+	ds := new(FormValuesDatasource).Init(request)
+
+	if ds.Value("name").(string) != "Inigo Montoya" {
+		t.Error("! Prepare to die.")
+	}
+
+	if ds.Value("fingers") != 6 {
+		t.Error("! Expected six fingers, but got less.")
+	}
 }
