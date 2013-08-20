@@ -39,10 +39,12 @@ func (h *CookooHandler) addDatasources(cxt cookoo.Context, req *http.Request) {
 	parsedURL := req.URL
 	urlDS := new(URLDatasource).Init(parsedURL)
 	queryDS := new(QueryParameterDatasource).Init(parsedURL.Query())
+	formDS := new(FormValuesDatasource).Init(req)
 
 	cxt.AddDatasource("url", urlDS)
 	cxt.AddDatasource("query", queryDS)
 	cxt.AddDatasource("q", queryDS)
+	cxt.AddDatasource("post", formDS)
 }
 
 func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
