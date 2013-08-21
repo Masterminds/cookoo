@@ -23,23 +23,23 @@ func TestShowHelp(t *testing.T) {
 		Does(Barf, "Fail if help doesn't stop.")
 
 
-		e := router.HandleRequest("test", context, false)
+	e := router.HandleRequest("test", context, false)
 
-		if e != nil {
-			t.Error("! Unexpected error.")
-		}
+	if e != nil {
+		t.Error("! Unexpected error.")
+	}
 
-		res := context.Get("didShowHelp").(bool)
+	res := context.Get("didShowHelp").(bool)
 
-		if !res {
-			t.Error("! Expected help to be shown.")
-		}
+	if !res {
+		t.Error("! Expected help to be shown.")
+	}
 
-		msg := out.String()
-		if !strings.Contains(msg, "SUMMARY\n") {
-			t.Error("! Expected 'summary' as a header.")
-		}
-		if !strings.Contains(msg, "This is a summary.") {
-			t.Error("! Expected 'This is a summary' to be in the output. Got ", msg)
-		}
+	msg := out.String()
+	if !strings.Contains(msg, "SUMMARY\n") {
+		t.Error("! Expected 'summary' as a header.")
+	}
+	if !strings.Contains(msg, "This is a summary.") {
+		t.Error("! Expected 'This is a summary' to be in the output. Got ", msg)
+	}
 }
