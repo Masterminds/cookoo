@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+func Barf(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	return nil, cookoo.FatalError{"Intentional fail!"}
+}
+
 func TestShowHelp(t *testing.T) {
 	registry, router, context := cookoo.Cookoo();
 
@@ -15,7 +19,8 @@ func TestShowHelp(t *testing.T) {
 	registry.Route("test", "Testing help.").Does(ShowHelp, "didShowHelp").
 		Using("show").WithDefault(true).
 		Using("writer").WithDefault(&out).
-		Using("summary").WithDefault("This is a summary.")
+		Using("summary").WithDefault("This is a summary.").
+		Does(Barf, "Fail if help doesn't stop.")
 
 
 		e := router.HandleRequest("test", context, false)
@@ -31,7 +36,6 @@ func TestShowHelp(t *testing.T) {
 		}
 
 		msg := out.String()
-		// fmt.Printf(msg)
 		if !strings.Contains(msg, "SUMMARY\n") {
 			t.Error("! Expected 'summary' as a header.")
 		}
