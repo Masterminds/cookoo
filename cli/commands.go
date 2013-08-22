@@ -9,6 +9,34 @@ import (
 	"flag"
 )
 
+// Parse arguments for a "subcommand"
+// 
+// The cookoo.cli.RequestResolver allows you to specify global level flags. This command
+// allows you to augment those with subcommand flags. Example:
+//
+// 		$ myprog -foo=yes subcommand -bar=no
+//
+// In the above example, `-foo` is a global flag (set before the subcommand), while
+// `-bar` is a local flag. It is specific to `subcommand`. This command lets you parse
+// an arguments list given a pointer to a `flag.FlagSet`.
+//
+// Like the cookoo.cli.RequestResolver, this will place the parsed params directly into the
+// context. For this reason, you ought not use the same flag names at both global and local
+// flag levels. (The local will overwrite the global.)
+//
+// Params:
+// - args: (required) A slice of arguments. Typically, this is `cxt:args` as set by
+// 		cookoo.cli.RequestResolver.
+// - flagset: (required) A set if flags (see flag.FlagSet) to parse.
+//
+// A slice of all non-flag arguments remaining after the parse are returned into the context.
+//
+// For example, if ['-foo', 'bar', 'some', 'other', 'data'] is passed in, '-foo' and 'bar' will
+// be parsed out, while ['some', 'other', 'data'] will be returned into the context. (Assuming, of
+// course, that the flag definition for -foo exists, and is a type that accepts a value).
+//
+// Thus, you will have `cxt:foo` available (with value `bar`) and everything else will be available
+// in the slice under this command's context entry.
 func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	params.Requires("args", "flagset")
 	flagset := params.Get("flagset", nil).(*flag.FlagSet)

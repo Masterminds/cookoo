@@ -64,9 +64,9 @@ func TestResolvingWithFlags(t *testing.T) {
 		t.Error("! Expected to find 'foo' in context, but it's not there.", ok)
 		return
 	}
-	fooArg := fooArgO.(*flag.Flag)
-	if fooArg.Value.String() != "arg1" {
-		t.Error("! Expected 'arg1' in context 'foo'; got ", fooArg.Value)
+	fooArg := fooArgO.(string)
+	if fooArg != "arg1" {
+		t.Error("! Expected 'arg1' in context 'foo'; got ", fooArg)
 		return
 	}
 

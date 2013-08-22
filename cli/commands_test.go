@@ -64,7 +64,7 @@ func TestParseArgs(t *testing.T) {
 		return
 	}
 
-	foo := cxt.Get("foo").(*flag.Flag).Value.String()
+	foo := cxt.Get("foo").(string)
 	if foo != "bar" {
 		t.Error("Expected 'bar'; got ", foo)
 		return
@@ -75,15 +75,15 @@ func TestParseArgs(t *testing.T) {
 		t.Error("Expected to find 'baz' in context.")
 		return
 	}
-	baz := bazO.(*flag.Flag).Value
+	baz := bazO.(string)
 	// fmt.Printf("baz is %v", baz)
-	if baz.String() != "true" {
+	if baz != "true" {
 		t.Error("Expected 'baz' to be true. Got false.")
 		return
 	}
 
-	unused := cxt.Get("unused").(*flag.Flag).Value
-	if unused.String() != "123" {
+	unused := cxt.Get("unused").(string)
+	if unused != "123" {
 		t.Error("Expected 'unused' to be int 123. Got ", unused)
 		return
 	}
