@@ -3,6 +3,9 @@ package cli
 import (
 	"flag"
 	"github.com/masterminds/cookoo"
+	//"os"
+	"strings"
+	//"fmt"
 )
 
 type RequestResolver struct {
@@ -13,23 +16,34 @@ func (r *RequestResolver) Init(registry *cookoo.Registry) {
 	r.registry = registry
 }
 
-func (r *RequestResolver) Resolve(path string, cxt cookoo.Context) string {
+func (r *RequestResolver) Resolve(path string, cxt cookoo.Context) (string, error) {
 	// Parse out any flags. Maybe flag specs are in context?
 
-	flagset, ok := cxt.Has("globalFlags")
-	if ok {
-		r.addFlagsToContext(flagset.(*flag.FlagSet), cxt)
+	flagsetO, ok := cxt.Has("globalFlags")
+	if !ok {
+		// No args to parse. Just return path.
+		return path, nil
+	}
+	flagset := flagsetO.(*flag.FlagSet)
+	flagset.Parse(strings.Split(path, " "));
+	r.addFlagsToContext(flagset, cxt)
+	args := flagset.Args()
+
+	// This is a failure condition... Need to fix Cookoo to support error return.
+	if len(args) == 0 {
+		return path, &cookoo.RouteError{"Could not resolve route " + path}
 	}
 
-	// Parse argv[0] as subcommand
-	// Adjust the rest of argv to pass into the coco?
+	// Add the rest of the args to the context.
+	cxt.Add("args", args[1:])
 
-	// If all else fails, just return the unlatered path.
-	return path
+	// Parse argv[0] as subcommand
+	return args[0], nil
 }
 
 func (r *RequestResolver) addFlagsToContext(flagset *flag.FlagSet, cxt cookoo.Context) {
 	store := func(f *flag.Flag) {
+		// fmt.Printf("Storing %s in context with value %s.\n", f.Name, f.Value.String())
 		cxt.Add(f.Name, f)
 	}
 
