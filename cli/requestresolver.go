@@ -26,7 +26,7 @@ func (r *RequestResolver) Resolve(path string, cxt cookoo.Context) (string, erro
 	}
 	flagset := flagsetO.(*flag.FlagSet)
 	flagset.Parse(strings.Split(path, " "));
-	r.addFlagsToContext(flagset, cxt)
+	addFlagsToContext(flagset, cxt)
 	args := flagset.Args()
 
 	// This is a failure condition... Need to fix Cookoo to support error return.
@@ -41,7 +41,7 @@ func (r *RequestResolver) Resolve(path string, cxt cookoo.Context) (string, erro
 	return args[0], nil
 }
 
-func (r *RequestResolver) addFlagsToContext(flagset *flag.FlagSet, cxt cookoo.Context) {
+func addFlagsToContext(flagset *flag.FlagSet, cxt cookoo.Context) {
 	store := func(f *flag.Flag) {
 		// fmt.Printf("Storing %s in context with value %s.\n", f.Name, f.Value.String())
 		cxt.Add(f.Name, f)
