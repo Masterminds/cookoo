@@ -12,7 +12,7 @@ import (
 // route name.
 type RequestResolver interface {
 	Init(registry *Registry)
-	Resolve(path string, cxt Context) string
+	Resolve(path string, cxt Context) (string, error)
 }
 
 // The Cookoo router.
@@ -42,8 +42,8 @@ func (r *BasicRequestResolver) Init(registry *Registry) {
 }
 // Retirms the given path.
 // This is a non-transforming resolver.
-func (r *BasicRequestResolver) Resolve(path string, cxt Context) string {
-	return path
+func (r *BasicRequestResolver) Resolve(path string, cxt Context) (string, error) {
+	return path, nil
 }
 
 func (r *Router) Init(registry *Registry) *Router {
@@ -73,10 +73,14 @@ func (r *Router) RequestResolver() RequestResolver {
 }
 
 // Resolve a given string into a route name.
-func (r *Router) ResolveRequest(name string, cxt Context) string {
-	routeName := r.resolver.Resolve(name, cxt)
+func (r *Router) ResolveRequest(name string, cxt Context) (string, error) {
+	routeName, e := r.resolver.Resolve(name, cxt)
 
-	return routeName
+	if e != nil {
+		return routeName, e
+	}
+
+	return routeName, nil
 }
 
 // Do a request.
@@ -95,12 +99,16 @@ func (r *Router) ResolveRequest(name string, cxt Context) string {
 //
 // If an error occurred during processing, an error type is returned.
 func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
-	baseCxt := cxt.Copy()
-	routeName := r.ResolveRequest(name, baseCxt)
+	//baseCxt := cxt.Copy()
+	routeName, e := r.ResolveRequest(name, cxt)
+	
+	if e != nil {
+		return e
+	}
 
 	// Let an outer routine call go HandleRequest()
 	//go r.runRoute(routeName, cxt, taint)
-	e := r.runRoute(routeName, cxt, taint)
+	e = r.runRoute(routeName, cxt, taint)
 
 	return e
 }
@@ -140,7 +148,10 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 			// If this is a reroute, call runRoute() again.
 			reroute, isType := irq.(*Reroute)
 			if isType {
-				routeName := r.ResolveRequest(reroute.RouteTo(), cxt)
+				routeName, e := r.ResolveRequest(reroute.RouteTo(), cxt)
+				if e != nil {
+					return e
+				}
 				//fmt.Printf("Routing to %s\n", routeName)
 				return r.runRoute(routeName, cxt, taint)
 			}
