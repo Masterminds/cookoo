@@ -9,8 +9,8 @@ type FakeRequestResolver struct {
 	BasicRequestResolver
 }
 // Always returns FOO.
-func (self *FakeRequestResolver) Resolve(name string, cxt Context) string {
-	return "FOO"
+func (self *FakeRequestResolver) Resolve(name string, cxt Context) (string, error) {
+	return "FOO", nil
 }
 
 // Test the resolver.
@@ -21,7 +21,7 @@ func TestResolver (t *testing.T) {
 	r.Init(registry)
 
 	// Canary: Check that resolver is working.
-	if a := r.ResolveRequest("test", fakeCxt); a != "test" {
+	if a, _ := r.ResolveRequest("test", fakeCxt); a != "test" {
 		t.Error("Expected path to be 'test'")
 	}
 
@@ -35,7 +35,7 @@ func TestResolver (t *testing.T) {
 	}
 
 	// Make sure the new resolver works.
-	path := r.ResolveRequest("test", fakeCxt)
+	path, _ := r.ResolveRequest("test", fakeCxt)
 
 	if path != "FOO" {
 		t.Error("Expected path to be 'test'")

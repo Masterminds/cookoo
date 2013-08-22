@@ -99,7 +99,10 @@ func (r *Router) ResolveRequest(name string, cxt Context) (string, error) {
 //
 // If an error occurred during processing, an error type is returned.
 func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
-	//baseCxt := cxt.Copy()
+
+	// Not sure why we were passing a copy of the context?
+	// baseCxt := cxt.Copy()
+	// routeName, e := r.ResolveRequest(name, baseCxt)
 	routeName, e := r.ResolveRequest(name, cxt)
 	
 	if e != nil {
