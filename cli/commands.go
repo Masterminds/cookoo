@@ -6,7 +6,19 @@ import (
 	"os"
 	"io"
 	"strings"
+	"flag"
 )
+
+func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	params.Requires("args", "flagset")
+	flagset := params.Get("flagset", nil).(*flag.FlagSet)
+	args := params.Get("args", nil).([]string)
+
+	flagset.Parse(args)
+	addFlagsToContext(flagset, cxt)
+	return flagset.Args(), nil
+
+}
 
 // Show help.
 // This command is useful for placing at the front of a CLI "subcommand" to have it output
