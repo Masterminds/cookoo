@@ -91,3 +91,11 @@ func TestFormValuesDatasource(t *testing.T) {
 		t.Error("! Expected six fingers, but got less.")
 	}
 }
+
+func TestPathDatasource(t *testing.T) {
+	ds := new(PathDatasource).Init("/foo/bar")
+	if ds.Value("1") != "foo" {
+		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
+	}
+
+}

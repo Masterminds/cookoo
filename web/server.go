@@ -47,6 +47,7 @@ func (h *CookooHandler) addDatasources(cxt cookoo.Context, req *http.Request) {
 	cxt.AddDatasource("post", formDS)
 }
 
+// The Cookoo request handling function.
 func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Trap panics and make them 500 errors:
 	defer func() {
@@ -66,7 +67,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	h.addDatasources(cxt, req)
 
 	// Find the route
-	path := req.URL.Path;
+	path := req.Method + " " + req.URL.Path;
 
 	fmt.Printf("Handling request for %s\n", path)
 

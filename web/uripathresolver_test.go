@@ -8,9 +8,8 @@ import (
 
 func TestUriPathResolver (t *testing.T) {
 	reg, router, cxt := cookoo.Cookoo()
-	resolver := new(URIPathResolver)
-	resolver.Init(reg)
 
+	resolver := NewURIPathResolver(reg)
 	router.SetRequestResolver(resolver)
 
 	// ORDER IS IMPORTANT!

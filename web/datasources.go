@@ -4,6 +4,8 @@ package web
 import (
 	"net/url"
 	"net/http"
+	"strings"
+	"strconv"
 )
 
 // Get the query parameters by name.
@@ -86,3 +88,19 @@ func (d *URLDatasource) Value(name string) interface{} {
 	return nil
 }
 
+type PathDatasource struct {
+	PathParts []string
+}
+
+func (d *PathDatasource) Init(path string) *PathDatasource {
+	d.PathParts = strings.Split("/", path)[1:]
+	return d
+}
+
+func (d *PathDatasource) Value(name string) interface{} {
+	index, err := strconv.Atoi(name)
+	if err != nil || len(d.PathParts) >= index {
+		return nil
+	}
+	return d.PathParts[index]
+}

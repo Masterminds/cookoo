@@ -29,13 +29,13 @@ func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inte
 }
 
 func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	req := cxt.Get("http.Request").(http.Request)
+	req := cxt.Get("http.Request").(*http.Request)
 	out := cxt.Get("http.ResponseWriter").(http.ResponseWriter)
 
 	out.Header().Add("X-Foo", "Bar")
-	out.Header().Add("Content-type", "text/markdown; charset=utf-8")
+	out.Header().Add("Content-type", "text/plain; charset=utf-8")
 
-	fmt.Fprintf(out, "Request: %+v\n", req)
-	fmt.Fprintf(out, "\n\n\nResponse: %+v\n", out)
+	fmt.Fprintf(out, "Request:\n %+v\n", req)
+	fmt.Fprintf(out, "\n\n\nResponse:\n%+v\n", out)
 	return true, nil
 }

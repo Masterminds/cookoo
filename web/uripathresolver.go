@@ -29,6 +29,12 @@ type URIPathResolver struct {
 	registry *cookoo.Registry
 }
 
+func NewURIPathResolver(reg *cookoo.Registry) *URIPathResolver {
+	res := new(URIPathResolver)
+	res.Init(reg)
+	return res
+}
+
 func (r *URIPathResolver) Init(registry *cookoo.Registry) {
 	r.registry = registry
 }
