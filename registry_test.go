@@ -116,3 +116,37 @@ func TestRouteSpec(t *testing.T) {
 		v.Add("test", "test")
 	}
 }
+
+func TestRouteNames(t *testing.T) {
+	reg := new(Registry)
+	reg.Init()
+	reg.Route("one", "A route").Does(AnotherCommand, "fake")
+	reg.Route("two", "A route").Does(AnotherCommand, "fake")
+	reg.Route("three", "A route").Does(AnotherCommand, "fake")
+	reg.Route("four", "A route").Does(AnotherCommand, "fake")
+	reg.Route("five", "A route").Does(AnotherCommand, "fake")
+
+	names := reg.RouteNames()
+
+	if len(names) != 5 {
+		t.Error("! Expected five routes, found ", len(names))
+	}
+
+	found := false
+	expecting := []string{"one", "two", "three", "four", "five"}
+	for _, k := range expecting {
+		for _, name := range names {
+			if name == k {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			t.Error("! Expected to find a key that is missing: ", k)
+		}
+		found = false
+	}
+	
+
+}

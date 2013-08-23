@@ -124,6 +124,17 @@ func (r *Registry) Routes() map[string]*routeSpec {
 	return r.routes
 }
 
+// Get a slice containing the names of every registered route.
+func (r *Registry) RouteNames() []string {
+	names := make([]string, len(r.routes))
+	i := 0
+	for k := range r.routes {
+		names[i] = k
+		i++
+	}
+	return names
+}
+
 // Look up the last command.
 func (r *Registry) lastCommandAdded() *commandSpec {
 	lastIndex := len(r.currentRoute.commands) - 1
