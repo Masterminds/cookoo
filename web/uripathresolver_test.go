@@ -22,8 +22,14 @@ func TestUriPathResolver (t *testing.T) {
 	reg.Route("/foo/[0-9]*/baz", "test")
 	reg.Route("/*/*/*", "test")
 
-	names := []string{"/foo/bar/baz", "/foo/bar/blurp", "/foo/car/baz", "/foo/anything/baz", "/foo/far/baz"}
-	expects := []string{"/foo/bar/baz", "/foo/bar/*", "/foo/c??/baz", "/foo/*/baz", "/foo/[cft]ar/baz"}
+	reg.Route("GET /foo/bar/baz", "Test with verb")
+	reg.Route("POST /foo/bar/baz", "Test with verb")
+	reg.Route("DELETE /foo/bar/baz", "Test with verb")
+	reg.Route("* /foo/bar/baz", "Test with verb")
+	reg.Route("* /foo/last", "Test with verb")
+
+	names := []string{"/foo/bar/baz", "/foo/bar/blurp", "/foo/car/baz", "/foo/anything/baz", "/foo/far/baz", "POST /foo/bar/baz", "GET /foo/last"}
+	expects := []string{"/foo/bar/baz", "/foo/bar/*", "/foo/c??/baz", "/foo/*/baz", "/foo/[cft]ar/baz", "POST /foo/bar/baz", "* /foo/last"}
 	for i, name := range names {
 		resolved, err := router.ResolveRequest(name, cxt)
 		if err != nil {
