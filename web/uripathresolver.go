@@ -14,53 +14,30 @@
 package web
 
 import (
-	"strings"
-	"fmt"
+	"github.com/masterminds/cookoo"
+	"path"
 )
 
-func ParsePaths(paths []string) map[string]*pathEntry {
-	tree := make(map[string]*pathEntry)
-	for _, item := range paths {
-		pieces := strings.Split(item, "/")
-		fmt.Printf("Pieces: %v\n", pieces)
-		entry  := parsePaths(pieces, tree)
-		fmt.Printf("Adding %s to map.", entry.path)
-		tree[entry.path] = entry
+type URIPathResolver struct {
+	registry *cookoo.Registry
+}
+
+func (r *URIPathResolver) Init(registry *cookoo.Registry) {
+	r.registry = registry
+}
+
+// Resolve a path name based using path patterns.
+//
+// This resolver is designed to match path-like strings to path patterns. For example,
+// the path `/foo/bar/baz` may match routes like `/foo/*/baz` or `/foo/bar/*`
+func (r *URIPathResolver) Resolve(pathName string, cxt cookoo.Context) (string, error) {
+	for _, pattern := range r.registry.RouteNames() {
+		if ok, err := path.Match(pattern, pathName); ok && err == nil {
+			return pattern, nil
+		} else if err != nil {
+			// Bad pattern
+			return pathName, err
+		}
 	}
-	return tree;
-	//root := newPathEntry("")
-	//root.SubPaths = tree
-	//fmt.Printf("Tree: %+v\n", root.SubPaths)
-	//return root
+	return pathName, &cookoo.RouteError{"Could not resolve route " + pathName}
 }
-
-func parsePaths(paths []string, tree map[string]*pathEntry) *pathEntry {
-	head := paths[0]
-
-	entry := newPathEntry(head)
-
-	if len(paths) > 1 {
-		tail := paths[1:]
-		subentry := parsePaths(tail, tree)
-		entry.SubPaths[subentry.path] = subentry
-	}
-
-	return entry
-}
-
-type pathEntry struct {
-	path string
-	SubPaths map[string]*pathEntry
-}
-
-func newPathEntry(path string) *pathEntry {
-	entry := new(pathEntry)
-	entry.path = path
-	entry.SubPaths = make(map[string]*pathEntry)
-	return entry
-}
-
-func (p *pathEntry) addEntry(entry *pathEntry) {
-	p.SubPaths[entry.path] = entry
-}
-
