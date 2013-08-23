@@ -132,20 +132,11 @@ func TestRouteNames(t *testing.T) {
 		t.Error("! Expected five routes, found ", len(names))
 	}
 
-	found := false
 	expecting := []string{"one", "two", "three", "four", "five"}
-	for _, k := range expecting {
-		for _, name := range names {
-			if name == k {
-				found = true
-				break
-			}
+	for i, k := range expecting {
+		if k != names[i] {
+			t.Error(fmt.Sprintf("Expecting %s at position %d; got %s", k, i, names[i]))
 		}
-
-		if !found {
-			t.Error("! Expected to find a key that is missing: ", k)
-		}
-		found = false
 	}
 	
 

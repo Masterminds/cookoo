@@ -8,6 +8,7 @@ import (
 
 type Registry struct {
 	routes map[string]*routeSpec
+	orderedRouteNames []string
 	loggers []*loggerSpec
 	currentRoute *routeSpec
 	// datasources map[string]datasourceSpec
@@ -25,7 +26,9 @@ func NewRegistry() *Registry {
 }
 
 func (r *Registry) Init() *Registry {
+	// Why 8?
 	r.routes = make(map[string]*routeSpec, 8)
+	r.orderedRouteNames = make([]string, 0, 8)
 	return r
 }
 
@@ -40,6 +43,7 @@ func (r *Registry) Route(name, description string) *Registry {
 	// Add the route spec.
 	r.currentRoute = route
 	r.routes[name] = route
+	r.orderedRouteNames = append(r.orderedRouteNames, name)
 
 	return r
 }
@@ -120,12 +124,20 @@ func (r *Registry) RouteSpec(routeName string) (spec *routeSpec, ok bool) {
 	return
 }
 
+// Get an unordered map of routes names to route specs.
+//
+// If order is important, use RouteNames to get the names (in order).
 func (r *Registry) Routes() map[string]*routeSpec {
 	return r.routes
 }
 
 // Get a slice containing the names of every registered route.
+//
+// The route names are returned in the order they were added to the
+// registry. This is useful to some resolvers, which apply rules in order.
 func (r *Registry) RouteNames() []string {
+	return r.orderedRouteNames
+	/*
 	names := make([]string, len(r.routes))
 	i := 0
 	for k := range r.routes {
@@ -133,6 +145,7 @@ func (r *Registry) RouteNames() []string {
 		i++
 	}
 	return names
+	*/
 }
 
 // Look up the last command.
