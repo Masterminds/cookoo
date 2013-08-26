@@ -98,4 +98,25 @@ func TestPathDatasource(t *testing.T) {
 		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
 	}
 
+	if ds.Value("2") != "bar" {
+		t.Error("! Expected value 2 to be 'bar'. Got ", ds.Value("1"))
+	}
+
+	ds = new(PathDatasource).Init("POST /foo/bar")
+	if ds.Value("1") != "foo" {
+		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
+	}
+
+	if ds.Value("2") != "bar" {
+		t.Error("! Expected value 2 to be 'bar'. Got ", ds.Value("1"))
+	}
+
+	ds = new(PathDatasource).Init("POST /foo/bar/baz/a/b/c/d/e/f")
+	if ds.Value("1") != "foo" {
+		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
+	}
+
+	if ds.Value("2") != "bar" {
+		t.Error("! Expected value 2 to be 'bar'. Got ", ds.Value("1"))
+	}
 }
