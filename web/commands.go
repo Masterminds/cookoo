@@ -9,18 +9,36 @@ import (
 
 // Common web-oriented commands
 
+// Send content to output.
+//
+// If no writer is specified, this will attempt to write to whatever is in the
+// Context with the key "http.ResponseWriter". If no suitable writer is found, it will
+// not write to anything at all.
+//
+// Params:
+// - writer: A Writer of some sort. This will try to write to the HTTP response if no writer
+//   is specified.
+// - content: The content to write as a body.
+// - contentType: The content type header (e.g. text/html). Default is text/plain
 func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	ok, _ := params.Requires("writer")
+	// ok, _ := params.Requires("writer")
 
-	if (!ok) {
-		return false, nil
+	//if (!ok) {
+	//	return false, nil
+	//}
+
+	//out := params.Get("writer", nil).(http.ResponseWriter)
+	writer, ok := params.Has("writer")
+	if writer == nil {
+		writer, ok = cxt.Has("http.ResponseWriter")
+		if !ok {
+			return false, nil
+		}
 	}
+	out := writer.(io.Writer)
 
-	out := params.Get("writer", nil).(http.ResponseWriter)
 	content := params.Get("content", "").(string)
-	contentType := params.Get("contentType", "plain/text; charset=utf-8").(string)
-
-	//out.Header(
+	contentType := params.Get("contentType", "text/plain; charset=utf-8").(string)
 
 	fmt.Fprintf(out, "%s: %s\n", http.CanonicalHeaderKey("content-type"), contentType)
 	io.WriteString(out, content)

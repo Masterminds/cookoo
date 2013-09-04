@@ -104,3 +104,12 @@ func (d *PathDatasource) Value(name string) interface{} {
 	}
 	return d.PathParts[index]
 }
+
+// This provides a datasource for session data.
+//
+// Sessions differ a little from the other web datasources in that they may
+// need explicit app-controlled initialization.
+type SessionDatasource interface {
+	StartSession(res http.ResponseWriter, req *http.Request) bool
+	ClearSession(res http.ResponseWriter, req *http.Request) bool
+}
