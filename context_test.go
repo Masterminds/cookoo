@@ -49,15 +49,15 @@ func TestAddGet(t *testing.T) {
 	cxt.Add("test3", func() string { return "Hello" })
 
 	// Test Get
-	equal(t, 42, cxt.Get("test1"))
-	equal(t, "Geronimo!", cxt.Get("test2"))
+	equal(t, 42, cxt.Get("test1", nil))
+	equal(t, "Geronimo!", cxt.Get("test2", nil))
 
 	// Test has
 	val, ok := cxt.Has("test1")
 	if !ok {
 		t.Error("! Failed to get 'test1'")
 	}
-	equal(t, 42, cxt.Get("test1"))
+	equal(t, 42, cxt.Get("test1", nil))
 
 	_, ok = cxt.Has("test999")
 	if ok {
@@ -98,13 +98,13 @@ func TestCopy(t *testing.T) {
 	}
 
 	c.Add("b", "FOO")
-	if c2.Get("b") == "FOO" {
+	if c2.Get("b", nil) == "FOO" {
 		t.Error("! b should not have changed in C2.")
 	}
 
 	lame.stuff[1] = "Noes"
 
-	v1 := c2.Get("a").(*LameStruct)
+	v1 := c2.Get("a", nil).(*LameStruct)
 	if v1.stuff[1] != "Noes" {
 		t.Error("! Expected shallow copy of array. Got ", v1)
 	}

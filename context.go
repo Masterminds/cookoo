@@ -7,7 +7,7 @@ type Context interface {
 	// Add a name/value pair to the context.
 	Add(string, ContextValue)
 	// Given a name, get a value from the context.
-	Get(string) ContextValue
+	Get(string, interface{}) ContextValue
 	// Given a name, check if the key exists, and if it does return the value.
 	Has(string) (ContextValue, bool)
 	// Get a datasource by name.
@@ -73,7 +73,7 @@ func (cxt *ExecutionContext) AsMap() map[string]ContextValue {
 }
 
 // Given a name, return the corresponding value from the context.
-func (cxt *ExecutionContext) Get(name string) ContextValue {
+func (cxt *ExecutionContext) Get(name string, defaultValue interface{}) ContextValue {
 	return cxt.values[name]
 }
 
