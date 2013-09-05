@@ -2,11 +2,72 @@
 
 package cookoo
 
-// Describes a context.
+// A Context is a collection of data that is associated with the current
+// request.
+//
+// Contexts are used to exchange information from command to command inside
+// of a particular chain of commands (a route). Commands may access the
+// data inside of a context, and may also modify a context.
+//
+// A context maintains two different types of data: *context variables* and
+// *datasources*.
+//
+// Context variables are data that can be passed, in current form, from
+// command to command -- analogous to passing variables via parameters in
+// function calls.
+//
+// Datasources are (as the name implies) sources of data. For example, a
+// database, a file, a cache, and a key-value store are all datasources.
+//
+// For long-running apps, it is generally assumed (though by no means
+// required) that datasources are "long lived" and context variables are
+// "short lived." While modifying a data source may impact other requests,
+// generally it is safe to assume that modifying a variable is localized to
+// the particular request.
+//
+// Correct Usage: A Word of Warning
+// =================
+//
+// The Cookoo system was designed around the theory that commands should
+// generally work with datasources *directly* and context variables
+// *indirectly*. Context variables should generally be passed into a command
+// via a cookoo.Param. And a command generally should return a value that
+// can then be placed into the context on its behalf.
+//
+// The reason for this design is that it then makes it much easier for higher-
+// level programming, such as changing input or modifying output at the
+// registry level, not within the commands themselves.
+//
+// Datasources, on the other hand, are designed to be leveraged primarily by
+// commands. This involves a layer of conventionality, but it also pushes
+// data access logic into the commands where it belongs.
+//
+// So, for example, a SQL-based datasource should be *declared* at the top
+// level of a program (where it will be added to the context), but the actual
+// interaction with that datasource should happen inside of commands themselves,
+// not at the registry level.
 type Context interface {
 	// Add a name/value pair to the context.
 	Add(string, ContextValue)
 	// Given a name, get a value from the context.
+	//
+	// Get requires a default value (which may be nil).
+	//
+	// Example:
+	// 	ip := cxt.Get("ip", "127.0.0.1").(string)
+	//
+	// Contrast this usage with that of cxt.Has(), which may be used for more
+	// traditional field checking:
+	//
+	// Example:
+	// 	ip, ok := cxt.Has("ip")
+	// 	if !ok {
+	// 		// do something error-ish
+	// 	}
+	// 	ipStr := ip.(string)
+	//
+	// The cxt.Get() call avoids the cumbersome check/type-assertion combo
+	// that occurs with cxt.Has().
 	Get(string, interface{}) ContextValue
 	// Given a name, check if the key exists, and if it does return the value.
 	Has(string) (ContextValue, bool)
@@ -37,6 +98,9 @@ type ContextValue interface{}
 // Semantically, this is the same as interface{}
 type Datasource interface{}
 
+// The core implementation of a Context.
+//
+// An ExecutionContext is an unordered map-based context.
 type ExecutionContext struct {
 	datasources map[string]Datasource // Datasources are things like MySQL connections.
 
@@ -74,7 +138,11 @@ func (cxt *ExecutionContext) AsMap() map[string]ContextValue {
 
 // Given a name, return the corresponding value from the context.
 func (cxt *ExecutionContext) Get(name string, defaultValue interface{}) ContextValue {
-	return cxt.values[name]
+	val, ok := cxt.values[name]
+	if !ok {
+		return defaultValue
+	}
+	return val
 }
 
 // Get a map of all name/value pairs in the present context.
