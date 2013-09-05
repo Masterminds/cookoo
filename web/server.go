@@ -54,7 +54,7 @@ import (
 //
 func Serve (reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 
-	addr := cxt.Get("server.Address", ":8080")
+	addr := cxt.Get("server.Address", ":8080").(string)
 
 	handler := NewCookooHandler(reg, router, cxt)
 	http.Handle("/", handler)

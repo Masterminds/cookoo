@@ -47,8 +47,8 @@ func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inte
 }
 
 func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	req := cxt.Get("http.Request").(*http.Request)
-	out := cxt.Get("http.ResponseWriter").(http.ResponseWriter)
+	req := cxt.Get("http.Request", nil).(*http.Request)
+	out := cxt.Get("http.ResponseWriter", nil).(http.ResponseWriter)
 
 	out.Header().Add("X-Foo", "Bar")
 	out.Header().Add("Content-type", "text/plain; charset=utf-8")
