@@ -52,7 +52,7 @@ import (
 //    	web.Serve(reg, router, cxt)
 //    }
 //
-func Serve (reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
+func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 
 	addr := cxt.Get("server.Address", ":8080").(string)
 
