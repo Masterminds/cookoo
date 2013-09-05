@@ -190,7 +190,7 @@ func TestFromValues(t *testing.T) {
 			t.Error("Unexpected: ", e.Error());
 		}
 
-		params, ok := cxt.Get("first").(*Params);
+		params, ok := cxt.Get("first", nil).(*Params);
 		if !ok {
 			t.Error("! Expected a Params object.")
 		}
@@ -292,7 +292,7 @@ func TestReroute(t *testing.T) {
 		t.Error("! Unexpected error executing TEST")
 	}
 
-	p := context.Get("fake2")
+	p := context.Get("fake2", nil)
 	if p == nil {
 		t.Error("! Expected data in fake2.")
 	}
@@ -310,7 +310,7 @@ func TestRecoverableError(t *testing.T) {
 		t.Error("! Unexpected error executing TEST")
 	}
 
-	p := context.Get("fake2")
+	p := context.Get("fake2", nil)
 	if p == nil {
 		t.Error("! Expected data in fake2.")
 	}
@@ -328,7 +328,7 @@ func TestFatalError(t *testing.T) {
 		t.Error("! Expected error executing TEST")
 	}
 
-	p := context.Get("fake2")
+	p := context.Get("fake2", nil)
 	if p != nil {
 		t.Error("! Expected fake2 to not get executed.")
 	}
@@ -346,7 +346,7 @@ func TestStop(t *testing.T) {
 		t.Error("! Unexpected error executing TEST")
 	}
 
-	p := context.Get("fake2")
+	p := context.Get("fake2", nil)
 	if p != nil {
 		t.Error("! Expected fake2 to not get executed.")
 	}

@@ -9,7 +9,7 @@ func TestCookooForCoCo(t *testing.T) {
 
 	cxt.Add("Answer", 42)
 
-	lifeUniverseEverything := cxt.Get("Answer")
+	lifeUniverseEverything := cxt.Get("Answer", nil)
 
 	if lifeUniverseEverything != 42 {
 		t.Error("! Context is not working.")
