@@ -59,7 +59,13 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 
 	handler := NewCookooHandler(reg, router, cxt)
 	http.Handle("/", handler)
-	http.ListenAndServe(addr, nil)
+	err := http.ListenAndServe(addr, nil)
+	if err != nil {
+		log.Printf("Caught error while serving: %s", err)
+		if router.HasRoute("@shutdown") {
+			router.HandleRequest("@shutdown", cxt, false)
+		}
+	}
 }
 
 // The handler for Cookoo.
