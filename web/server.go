@@ -5,6 +5,7 @@ import (
 	//cookoo "../"
 	"net/http"
 	"fmt"
+	"log"
 )
 
 // Create a new Cookoo web server.
@@ -145,8 +146,16 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	// If a route matches, run it.
 	if h.Router.HasRoute(path) {
-		h.Router.HandleRequest(path, cxt, true)
+		err := h.Router.HandleRequest(path, cxt, true)
 
+		if err != nil {
+			fatal, ok := err.(*cookoo.FatalError)
+			if !ok {
+				log.Printf("Unknown error: %v %T", err, err)
+			} else {
+				log.Printf("Fatal Error: %s", fatal)
+			}
+		}
 
 	// Else if there is a custom 404 handler, run it.
 	} else if h.Router.HasRoute("@404") {
