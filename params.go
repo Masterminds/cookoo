@@ -58,6 +58,13 @@ func (p *Params) Requires(paramNames ...string) (ok bool, missing []string) {
 	return
 }
 
+// Get all of the parameters.
+//
+// This does no checking of the parameters.
+func (p *Params) AsMap() map[string]interface{} {
+	return p.storage
+}
+
 // Given a name and a validation function, return a valid value.
 // If the value is not valid, ok = false.
 func (p *Params) Validate(name string, validator func(interface{})bool) (value interface{}, ok bool) {
