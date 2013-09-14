@@ -151,9 +151,16 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			fatal, ok := err.(*cookoo.FatalError)
 			if !ok {
-				log.Printf("Unknown error: %v %T", err, err)
+				log.Printf("Unknown error: %v (%T)", err, err)
 			} else {
 				log.Printf("Fatal Error: %s", fatal)
+			}
+			if h.Router.HasRoute("@500") {
+				h.Router.HandleRequest("@500", cxt, false)
+			} else {
+				res.Header().Add("Content-Type", "text/html")
+				res.WriteHeader(http.StatusInternalServerError)
+				res.Write([]byte("<!DOCTYPE html><html><head><title>Internal Server Error</title></head><body><h1>Internal Server Error</h1><img src=\"https://httpcats.herokuapp.com/500\"></body></html>"))
 			}
 		}
 
@@ -167,4 +174,3 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		http.NotFound(res, req)
 	}
 }
-
