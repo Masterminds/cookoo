@@ -54,6 +54,7 @@ import (
 //    }
 //
 func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
+	defer shutdown(router, cxt)
 
 	addr := cxt.Get("server.Address", ":8080").(string)
 
@@ -62,9 +63,16 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Printf("Caught error while serving: %s", err)
-		if router.HasRoute("@shutdown") {
-			router.HandleRequest("@shutdown", cxt, false)
+		if router.HasRoute("@crash") {
+			router.HandleRequest("@crash", cxt, false)
 		}
+	}
+	// TODO: Need to figure out how to trap signals here, instead of outside.
+}
+func shutdown(router *cookoo.Router, cxt cookoo.Context) {
+	log.Print("Shutdown")
+	if router.HasRoute("@shutdown") {
+		router.HandleRequest("@shutdown", cxt, false)
 	}
 }
 
@@ -132,7 +140,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	defer func() {
 		// fmt.Printf("Deferred function executed for path %s\n", req.URL.Path)
 		if err := recover(); err != nil {
-			fmt.Printf("FOUND ERROR: %v", err)
+			log.Printf("FOUND ERROR: %v", err)
 			http.Error(res, "An internal error occurred.", http.StatusInternalServerError)
 		}
 	}()
@@ -164,9 +172,12 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			if h.Router.HasRoute("@500") {
 				h.Router.HandleRequest("@500", cxt, false)
 			} else {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				/*
 				res.Header().Add("Content-Type", "text/html")
 				res.WriteHeader(http.StatusInternalServerError)
 				res.Write([]byte("<!DOCTYPE html><html><head><title>Internal Server Error</title></head><body><h1>Internal Server Error</h1><img src=\"https://httpcats.herokuapp.com/500\"></body></html>"))
+				*/
 			}
 		}
 
