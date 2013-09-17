@@ -90,7 +90,8 @@ func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inte
 // This uses the `html/template` system built into Go to render data into a writer.
 //
 // Params:
-// - template (required): A string with the full path to the template.
+// - template (required): An html/templates.Template object.
+// - templateName (required): The name of the template to render.
 // - values: An interface{} with the values to be passed to the template. If 
 //   this is not specified, the contents of the Context are passed as a map[string]interface{}.
 //   Note that datasources, in this model, are not accessible to the template.
@@ -109,7 +110,8 @@ func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inte
 //			Using("Title").WithDefault("Hello World").
 //			Using("Body").WithDefault("This is the body.").
 //		Does(web.RenderHTML, "render").
-//			Using("template").WithDefault("index.html").
+//			Using("template").From('cxt:templateCache').
+//			Using("templateName").WithDefault("index.html").
 //		Does(web.Flush, "_").
 //			Using("contentType").WithDefault("text/html").
 //			Using("content").From("cxt:render")
@@ -117,26 +119,23 @@ func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inte
 // In the example above, we do three things:
 // - Add Title and Body to the context. For the template rendered, it will see these as
 //   {{.Title}} and {{.Body}}.
-// - Render the template located in a local file called "index.html"
+// - Render the template located in a local file called "index.html". It is recommended that
+//   a template.Template object be created at startup. This way, all of the templates can
+//   be cached immediately and shared throughout processing.
 // - Flush the result out to the client. This gives you a chance to add any additional headers.
 func RenderHTML(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	ok, missing := params.Requires("template")
+	ok, missing := params.Requires("template", "templateName")
 	if !ok {
 		return nil, &cookoo.FatalError{"Missing params: " + strings.Join(missing, ", ")}
 	}
 	
 	var buf bytes.Buffer
 	out := params.Get("writer", &buf).(io.Writer)
-	tplName := params.Get("template", nil).(string)
+	tplName := params.Get("templateName", nil).(string)
+	tpl := params.Get("template", nil).(*template.Template)
 	vals := params.Get("values", cxt.AsMap())
 
-	//out := cxt.Get("http.ResponseWriter", nil).(http.ResponseWriter)
-
-	tpl, err := template.ParseFiles(tplName)
-	if err != nil {
-		return nil, &cookoo.FatalError{"Failed to parse template(s): " + tplName}
-	}
-	err = tpl.Execute(out, vals)
+	err := tpl.ExecuteTemplate(out, tplName, vals)
 	if err != nil {
 		log.Printf("Recoverable error parsing template: %s", err)
 		// XXX: This outputs partially completed templates. Is this what we want?

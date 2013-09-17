@@ -113,3 +113,54 @@ type SessionDatasource interface {
 	StartSession(res http.ResponseWriter, req *http.Request) bool
 	ClearSession(res http.ResponseWriter, req *http.Request) bool
 }
+
+/*
+type HTMLTemplateCache struct {
+	//tpls map[string]*templates.Template
+	tpls templates.Template
+}
+
+// Create a new template cache with the associated templates.
+//
+// The array of strings may be either file names or shell glob patterns. In any
+// case, the pattern must match at least one file, or a fatal error will occur.
+func NewHTMLTemplateCache(filenames []string) *HTMLTemplateCache {
+	t := new(HTMLTemplateCache)
+	tpls = templates.New("base")
+	for _, filename := range filenames {
+		_, err := t.ParseGlob(filename)
+		if err != nil {
+			panic("Could not process templates! ", err)
+		}
+	}
+	return t
+}
+
+// Add one or more templates to the cache.
+//
+// filenames may be glob patterns, but at least one file must match.
+//
+// If a template fails to parse, an error will be returned, but this will not
+// cause a panic. Any templates added here will be accessible for anything else
+// that accesses the cache.
+func (c *HTMLTemplateCache) AddTemplates(filenames ...string) error {
+	for _, f := range filenames {
+		_, e := c.tpls.ParseGlob(f)
+		if e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+// Clone the existing template cache.
+//
+// This is useful if a particular command needs to modify the template cache
+// for it's execution without changing the generally available cache.
+//
+// If the cache cannot be cloned, an error will be returned. This will not
+// cause a panic.
+func (c *HTMLTemplateCache) Clone() (*templates.Template, error) {
+	return c.tpls.Clone()
+}
+*/
