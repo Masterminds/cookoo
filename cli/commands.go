@@ -89,6 +89,7 @@ func displayHelp(keys []string, params *cookoo.Params, out io.Writer) {
 // - default: The default subcommand to run if none is found.
 // - offset: By default, this assumes an os.Args, and looks up the item in os.Args[1]. You can
 //   override this behavior by setting offset to something else.
+// - ignoreRoutes: A []string of routes that should not be executed.
 func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	params.Requires("args")
 
@@ -99,6 +100,15 @@ func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cook
 		route = params.Get("default", "default").(string)
 	} else {
 		route = args[offset]
+	}
+
+	stoplist := params.Get("ignoreRoutes", []string{}).([]string)
+	if len(stoplist) > 0 {
+		for _, stop := range stoplist {
+			if stop == route {
+				return nil, &cookoo.FatalError{"Illegal route."}
+			}
+		}
 	}
 
 	return nil, &cookoo.Reroute{route}

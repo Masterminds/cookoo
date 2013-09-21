@@ -36,10 +36,15 @@ func main() {
 	reg.Route("run", "Run the app.").
 		Does(cli.RunSubcommand, "sub").
 			Using("args").From("cxt:os.Args").
-			Using("default").WithDefault("help")
+			Using("default").WithDefault("help").
+			Using("ignoreRoutes").WithDefault([]string{"run"})
 
-	// This starts the app.	
-	router.HandleRequest("run", cxt, false)
+	// This starts the app.	If a fatal error occurs, we
+	// display the error.
+	e := router.HandleRequest("run", cxt, true)
+	if e != nil {
+		fmt.Printf("Error: %s\n", e)
+	}
 }
 
 // This is our command.
@@ -77,5 +82,4 @@ This is the help text.
 ## Where to from here?
 
 From this starting point, you should be able to assemble your own
-routes, where each new route represents a subcommand. (Routes that begin
-with `@` cannot be executed directly.)
+routes, where each new route represents a subcommand.
