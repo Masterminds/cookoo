@@ -83,10 +83,10 @@ type Interrupt interface {}
 
 // A command can return a Reroute to tell the router to execute a different route.
 type Reroute struct {
-	route string
+	Route string
 }
 func (rr *Reroute) RouteTo() string {
-	return rr.route
+	return rr.Route
 }
 
 // Stop a route, but not as an error condition.

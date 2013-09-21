@@ -1,0 +1,60 @@
+# Writing a CLI
+
+Here is a basic scaffold of a CLI application that uses subcommands.
+Here, we're building the command `foo` that has the subcommand `bar`,
+which can be invoked like this from tthe commandline: `foo bar`.
+
+foo.go:
+```go
+package main
+
+import(
+  "github.com/masterminds/cookoo"
+  "github.com/masterminds/cookoo/cli"
+  "fmt"
+  "os"
+)
+
+func main() {
+	// Start a cookoo app.
+	reg, router, cxt := cookoo.Cookoo();
+
+	// Put the arguments into the context.
+	cxt.Add("os.Args", os.Args)
+
+	// Create help text
+	reg.Route("help", "Show application-scoped help.").
+		Does(cli.ShowHelp, "help").
+			Using("show").WithDefault(true).
+			Using("summary").WithDefault("This is the help text.")
+
+	// Handle the "bar" subcommand
+	reg.Route("bar", "Do something").
+		Does(MyBarCommand, "bar")
+
+	// This is the main runner. It proxies to subcommands.
+	reg.Route("run", "Run the app.").
+		Does(cli.RunSubcommand, "sub").
+			Using("args").From("cxt:os.Args").
+			Using("default").WithDefault("help")
+
+	// This starts the app.	
+	router.HandleRequest("run", cxt, false)
+}
+
+// This is our command.
+func MyBarCommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	fmt.Printf("OH HAI")
+	return nil, nil
+}
+```
+
+When we run `roo bar` (or `go run foo.go bar`), here's what happens:
+
+1. main() is run. It creates a Cookoo app, defines the registry, and
+   then runs `router.HandleRequest("run", ...)`
+2. The "run" route is run. This reads the `os.Args` and sees that it
+   should execute the subcommand `bar`.
+3. The "bar" route is run, which executes it's one command:
+   `MyBarCommand`.
+4. `MyBarCommand` runs, printing "OH HAI" to stdout.

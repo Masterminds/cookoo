@@ -80,3 +80,28 @@ func displayHelp(keys []string, params *cookoo.Params, out io.Writer) {
 		}
 	}
 }
+
+// Run a subcommand.
+//
+// Params:
+// - args: a string[] of arguments, like you get from os.Args. This will assume the first arg
+//   is a subcommand. If you have options, you should parse those out first with ParseArgs.
+// - default: The default subcommand to run if none is found.
+// - offset: By default, this assumes an os.Args, and looks up the item in os.Args[1]. You can
+//   override this behavior by setting offset to something else.
+func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	params.Requires("args")
+
+	args := params.Get("args", nil).([]string)
+	offset := params.Get("offset", 1).(int)
+	var route string
+	if len(args) <= offset {
+		route = params.Get("default", "default").(string)
+	} else {
+		route = args[offset]
+	}
+
+	fmt.Printf("Sending to %s.", route)
+
+	return nil, &cookoo.Reroute{route}
+}
