@@ -49,7 +49,7 @@ func MyBarCommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cooko
 }
 ```
 
-When we run `roo bar` (or `go run foo.go bar`), here's what happens:
+When we run `foo bar` (or `go run foo.go bar`), here's what happens:
 
 1. main() is run. It creates a Cookoo app, defines the registry, and
    then runs `router.HandleRequest("run", ...)`
@@ -58,3 +58,24 @@ When we run `roo bar` (or `go run foo.go bar`), here's what happens:
 3. The "bar" route is run, which executes it's one command:
    `MyBarCommand`.
 4. `MyBarCommand` runs, printing "OH HAI" to stdout.
+
+If you were to run `foo` or `foo help`, then the chain would execute
+like this:
+
+1. main() runs, and passes to `router.HandleRequest("run"...)
+2. "run" will execute `RunSubcommand`, which will resolve the subcommand
+   to "help" (which is the default target).
+3. The "help" route will be run, which will print out simple help:
+
+```
+go run foo.go
+SUMMARY
+
+This is the help text.
+```
+
+## Where to from here?
+
+From this starting point, you should be able to assemble your own
+routes, where each new route represents a subcommand. (Routes that begin
+with `@` cannot be executed directly.)

@@ -101,7 +101,5 @@ func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cook
 		route = args[offset]
 	}
 
-	fmt.Printf("Sending to %s.", route)
-
 	return nil, &cookoo.Reroute{route}
 }
