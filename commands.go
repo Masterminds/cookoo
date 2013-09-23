@@ -22,3 +22,15 @@ func AddToContext(cxt Context, params *Params) (interface{}, Interrupt) {
 	}
 	return true, nil
 }
+
+func ForwardTo(cxt Context, params *Params) (interface{}, Interrupt) {
+	ok, _:= params.Requires("route")
+
+	if !ok {
+		return nil, &FatalError{"Expected a 'route'"}
+	}
+
+	route := params.Get("route", "default").(string)
+
+	return nil, &Reroute{route}
+}

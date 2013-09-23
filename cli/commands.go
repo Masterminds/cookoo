@@ -60,7 +60,15 @@ func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.I
 // - usage (string): usage information.
 // - writer (Writer): The location that this will write to. Default is os.Stdout
 func ShowHelp(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	showHelp := params.Get("show", false).(bool)
+	showHelp := false
+	showHelpO := params.Get("show", false)
+	switch showHelpO.(type) {
+	case string:
+		showHelp = strings.ToLower(showHelpO.(string)) == "true"
+	case bool:
+		showHelp = showHelpO.(bool)
+	}
+
 	writer := params.Get("writer", os.Stdout).(io.Writer)
 
 	if showHelp {
@@ -76,9 +84,11 @@ func displayHelp(keys []string, params *cookoo.Params, out io.Writer) {
 		key := keys[i]
 		msg, ok := params.Has(key)
 		if ok {
-			fmt.Fprintf(out, "%s\n\n%s\n", strings.ToUpper(key), msg)
+			spacer := strings.Repeat("=", len(key))
+			fmt.Fprintf(out, "\n%s\n%s\n\n%s\n", strings.ToUpper(key), spacer, msg)
 		}
 	}
+	fmt.Fprintf(out, "\n")
 }
 
 // Run a subcommand.
