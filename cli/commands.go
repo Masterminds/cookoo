@@ -59,6 +59,7 @@ func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.I
 // - summary (string): A one-line summary of the command.
 // - description (string): A short description of what the command does.
 // - usage (string): usage information.
+// - flags (FlagSet): Flags that are supported. The FlagSet will be converted to help text.
 // - writer (Writer): The location that this will write to. Default is os.Stdout
 func ShowHelp(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	showHelp := false
@@ -90,6 +91,17 @@ func displayHelp(keys []string, params *cookoo.Params, out io.Writer) {
 		}
 	}
 	fmt.Fprintf(out, "\n")
+
+	// Handle the flags, if set.
+	args, ok := params.Has("flags")
+	if ok {
+		fmt.Fprintf(out, "FLAGS\n=====\n")
+		// Name: Description (default)
+		filter := "\t-%s: %s (Default: '%s')\n"
+		args.(*flag.FlagSet).VisitAll(func(f *flag.Flag) {
+			fmt.Fprintf(out, filter, f.Name, f.Usage, f.DefValue)
+		})
+	}
 }
 
 // Run a subcommand.
