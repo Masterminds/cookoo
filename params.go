@@ -53,6 +53,41 @@ func (p *Params) Requires(paramNames ...string) (ok bool, missing []string) {
 		if !ok {
 			missing = append(missing, val)
 		}
+
+	}
+	ok = len(missing) == 0
+	return
+}
+
+// Requires that given parameters are present and non-empty.
+// This is more powerful than Requires(), which simply checks to see if the the Using() clause declared
+// the value.
+func (p *Params) RequiresValue(paramNames ...string) (ok bool, missing []string) {
+	missing = make([]string, 0, len(p.storage))
+	for _, val := range paramNames {
+		vv, ok := p.storage[val]
+		switch vv.(type) {
+		default:
+			if vv == nil {
+				ok = false
+			}
+		case string:
+			if vv == nil || len(vv.(string)) == 0 {
+				ok = false
+			}
+		case []interface{}:
+			if vv == nil || len(vv.([]interface{})) == 0 {
+				ok = false
+			}
+		case map[interface{}]interface{}:
+			if vv == nil || len(vv.(map[interface{}]interface{})) == 0 {
+				ok = false
+			}
+		}
+
+		if !ok {
+			missing = append(missing, val)
+		}
 	}
 	ok = len(missing) == 0
 	return
