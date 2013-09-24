@@ -7,6 +7,7 @@ import (
 	"io"
 	"strings"
 	"flag"
+	"log"
 )
 
 // Parse arguments for a "subcommand"
@@ -123,3 +124,32 @@ func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cook
 
 	return nil, &cookoo.Reroute{route}
 }
+
+// Shift the args N (default 1) times, returning the last shifted value.
+//
+// Params:
+// n: The number of times to shift. Only the last value is returned.
+// args: The name of the context slice/array to modify. This value will be retrieved
+//   from the context. Default: "os.Args"
+func ShiftArgs(c cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+
+	n := params.Get("n", 1).(int)
+	argName := params.Get("args", "os.Args").(string)
+
+	args, ok := c.Get(argName, nil).([]string);
+	if !ok {
+		return nil, &cookoo.FatalError{"Could net get arg out of context: No such arg name."}
+	}
+
+	if len(args) < n {
+		c.Add(argName, make([]string,0))
+		log.Printf("Not enough args in %s", argName)
+		return args, &cookoo.RecoverableError{"Not enough arguments in the array."}
+	}
+	targetArg := n -1;
+	shifted := args[targetArg];
+	c.Add(argName, args[n:])
+
+	return shifted, nil
+}
+
