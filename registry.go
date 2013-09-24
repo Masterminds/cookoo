@@ -3,7 +3,7 @@
 package cookoo;
 
 import (
-	"fmt"
+	"log"
 )
 
 type Registry struct {
@@ -98,7 +98,17 @@ func (r *Registry) lastParamAdded() *paramSpec {
 }
 
 func (r *Registry) Includes(route string) *Registry {
-	fmt.Println("Need to finish for ", route)
+
+	// Not that we don't clone commands; we just add the pointer to the current
+	// route.
+	spec := r.routes[route]
+	if spec == nil {
+		log.Printf("Could not find route %s. Skipping include.", route)
+		return r
+	}
+	for _, cmd := range spec.commands {
+		r.currentRoute.commands = append(r.currentRoute.commands, cmd)
+	}
 	return r
 }
 
