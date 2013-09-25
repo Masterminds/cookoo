@@ -1,7 +1,7 @@
 package cookoo
 
 import (
-	//"fmt"
+	"fmt"
 	"strings"
 	"log"
 )
@@ -137,7 +137,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	}
 	spec, ok := r.registry.RouteSpec(route)
 	if (!ok) {
-		return &RouteError{"Route does not exist."}
+		return &RouteError{fmt.Sprintf("Route %s does not exist.", route)}
 	}
 	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
 	for _, cmd := range spec.commands {
