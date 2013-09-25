@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 	"flag"
-	"log"
+	//"log"
 )
 
 // Parse arguments for a "subcommand"
@@ -155,8 +155,8 @@ func ShiftArgs(c cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Int
 
 	if len(args) < n {
 		c.Add(argName, make([]string,0))
-		log.Printf("Not enough args in %s", argName)
-		return args, &cookoo.RecoverableError{"Not enough arguments in the array."}
+		//log.Printf("Not enough args in %s", argName)
+		return nil, &cookoo.RecoverableError{"Not enough arguments."}
 	}
 	targetArg := n -1;
 	shifted := args[targetArg];
