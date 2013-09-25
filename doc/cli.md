@@ -34,10 +34,13 @@ func main() {
 
 	// This is the main runner. It proxies to subcommands.
 	reg.Route("run", "Run the app.").
-		Does(cli.RunSubcommand, "sub").
-			Using("args").From("cxt:os.Args").
-			Using("default").WithDefault("help").
-			Using("ignoreRoutes").WithDefault([]string{"run"})
+		// Shift off two args: the app name and then the subcommand.
+		// The subcommand is then put in the context as "subcommand"
+		Does(cli.ShiftArgs, "subcommand").
+			Using("n").WithDefault(2).
+		Does(cookoo.ForwardTo, "sub").
+			Using("route").From("cxt:subcommand").WithDefault("help").
+			Using("ignoreRoutes").WithDefault([]string{"subcommand"}).
 
 	// This starts the app.	If a fatal error occurs, we
 	// display the error.
@@ -68,7 +71,7 @@ If you were to run `foo` or `foo help`, then the chain would execute
 like this:
 
 1. main() runs, and passes to `router.HandleRequest("run"...)
-2. "run" will execute `RunSubcommand`, which will resolve the subcommand
+2. "run" will execute `ShiftArgs` and then `ForwardTo`, which will resolve the subcommand
    to "help" (which is the default target).
 3. The "help" route will be run, which will print out simple help:
 
@@ -78,6 +81,51 @@ SUMMARY
 
 This is the help text.
 ```
+
+## Using Flags
+
+Go provides the `flag` package with many utilities for working with
+command-line flags. We can use those in Cookoo.
+
+Here's a snippet of code that could be worked into the previous example:
+
+``` 
+	reg.Route("add-user", "Add a new account.").
+		Does(cli.ParseArgs, "args").
+			Using("flagset").WithDefault(AddUserFlags()).
+			Using("args").From("cxt:os.Args").
+		Does(cli.ShowHelp, "help").
+			Using("show").From("cxt:h").
+			Using("summary").WithDefault("Add a new account.").
+			Using("usage").WithDefault("tool add-user -a NAME -p PASSWORD").
+			Using("flags").WithDefault(AccountAddFlags()).
+		// ... do the rest...
+```
+
+With the example above, we can generate our flags like this:
+
+```
+func AddUserFlags() *flag.FlagSet {
+	flags := flag.NewFlagSet("account", flag.PanicOnError)
+	flags.Bool("h", false, "Print help text.")
+	flags.String("a", nil, "Account name.")
+	flags.String('p', nil, "User's new password.")
+
+	return flags
+}
+```
+
+The arguments are parsed by `cli.ParseArgs`. Each flag is then placed
+directly into the context. (See how we access `-h` with `From(cxt:h)`
+above?)
+
+In addition to using flags for processing, `cli.ShowHelp` can take a
+`*flag.FlagSet` and automatically generate help text.
+
+While this example shows providing flags for subcommands, higher level
+flags can be handled in much the same way. For example, we could use
+them in our `run` route, too.
+
 
 ## Where to from here?
 
