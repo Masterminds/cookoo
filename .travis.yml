@@ -15,6 +15,6 @@ notifications:
 before_install:
   - cd $HOME
   - mv $HOME/gopath/src/github.com/Masterminds $HOME/gopath/src/github.com/masterminds
-  - mv $HOME/gopath/src/github.com/Masterminds/Cookoo $HOME/gopath/src/github.com/masterminds/cookoo
+  - mv $HOME/gopath/src/github.com/masterminds/Cookoo $HOME/gopath/src/github.com/masterminds/cookoo
   - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/masterminds/cookoo
   - cd $HOME/gopath/src/github.com/masterminds/cookoo
