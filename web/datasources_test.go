@@ -81,42 +81,46 @@ func TestFormValuesDatasource(t *testing.T) {
 		t.Error("! Error constructing a request.", err)
 	}
 
+	// For POST requests with a body from a form the Content-Type header needs
+	// to be set or the form body isn't processed. 
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
 	ds := new(FormValuesDatasource).Init(request)
 
 	if ds.Value("name").(string) != "Inigo Montoya" {
-		t.Errorf("! Prepare to die. %q", ds.Value("name").(string))
+		t.Error("! Prepare to die.")
 	}
 
-	if ds.Value("fingers") != 6 {
+	if ds.Value("fingers") != "6" {
 		t.Error("! Expected six fingers, but got less.")
 	}
 }
 
 func TestPathDatasource(t *testing.T) {
 	ds := new(PathDatasource).Init("/foo/bar")
-	if ds.Value("1") != "foo" {
-		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
+	if ds.Value("0") != "foo" {
+		t.Error("! Expected value 0 to be 'foo'. Got ", ds.Value("0"))
 	}
 
-	if ds.Value("2") != "bar" {
-		t.Error("! Expected value 2 to be 'bar'. Got ", ds.Value("1"))
+	if ds.Value("1") != "bar" {
+		t.Error("! Expected value 1 to be 'bar'. Got ", ds.Value("1"))
 	}
 
 	ds = new(PathDatasource).Init("POST /foo/bar")
-	if ds.Value("1") != "foo" {
-		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
+	if ds.Value("0") != "foo" {
+		t.Error("! Expected value 0 to be 'foo'. Got ", ds.Value("0"))
 	}
 
-	if ds.Value("2") != "bar" {
-		t.Error("! Expected value 2 to be 'bar'. Got ", ds.Value("1"))
+	if ds.Value("1") != "bar" {
+		t.Error("! Expected value 1 to be 'bar'. Got ", ds.Value("1"))
 	}
 
 	ds = new(PathDatasource).Init("POST /foo/bar/baz/a/b/c/d/e/f")
-	if ds.Value("1") != "foo" {
-		t.Error("! Expected value 1 to be 'foo'. Got ", ds.Value("1"))
+	if ds.Value("0") != "foo" {
+		t.Error("! Expected value 0 to be 'foo'. Got ", ds.Value("0"))
 	}
 
-	if ds.Value("2") != "bar" {
-		t.Error("! Expected value 2 to be 'bar'. Got ", ds.Value("1"))
+	if ds.Value("1") != "bar" {
+		t.Error("! Expected value 1 to be 'bar'. Got ", ds.Value("1"))
 	}
 }

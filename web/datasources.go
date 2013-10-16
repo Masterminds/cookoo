@@ -93,13 +93,13 @@ type PathDatasource struct {
 }
 
 func (d *PathDatasource) Init(path string) *PathDatasource {
-	d.PathParts = strings.Split("/", path)[1:]
+	d.PathParts = strings.Split(path, "/")[1:]
 	return d
 }
 
 func (d *PathDatasource) Value(name string) interface{} {
 	index, err := strconv.Atoi(name)
-	if err != nil || len(d.PathParts) >= index {
+	if err != nil || index > len(d.PathParts) {
 		return nil
 	}
 	return d.PathParts[index]
