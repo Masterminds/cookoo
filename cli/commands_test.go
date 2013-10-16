@@ -31,7 +31,7 @@ func TestShowHelp(t *testing.T) {
 		t.Error("! Unexpected error.")
 	}
 
-	res := context.Get("didShowHelp").(bool)
+	res := context.Get("didShowHelp", false).(bool)
 
 	if !res {
 		t.Error("! Expected help to be shown.")
@@ -64,7 +64,7 @@ func TestParseArgs(t *testing.T) {
 		return
 	}
 
-	foo := cxt.Get("foo").(string)
+	foo := cxt.Get("foo", "").(string)
 	if foo != "bar" {
 		t.Error("Expected 'bar'; got ", foo)
 		return
@@ -82,7 +82,7 @@ func TestParseArgs(t *testing.T) {
 		return
 	}
 
-	unused := cxt.Get("unused").(string)
+	unused := cxt.Get("unused", 321).(string)
 	if unused != "123" {
 		t.Error("Expected 'unused' to be int 123. Got ", unused)
 		return
