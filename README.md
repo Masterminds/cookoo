@@ -3,6 +3,8 @@ Cookoo
 
 A chain-of-command framework written in Go
 
+[![Build Status](https://travis-ci.org/Masterminds/Cookoo.png?branch=master)](https://travis-ci.org/Masterminds/Cookoo)
+
 ## Usage
 
 ```
