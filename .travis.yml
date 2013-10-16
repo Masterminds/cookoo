@@ -12,7 +12,7 @@ notifications:
 # casing). Where Travis will test a commit, branch, or pull request the call
 # to `go get` will pull the tip of master. This just won't work. So, we much
 # with Travis CI to make this work cleanly.
-before_script:
+before_install:
   - cd $HOME
   - mv $HOME/gopath/src/github.com/Masterminds $HOME/gopath/src/github.com/masterminds
   - mv $HOME/gopath/src/github.com/Masterminds/Cookoo $HOME/gopath/src/github.com/masterminds/cookoo
