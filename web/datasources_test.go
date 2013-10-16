@@ -39,10 +39,8 @@ func TestURLDatasource(t *testing.T) {
 	}
 
 	// Test the Userinfo object
-	uinfo, ok := ds.Value("User").(url.Userinfo)
-	if (!ok) {
-		t.Error("Expected a Userinfo object.")
-	}
+	uinfo := ds.Value("User").(*url.Userinfo)
+
 	if uinfo.Username() != "user" {
 		t.Error("! Expected user name 'user', got ", uinfo.Username)
 	}
@@ -59,7 +57,9 @@ func TestQueryParameterDatasource (t *testing.T) {
 	arr := map[string]string{
 		"a": "b",
 		"c": "foo bar",
-		"d": "5678",
+		// url.Values.Get accesses the first value associated with a key. To get
+		// values after that you need to access the map directly.
+		"d": "1234",
 	}
 	for key, val := range arr {
 		if ds.Value(key) != val {
@@ -84,7 +84,7 @@ func TestFormValuesDatasource(t *testing.T) {
 	ds := new(FormValuesDatasource).Init(request)
 
 	if ds.Value("name").(string) != "Inigo Montoya" {
-		t.Error("! Prepare to die.")
+		t.Errorf("! Prepare to die. %q", ds.Value("name").(string))
 	}
 
 	if ds.Value("fingers") != 6 {

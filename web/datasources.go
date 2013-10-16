@@ -73,7 +73,7 @@ func (d *URLDatasource) Value(name string) interface{} {
 	case "url", "URL", "Url":
 		return d.URL
 	case "user", "User":
-		return d.URL.Path
+		return d.URL.User
 	case "scheme", "Scheme":
 		return d.URL.Scheme
 	case "rawquery", "RawQuery":
