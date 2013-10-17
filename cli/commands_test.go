@@ -1,11 +1,11 @@
 package cli
 
 import (
-	"github.com/masterminds/cookoo"
-	"testing"
 	"bytes"
-	"strings"
 	"flag"
+	"github.com/masterminds/cookoo"
+	"strings"
+	"testing"
 	//"fmt"
 )
 
@@ -14,7 +14,7 @@ func Barf(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interr
 }
 
 func TestShowHelp(t *testing.T) {
-	registry, router, context := cookoo.Cookoo();
+	registry, router, context := cookoo.Cookoo()
 
 	var out bytes.Buffer
 
@@ -23,7 +23,6 @@ func TestShowHelp(t *testing.T) {
 		Using("writer").WithDefault(&out).
 		Using("summary").WithDefault("This is a summary.").
 		Does(Barf, "Fail if help doesn't stop.")
-
 
 	e := router.HandleRequest("test", context, false)
 
@@ -47,7 +46,7 @@ func TestShowHelp(t *testing.T) {
 }
 
 func TestParseArgs(t *testing.T) {
-	registry, router, cxt := cookoo.Cookoo();
+	registry, router, cxt := cookoo.Cookoo()
 
 	flags := flag.NewFlagSet("test flags", flag.ContinueOnError)
 	flags.String("foo", "binky", "Test foo flag.")

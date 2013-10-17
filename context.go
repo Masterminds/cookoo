@@ -123,7 +123,7 @@ type ExecutionContext struct {
 	// The Context values.
 	values map[string]ContextValue
 
-	loggers io.Writer
+	loggers          io.Writer
 	loggerRegistered bool
 }
 
@@ -194,8 +194,8 @@ func (cxt *ExecutionContext) Datasources() map[string]Datasource {
 
 // Check whether the named datasource exists, and return it if it does.
 func (cxt *ExecutionContext) HasDatasource(name string) (Datasource, bool) {
-	value, found := cxt.datasources[name];
-	return value, found;
+	value, found := cxt.datasources[name]
+	return value, found
 }
 
 // Add a datasource to the map of datasources.
@@ -263,5 +263,5 @@ func (cxt *ExecutionContext) Copy() Context {
 		newCxt.AddDatasource(k, datasource)
 	}
 
-	return newCxt;
+	return newCxt
 }

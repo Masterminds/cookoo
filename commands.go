@@ -35,7 +35,7 @@ func AddToContext(cxt Context, params *Params) (interface{}, Interrupt) {
 // - route: The route to forward to. This is required.
 // - ignoreRoutes: Route names that should be ignored (generate recoverable errors).
 func ForwardTo(cxt Context, params *Params) (interface{}, Interrupt) {
-	ok, _:= params.Requires("route")
+	ok, _ := params.Requires("route")
 
 	if !ok {
 		return nil, &FatalError{"Expected a 'route'"}

@@ -1,10 +1,10 @@
 package cli
 
-import(
-	"testing"
+import (
 	"flag"
-	"github.com/masterminds/cookoo"
 	"fmt"
+	"github.com/masterminds/cookoo"
+	"testing"
 )
 
 func Nothing(cxt cookoo.Context, params *cookoo.Params) (res interface{}, i cookoo.Interrupt) {
@@ -50,11 +50,11 @@ func TestResolvingWithFlags(t *testing.T) {
 	}
 
 	nada, ok := context.Has("nada")
-	if (!ok) {
+	if !ok {
 		t.Error("! Expected to find a context entry for 'nada'")
 		return
 	}
-	if (!nada.(bool)) {
+	if !nada.(bool) {
 		t.Error("! Expected 'nada' to be set to TRUE")
 		return
 	}

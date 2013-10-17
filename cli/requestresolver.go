@@ -44,7 +44,7 @@ func (r *RequestResolver) Resolve(path string, cxt cookoo.Context) (string, erro
 		return path, nil
 	}
 	flagset := flagsetO.(*flag.FlagSet)
-	flagset.Parse(strings.Split(path, " "));
+	flagset.Parse(strings.Split(path, " "))
 	addFlagsToContext(flagset, cxt)
 	args := flagset.Args()
 
@@ -64,15 +64,14 @@ func addFlagsToContext(flagset *flag.FlagSet, cxt cookoo.Context) {
 	store := func(f *flag.Flag) {
 		// fmt.Printf("Storing %s in context with value %s.\n", f.Name, f.Value.String())
 
-
 		// Basically, we can tell the difference between booleans and strings, and that's it.
 		// Other types are a loss.
 		/*
-		if f.IsBoolFlag != nil {
-			cxt.Add(f.Name, f.Value.String() == "true")
-		} else {
-			cxt.Add(f.Name, f.Value.String())
-		}
+			if f.IsBoolFlag != nil {
+				cxt.Add(f.Name, f.Value.String() == "true")
+			} else {
+				cxt.Add(f.Name, f.Value.String())
+			}
 		*/
 		cxt.Add(f.Name, f.Value.String())
 	}

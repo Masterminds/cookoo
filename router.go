@@ -2,8 +2,8 @@ package cookoo
 
 import (
 	"fmt"
-	"strings"
 	"log"
+	"strings"
 )
 
 // The request resolver.
@@ -41,6 +41,7 @@ func NewRouter(reg *Registry) *Router {
 func (r *BasicRequestResolver) Init(registry *Registry) {
 	r.registry = registry
 }
+
 // Retirms the given path.
 // This is a non-transforming resolver.
 func (r *BasicRequestResolver) Resolve(path string, cxt Context) (string, error) {
@@ -64,7 +65,7 @@ func (r *Router) SetRegistry(reg *Registry) {
 // resolving it to a registry route.
 //
 // Example: Take a URI and translate it to a route.
-func (r *Router) SetRequestResolver (resolver RequestResolver) {
+func (r *Router) SetRequestResolver(resolver RequestResolver) {
 	r.resolver = resolver
 }
 
@@ -105,7 +106,7 @@ func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 	// baseCxt := cxt.Copy()
 	// routeName, e := r.ResolveRequest(name, baseCxt)
 	routeName, e := r.ResolveRequest(name, cxt)
-	
+
 	if e != nil {
 		return e
 	}
@@ -136,7 +137,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 		return &RouteError{"Route is tainted. Refusing to run."}
 	}
 	spec, ok := r.registry.RouteSpec(route)
-	if (!ok) {
+	if !ok {
 		return &RouteError{fmt.Sprintf("Route %s does not exist.", route)}
 	}
 	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
@@ -191,17 +192,17 @@ func (r *Router) doCommand(cmd *commandSpec, cxt Context) (interface{}, Interrup
 
 // Get the appropriate values for each param.
 func (r *Router) resolveParams(cmd *commandSpec, cxt Context) *Params {
-	parameters := NewParams(len(cmd.parameters));
+	parameters := NewParams(len(cmd.parameters))
 	for _, ps := range cmd.parameters {
 		sources := parseFromStatement(ps.from)
-		val := r.defaultFromSources(sources, cxt);
+		val := r.defaultFromSources(sources, cxt)
 		if val == nil {
 			parameters.set(ps.name, ps.defaultValue)
-			val = ps.defaultValue;
+			val = ps.defaultValue
 		}
 		parameters.set(ps.name, val)
 	}
-	return parameters;
+	return parameters
 }
 
 // Get the values from a source.
@@ -223,9 +224,9 @@ func (r *Router) defaultFromSources(sources []*fromVal, cxt Context) interface{}
 			// If we have a datasource, and the datasource
 			// is a KeyValueDatasource, try to return the value.
 			if ds, ok := cxt.HasDatasource(src.source); ok {
-				store, ok := ds.(KeyValueDatasource);
+				store, ok := ds.(KeyValueDatasource)
 				if ok {
-					return store.Value(src.key);
+					return store.Value(src.key)
 				}
 			}
 		}
@@ -234,10 +235,10 @@ func (r *Router) defaultFromSources(sources []*fromVal, cxt Context) interface{}
 }
 
 // Parse a 'from' statement.
-func parseFromStatement (from string) []*fromVal {
+func parseFromStatement(from string) []*fromVal {
 	toks := strings.Fields(from)
 	ret := make([]*fromVal, len(toks))
-	for i,tok := range toks {
+	for i, tok := range toks {
 		ret[i] = parseFromVal(tok)
 	}
 	return ret
@@ -249,7 +250,7 @@ type fromVal struct {
 }
 
 // Parse a FROM string of the form NAME:VALUE
-func parseFromVal (from string) *fromVal {
+func parseFromVal(from string) *fromVal {
 	vals := strings.SplitN(strings.TrimSpace(from), ":", 2)
 	if len(vals) == 1 {
 		return &fromVal{vals[0], ""}
@@ -261,6 +262,7 @@ func parseFromVal (from string) *fromVal {
 type RouteError struct {
 	Message string
 }
-func (e *RouteError) Error () string {
+
+func (e *RouteError) Error() string {
 	return e.Message
 }

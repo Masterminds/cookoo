@@ -2,7 +2,7 @@ package cookoo
 
 import (
 	"testing"
-//	"registry"
+	//	"registry"
 	"fmt"
 )
 
@@ -28,7 +28,7 @@ func AnotherCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 	return ret, nil
 }
 
-func TestBasicRoute (t *testing.T) {
+func TestBasicRoute(t *testing.T) {
 	reg := new(Registry)
 	reg.Init()
 
@@ -55,7 +55,6 @@ func TestBasicRoute (t *testing.T) {
 		t.Error("! Expected exactly one command. Found ", len(rspec.commands))
 	}
 
-
 	cmd := rspec.commands[0]
 	if "fakeCommand" != cmd.name {
 		t.Error("! Expected to find fakeCommand command.")
@@ -69,12 +68,12 @@ func TestBasicRoute (t *testing.T) {
 	if pspec.name != "param" {
 		t.Error("! Expected the first param to be 'param'")
 	}
-	
+
 	if pspec.defaultValue != "value" {
 		t.Error("! Expected the value to be 'value'")
 	}
-	fakeCxt:= new(ExecutionContext)
-	fakeParams := NewParamsWithValues(map[string]interface{} {"foo": "bar", "baz": 2})
+	fakeCxt := new(ExecutionContext)
+	fakeParams := NewParamsWithValues(map[string]interface{}{"foo": "bar", "baz": 2})
 	rr, err := cmd.command(fakeCxt, fakeParams)
 
 	if err != nil {
@@ -138,6 +137,5 @@ func TestRouteNames(t *testing.T) {
 			t.Error(fmt.Sprintf("Expecting %s at position %d; got %s", k, i, names[i]))
 		}
 	}
-	
 
 }

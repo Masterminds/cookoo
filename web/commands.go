@@ -1,14 +1,14 @@
 package web
 
 import (
-	"github.com/masterminds/cookoo"
-	"html/template"
-	"net/http"
-	"strings"
 	"bytes"
 	"fmt"
-	"log"
+	"github.com/masterminds/cookoo"
+	"html/template"
 	"io"
+	"log"
+	"net/http"
+	"strings"
 )
 
 // Common web-oriented commands
@@ -26,7 +26,7 @@ import (
 //   we first try to convert to a string, then pass it into a writer.
 // - contentType: The content type header (e.g. text/html). Default is text/plain
 // - responseCode: Integer HTTP Response Code: Default is `http.StatusOK`.
-// - headers: a map[string]string of HTTP headers. The keys will be run through 
+// - headers: a map[string]string of HTTP headers. The keys will be run through
 //   http.CannonicalHeaderKey()
 //
 // Note that this is optimized for writing from strings or arrays, not Readers. For larger
@@ -34,7 +34,7 @@ import (
 //
 // Returns
 // - boolean true
-func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+func Flush(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 
 	// Make sure we have a place to write this stuff.
 	writer, ok := params.Has("writer")
@@ -92,7 +92,7 @@ func Flush (cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inte
 // Params:
 // - template (required): An html/templates.Template object.
 // - templateName (required): The name of the template to render.
-// - values: An interface{} with the values to be passed to the template. If 
+// - values: An interface{} with the values to be passed to the template. If
 //   this is not specified, the contents of the Context are passed as a map[string]interface{}.
 //   Note that datasources, in this model, are not accessible to the template.
 // - writer: The writer that data should be sent to. By default, this will create a new
@@ -128,7 +128,7 @@ func RenderHTML(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 	if !ok {
 		return nil, &cookoo.FatalError{"Missing params: " + strings.Join(missing, ", ")}
 	}
-	
+
 	var buf bytes.Buffer
 	out := params.Get("writer", &buf).(io.Writer)
 	tplName := params.Get("templateName", nil).(string)

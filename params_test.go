@@ -6,7 +6,7 @@ import (
 
 func TestParams(t *testing.T) {
 	params := NewParamsWithValues(map[string]interface{}{
-		"Test": 123,
+		"Test":  123,
 		"Test2": "Hello",
 		"Test3": NewContext(),
 	})
@@ -46,7 +46,7 @@ func TestParams(t *testing.T) {
 	if ok, missing := params.Requires("Test", "Test3"); !ok {
 		t.Error("Expected to find params. Missing ", missing)
 	}
-	
+
 	if ok, missing := params.Requires("Test", "Test4"); ok {
 		t.Error("! Expected to be missing something", missing)
 	} else if missing[0] != "Test4" {

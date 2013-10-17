@@ -61,9 +61,9 @@ type StmtCache interface {
 }
 
 type StmtCacheMap struct {
-	cache map[string]*dbsql.Stmt
+	cache    map[string]*dbsql.Stmt
 	capacity int
-	dbh *dbsql.DB
+	dbh      *dbsql.DB
 }
 
 // Get a prepared statement from a SQL string.

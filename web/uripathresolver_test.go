@@ -1,12 +1,12 @@
 package web
 
 import (
+	"fmt"
 	"github.com/masterminds/cookoo"
 	"testing"
-	"fmt"
 )
 
-func TestUriPathResolver (t *testing.T) {
+func TestUriPathResolver(t *testing.T) {
 	reg, router, cxt := cookoo.Cookoo()
 
 	resolver := NewURIPathResolver(reg)

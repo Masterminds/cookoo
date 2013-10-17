@@ -24,7 +24,7 @@ import (
 // For verbs to work with the router, you need to configure your router to support prepending the
 // verb to the route name.
 //
-// The most exact match "wins". E.g. for registry items `/foo/bar` and `/foo/**`, if the 
+// The most exact match "wins". E.g. for registry items `/foo/bar` and `/foo/**`, if the
 type URIPathResolver struct {
 	registry *cookoo.Registry
 }

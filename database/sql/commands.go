@@ -1,10 +1,10 @@
 package sql
 
 import (
-	"fmt"
-	"strings"
 	"database/sql"
+	"fmt"
 	"github.com/masterminds/cookoo"
+	"strings"
 )
 
 // Ping a database.
@@ -17,7 +17,7 @@ import (
 // Returns:
 // - boolean flag set to true if the Ping was successful.
 func Ping(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	ok, _:= params.Requires("dbname")
+	ok, _ := params.Requires("dbname")
 	if !ok {
 		e := &cookoo.RecoverableError{"Expected a dbname param."}
 		return false, e
@@ -43,7 +43,7 @@ func Ping(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interr
 // Params:
 // - dbname (required): the name of the db datasource.
 func Close(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	ok, _:= params.Requires("dbname")
+	ok, _ := params.Requires("dbname")
 	if !ok {
 		return nil, &cookoo.FatalError{"Expected dbname param."}
 	}
@@ -84,7 +84,7 @@ func Execute(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Int
 
 	dbname := params.Get("dbname", nil).(string)
 	statement := params.Get("statement", nil).(string)
-	db, err :=  getDb(cxt, dbname)
+	db, err := getDb(cxt, dbname)
 	if err != nil {
 		return nil, err
 	}

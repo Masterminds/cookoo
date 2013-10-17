@@ -1,17 +1,17 @@
 package cli
 
 import (
-	"github.com/masterminds/cookoo"
-	"fmt"
-	"os"
-	"io"
-	"strings"
 	"flag"
+	"fmt"
+	"github.com/masterminds/cookoo"
+	"io"
+	"os"
+	"strings"
 	//"log"
 )
 
 // Parse arguments for a "subcommand"
-// 
+//
 // The cookoo.cli.RequestResolver allows you to specify global level flags. This command
 // allows you to augment those with subcommand flags. Example:
 //
@@ -148,20 +148,19 @@ func ShiftArgs(c cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Int
 	n := params.Get("n", 1).(int)
 	argName := params.Get("args", "os.Args").(string)
 
-	args, ok := c.Get(argName, nil).([]string);
+	args, ok := c.Get(argName, nil).([]string)
 	if !ok {
 		return nil, &cookoo.FatalError{"Could net get arg out of context: No such arg name."}
 	}
 
 	if len(args) < n {
-		c.Add(argName, make([]string,0))
+		c.Add(argName, make([]string, 0))
 		//log.Printf("Not enough args in %s", argName)
 		return nil, &cookoo.RecoverableError{"Not enough arguments."}
 	}
-	targetArg := n -1;
-	shifted := args[targetArg];
+	targetArg := n - 1
+	shifted := args[targetArg]
 	c.Add(argName, args[n:])
 
 	return shifted, nil
 }
-

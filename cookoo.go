@@ -19,7 +19,7 @@
 // use the Router to execute chains of commands.
 //
 // Example:
-// 
+//
 //    package main
 //
 //    import (
@@ -79,23 +79,25 @@ type Command func(cxt Context, params *Params) (interface{}, Interrupt)
 // - A FatalError, which will stop processing.
 // - A RecoverableError, which will continue the chain.
 // - A Reroute, which will cause a different route to be run.
-type Interrupt interface {}
+type Interrupt interface{}
 
 // A command can return a Reroute to tell the router to execute a different route.
 type Reroute struct {
 	Route string
 }
+
 func (rr *Reroute) RouteTo() string {
 	return rr.Route
 }
 
 // Stop a route, but not as an error condition.
-type Stop struct {}
+type Stop struct{}
 
 // An error that should not cause the router to stop processing.
 type RecoverableError struct {
 	Message string
 }
+
 func (err *RecoverableError) Error() string {
 	return err.Message
 }
@@ -104,6 +106,7 @@ func (err *RecoverableError) Error() string {
 type FatalError struct {
 	Message string
 }
+
 func (err *FatalError) Error() string {
 	return err.Message
 }

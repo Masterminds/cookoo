@@ -6,16 +6,16 @@ type Params struct {
 
 // Create a new Params instance, initialized with the given map.
 // Note that the given map is actually used (not copied).
-func NewParamsWithValues (initialVals map[string]interface{}) *Params {
+func NewParamsWithValues(initialVals map[string]interface{}) *Params {
 	p := new(Params)
 	p.Init(initialVals)
 	return p
 }
 
-func NewParams (size int) *Params {
+func NewParams(size int) *Params {
 	p := new(Params)
-	p.storage = make(map[string]interface{}, size);
-	return p;
+	p.storage = make(map[string]interface{}, size)
+	return p
 }
 
 func (p *Params) Init(initialValues map[string]interface{}) {
@@ -25,7 +25,7 @@ func (p *Params) Init(initialValues map[string]interface{}) {
 func (p *Params) set(name string, value interface{}) bool {
 	_, ret := p.storage[name]
 	p.storage[name] = value
-	return ret;
+	return ret
 }
 
 // Check if a parameter exists, and return it if found.
@@ -44,7 +44,7 @@ func (p *Params) Get(name string, defaultValue interface{}) interface{} {
 }
 
 // Require that a given list of parameters are present.
-// If they are all present, ok = true. Otherwise, ok = false and the 
+// If they are all present, ok = true. Otherwise, ok = false and the
 // `missing` array contains a list of missing params.
 func (p *Params) Requires(paramNames ...string) (ok bool, missing []string) {
 	missing = make([]string, 0, len(p.storage))
@@ -102,7 +102,7 @@ func (p *Params) AsMap() map[string]interface{} {
 
 // Given a name and a validation function, return a valid value.
 // If the value is not valid, ok = false.
-func (p *Params) Validate(name string, validator func(interface{})bool) (value interface{}, ok bool) {
+func (p *Params) Validate(name string, validator func(interface{}) bool) (value interface{}, ok bool) {
 	value, ok = p.storage[name]
 	if !ok {
 		return

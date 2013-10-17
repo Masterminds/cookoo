@@ -8,13 +8,14 @@ import (
 type FakeRequestResolver struct {
 	BasicRequestResolver
 }
+
 // Always returns FOO.
 func (self *FakeRequestResolver) Resolve(name string, cxt Context) (string, error) {
 	return "FOO", nil
 }
 
 // Test the resolver.
-func TestResolver (t *testing.T) {
+func TestResolver(t *testing.T) {
 	fakeCxt := new(ExecutionContext)
 	registry := new(Registry)
 	r := new(Router)
@@ -53,7 +54,7 @@ func RerouteCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 }
 
 func FetchParams(cxt Context, params *Params) (interface{}, Interrupt) {
-	return params, nil;
+	return params, nil
 }
 
 func RecoverableErrorCommand(cxt Context, params *Params) (interface{}, Interrupt) {
@@ -69,11 +70,11 @@ func StopCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 }
 
 type MockDatasource struct {
-	RetVal string;
+	RetVal string
 }
 
 func (ds *MockDatasource) Value(key string) interface{} {
-	return ds.RetVal;
+	return ds.RetVal
 }
 
 func TestParseFromStatement(t *testing.T) {
@@ -171,105 +172,104 @@ func TestFromValues(t *testing.T) {
 	cxt.Add("test1", 1234)
 	cxt.AddDatasource("test2", "foo")
 
-	ds := new(MockDatasource);
+	ds := new(MockDatasource)
 	ds.RetVal = "1234"
-	cxt.AddDatasource("foo", ds);
+	cxt.AddDatasource("foo", ds)
 
 	reg.
 		Route("mock", "Test from.").
-			Does(FetchParams, "first").
-				Using("test1").From("cxt:test1").
-				Using("test2").From("datasource:test2").
-				Using("test3").From("foo:test3").
-				Using("test4").WithDefault("test4").From("NONE:none").
-				Using("test5").WithDefault("Z").From("NONE:none foo:test3 cxt:test1").
-				Using("test6").From("None:none")
+		Does(FetchParams, "first").
+		Using("test1").From("cxt:test1").
+		Using("test2").From("datasource:test2").
+		Using("test3").From("foo:test3").
+		Using("test4").WithDefault("test4").From("NONE:none").
+		Using("test5").WithDefault("Z").From("NONE:none foo:test3 cxt:test1").
+		Using("test6").From("None:none")
 
-		e := router.HandleRequest("mock", cxt, true);
-		if e != nil {
-			t.Error("Unexpected: ", e.Error());
-		}
+	e := router.HandleRequest("mock", cxt, true)
+	if e != nil {
+		t.Error("Unexpected: ", e.Error())
+	}
 
-		params, ok := cxt.Get("first", nil).(*Params);
-		if !ok {
-			t.Error("! Expected a Params object.")
-		}
+	params, ok := cxt.Get("first", nil).(*Params)
+	if !ok {
+		t.Error("! Expected a Params object.")
+	}
 
-		test1, ok := params.Has("test1");
-		if !ok {
-			t.Error("! Expected a value in cxt:test1");
-		}
-		if test1.(int) != 1234 {
-			t.Error("! Expected test1 to return 1234. Got ", test1);
-		}
+	test1, ok := params.Has("test1")
+	if !ok {
+		t.Error("! Expected a value in cxt:test1")
+	}
+	if test1.(int) != 1234 {
+		t.Error("! Expected test1 to return 1234. Got ", test1)
+	}
 
+	test2, ok := params.Has("test2")
+	if !ok {
+		t.Error("! Expected a value in cxt:test1")
+	}
+	if test2.(string) != "foo" {
+		t.Error("! Expected test2 to return 'foo'. Got ", test2)
+	}
 
-		test2, ok := params.Has("test2");
-		if !ok {
-			t.Error("! Expected a value in cxt:test1");
-		}
-		if test2.(string) != "foo" {
-			t.Error("! Expected test2 to return 'foo'. Got ", test2);
-		}
+	test3, ok := params.Has("test3")
+	if !ok {
+		t.Error("! Expected default value")
+	}
+	if test3.(string) != "1234" {
+		t.Error("! Expected test4 to return '1234'. Got ", test3)
+	}
 
-		test3, ok := params.Has("test3");
-		if !ok {
-			t.Error("! Expected default value");
-		}
-		if test3.(string) != "1234" {
-			t.Error("! Expected test4 to return '1234'. Got ", test3);
-		}
+	test4, ok := params.Has("test4")
+	if !ok {
+		t.Error("! Expected default value")
+	}
+	if test4.(string) != "test4" {
+		t.Error("! Expected test4 to return 'test4'. Got ", test4)
+	}
 
-		test4, ok := params.Has("test4");
-		if !ok {
-			t.Error("! Expected default value");
-		}
-		if test4.(string) != "test4" {
-			t.Error("! Expected test4 to return 'test4'. Got ", test4);
-		}
+	// We expect that in this case the first match in the From clause
+	// will be returned, which is the value of foo:test3.
+	test5, ok := params.Has("test3")
+	if !ok {
+		t.Error("! Expected default value")
+	}
+	if test5.(string) != "1234" {
+		t.Error("! Expected test5 to return '1234'. Got ", test5)
+	}
 
-		// We expect that in this case the first match in the From clause
-		// will be returned, which is the value of foo:test3.
-		test5, ok := params.Has("test3");
-		if !ok {
-			t.Error("! Expected default value");
-		}
-		if test5.(string) != "1234" {
-			t.Error("! Expected test5 to return '1234'. Got ", test5);
-		}
-
-		param, ok := params.Has("test6");
-		if !ok {
-			t.Error("! Expected a *Param with a nil value");
-		}
-		if param != nil {
-			t.Error("! Expected nil value");
-		}
+	param, ok := params.Has("test6")
+	if !ok {
+		t.Error("! Expected a *Param with a nil value")
+	}
+	if param != nil {
+		t.Error("! Expected nil value")
+	}
 }
 
 func TestHandleRequest(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.
-	  Route("TEST", "A test route").Does(MockCommand, "fake").
-	  Route("@tainted", "Tainted route").Does(MockCommand, "fake2").
+		Route("TEST", "A test route").Does(MockCommand, "fake").
+		Route("@tainted", "Tainted route").Does(MockCommand, "fake2").
 		Route("Several", "Test multiple.").
-			Does(MockCommand, "first").
-			Does(MockCommand, "second").
-			Does(MockCommand, "third")
+		Does(MockCommand, "first").
+		Does(MockCommand, "second").
+		Does(MockCommand, "third")
 
 	e := router.HandleRequest("TEST", context, true)
 	if e != nil {
-		t.Error("Unexpected: ", e.Error());
+		t.Error("Unexpected: ", e.Error())
 	}
 
 	e = router.HandleRequest("@tainted", context, true)
 	if e == nil {
-		t.Error("Expected tainted route to not run protected name.");
+		t.Error("Expected tainted route to not run protected name.")
 	}
 
 	e = router.HandleRequest("@tainted", context, false)
 	if e != nil {
-		t.Error("Unexpected: ", e.Error());
+		t.Error("Unexpected: ", e.Error())
 	}
 
 	router.HandleRequest("NO Such Route", context, false)
@@ -284,9 +284,9 @@ func TestHandleRequest(t *testing.T) {
 func TestReroute(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.
-	  Route("TEST", "A test route").Does(RerouteCommand, "fake").
-	  Using("route").WithDefault("TEST2").
-	  Route("TEST2", "Tainted route").Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+		Route("TEST", "A test route").Does(RerouteCommand, "fake").
+		Using("route").WithDefault("TEST2").
+		Route("TEST2", "Tainted route").Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
 	e := router.HandleRequest("TEST", context, false)
 	if e != nil {
 		t.Error("! Unexpected error executing TEST")
@@ -301,10 +301,10 @@ func TestReroute(t *testing.T) {
 func TestRecoverableError(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.
-	  Route("TEST", "A test route").
-	  Does(RecoverableErrorCommand, "fake").
-	  Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
-	
+		Route("TEST", "A test route").
+		Does(RecoverableErrorCommand, "fake").
+		Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+
 	e := router.HandleRequest("TEST", context, false)
 	if e != nil {
 		t.Error("! Unexpected error executing TEST")
@@ -319,10 +319,10 @@ func TestRecoverableError(t *testing.T) {
 func TestFatalError(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.
-	  Route("TEST", "A test route").
-	  Does(FatalErrorCommand, "fake").
-	  Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
-	
+		Route("TEST", "A test route").
+		Does(FatalErrorCommand, "fake").
+		Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+
 	e := router.HandleRequest("TEST", context, false)
 	if e == nil {
 		t.Error("! Expected error executing TEST")
@@ -337,10 +337,10 @@ func TestFatalError(t *testing.T) {
 func TestStop(t *testing.T) {
 	reg, router, context := Cookoo()
 	reg.
-	  Route("TEST", "A test route").
-	  Does(StopCommand, "fake").
-	  Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
-	
+		Route("TEST", "A test route").
+		Does(StopCommand, "fake").
+		Does(FetchParams, "fake2").Using("foo").WithDefault("bar")
+
 	e := router.HandleRequest("TEST", context, false)
 	if e != nil {
 		t.Error("! Unexpected error executing TEST")

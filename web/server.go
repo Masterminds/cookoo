@@ -3,9 +3,9 @@ package web
 import (
 	"github.com/masterminds/cookoo"
 	//cookoo "../"
-	"net/http"
 	"fmt"
 	"log"
+	"net/http"
 )
 
 // Create a new Cookoo web server.
@@ -80,8 +80,8 @@ func shutdown(router *cookoo.Router, cxt cookoo.Context) {
 // You way use this handler in your own web apps, or you can use
 // the Serve() function to create and manage a handler for you.
 type CookooHandler struct {
-	Registry *cookoo.Registry
-	Router *cookoo.Router
+	Registry    *cookoo.Registry
+	Router      *cookoo.Router
 	BaseContext cookoo.Context
 }
 
@@ -154,7 +154,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	h.addDatasources(cxt, req)
 
 	// Find the route
-	path := req.Method + " " + req.URL.Path;
+	path := req.Method + " " + req.URL.Path
 
 	fmt.Printf("Handling request for %s\n", path)
 
@@ -174,19 +174,19 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			} else {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				/*
-				res.Header().Add("Content-Type", "text/html")
-				res.WriteHeader(http.StatusInternalServerError)
-				res.Write([]byte("<!DOCTYPE html><html><head><title>Internal Server Error</title></head><body><h1>Internal Server Error</h1><img src=\"https://httpcats.herokuapp.com/500\"></body></html>"))
+					res.Header().Add("Content-Type", "text/html")
+					res.WriteHeader(http.StatusInternalServerError)
+					res.Write([]byte("<!DOCTYPE html><html><head><title>Internal Server Error</title></head><body><h1>Internal Server Error</h1><img src=\"https://httpcats.herokuapp.com/500\"></body></html>"))
 				*/
 			}
 		}
 
-	// Else if there is a custom 404 handler, run it.
+		// Else if there is a custom 404 handler, run it.
 	} else if h.Router.HasRoute("@404") {
 		// Taint mode is false for error paths.
 		h.Router.HandleRequest("@404", cxt, false)
 
-	// Else run the default 404 handler.
+		// Else run the default 404 handler.
 	} else {
 		http.NotFound(res, req)
 	}

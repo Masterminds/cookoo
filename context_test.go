@@ -4,12 +4,12 @@
 package cookoo
 
 import (
+	"bytes"
+	"log"
 	"reflect"
+	"regexp"
 	"runtime"
 	"testing"
-	"bytes"
-	"regexp"
-	"log"
 )
 
 // An example datasource as can add to our store.

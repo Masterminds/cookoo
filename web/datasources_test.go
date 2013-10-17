@@ -1,11 +1,11 @@
-package web;
+package web
 
 import (
-	"testing"
-	"net/url"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
+	"testing"
 )
 
 func TestURLDatasource(t *testing.T) {
@@ -21,9 +21,9 @@ func TestURLDatasource(t *testing.T) {
 
 	// Test the string values.
 	arr := map[string]string{
-		"scheme": "http",
-		"Path": "/path",
-		"host": "example.com",
+		"scheme":   "http",
+		"Path":     "/path",
+		"host":     "example.com",
 		"fragment": "fragment",
 	}
 	for key, val := range arr {
@@ -46,7 +46,7 @@ func TestURLDatasource(t *testing.T) {
 	}
 }
 
-func TestQueryParameterDatasource (t *testing.T) {
+func TestQueryParameterDatasource(t *testing.T) {
 	testUrl, err := url.ParseRequestURI("/foo?a=b&c=foo+bar&d=1234&d=5678")
 	if err != nil {
 		t.Error("! Unexpected URL parse error.")
@@ -82,7 +82,7 @@ func TestFormValuesDatasource(t *testing.T) {
 	}
 
 	// For POST requests with a body from a form the Content-Type header needs
-	// to be set or the form body isn't processed. 
+	// to be set or the form body isn't processed.
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 	ds := new(FormValuesDatasource).Init(request)

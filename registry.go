@@ -1,16 +1,16 @@
 // Copyright 2013 Masterminds.
 
-package cookoo;
+package cookoo
 
 import (
 	"log"
 )
 
 type Registry struct {
-	routes map[string]*routeSpec
+	routes            map[string]*routeSpec
 	orderedRouteNames []string
-	loggers []*loggerSpec
-	currentRoute *routeSpec
+	loggers           []*loggerSpec
+	currentRoute      *routeSpec
 	// datasources map[string]datasourceSpec
 	// currentDS datasourceSpec
 }
@@ -36,8 +36,8 @@ func (r *Registry) Route(name, description string) *Registry {
 
 	// Create the route spec.
 	route := new(routeSpec)
-	route.name = name;
-	route.description = description;
+	route.name = name
+	route.description = description
 	route.commands = make([]*commandSpec, 0, 4)
 
 	// Add the route spec.
@@ -130,7 +130,7 @@ func (r *Registry) Loggers() []*loggerSpec {
 }
 
 func (r *Registry) RouteSpec(routeName string) (spec *routeSpec, ok bool) {
-	spec, ok =  r.routes[routeName]
+	spec, ok = r.routes[routeName]
 	return
 }
 
@@ -148,13 +148,13 @@ func (r *Registry) Routes() map[string]*routeSpec {
 func (r *Registry) RouteNames() []string {
 	return r.orderedRouteNames
 	/*
-	names := make([]string, len(r.routes))
-	i := 0
-	for k := range r.routes {
-		names[i] = k
-		i++
-	}
-	return names
+		names := make([]string, len(r.routes))
+		i := 0
+		for k := range r.routes {
+			names[i] = k
+			i++
+		}
+		return names
 	*/
 }
 
@@ -166,22 +166,22 @@ func (r *Registry) lastCommandAdded() *commandSpec {
 
 type routeSpec struct {
 	name, description string
-	commands []*commandSpec
+	commands          []*commandSpec
 }
 
 type commandSpec struct {
-	name string
-	command Command
+	name       string
+	command    Command
 	parameters []*paramSpec
 }
 
 type paramSpec struct {
-	name string
+	name         string
 	defaultValue interface{}
-	from string
+	from         string
 }
 
 type loggerSpec struct {
-	logger *Logger
+	logger  *Logger
 	options map[string]string
 }

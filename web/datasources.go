@@ -2,16 +2,17 @@
 package web
 
 import (
-	"net/url"
 	"net/http"
-	"strings"
+	"net/url"
 	"strconv"
+	"strings"
 )
 
 // Get the query parameters by name.
 type QueryParameterDatasource struct {
 	Parameters url.Values
 }
+
 // The datasource for URLs.
 // This datasource knows the following items:
 // - url: the URL struct
@@ -57,7 +58,6 @@ func (d *QueryParameterDatasource) Init(vals url.Values) *QueryParameterDatasour
 func (d *QueryParameterDatasource) Value(name string) interface{} {
 	return d.Parameters.Get(name)
 }
-
 
 func (d *URLDatasource) Init(parsedUrl *url.URL) *URLDatasource {
 	d.URL = parsedUrl
