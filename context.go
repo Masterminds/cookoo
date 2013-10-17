@@ -2,6 +2,12 @@
 
 package cookoo
 
+import (
+	cio "github.com/masterminds/cookoo/io"
+	"io"
+	"log"
+)
+
 // A Context is a collection of data that is associated with the current
 // request.
 //
@@ -88,6 +94,16 @@ type Context interface {
 	Copy() Context
 	// Get the content (no datasources) as a map.
 	AsMap() map[string]ContextValue
+	// Get a logger.
+	Logger(name string) (io.Writer, bool)
+	// Add a logger.
+	AddLogger(name string, logger io.Writer)
+	// Remove a logger.
+	RemoveLogger(name string)
+	// Send a log with a prefix.
+	Log(prefix string, v ...interface{})
+	// Send a log and formatting string with a prefix.
+	Logf(prefix string, format string, v ...interface{})
 }
 
 // An empty interface defining a context value.
@@ -106,6 +122,9 @@ type ExecutionContext struct {
 
 	// The Context values.
 	values map[string]ContextValue
+
+	loggers io.Writer
+	loggerRegistered bool
 }
 
 // A datasource that can retrieve values by (string) keys.
@@ -124,6 +143,8 @@ func NewContext() Context {
 func (cxt *ExecutionContext) Init() *ExecutionContext {
 	cxt.datasources = make(map[string]Datasource)
 	cxt.values = make(map[string]ContextValue)
+	cxt.loggers = cio.NewMultiWriter()
+	cxt.loggerRegistered = false
 	return cxt
 }
 
@@ -188,6 +209,40 @@ func (cxt *ExecutionContext) AddDatasource(name string, ds Datasource) {
 
 func (cxt *ExecutionContext) RemoveDatasource(name string) {
 	delete(cxt.datasources, name)
+}
+
+func (cxt *ExecutionContext) Logger(name string) (io.Writer, bool) {
+	writer, found := cxt.loggers.(*cio.MultiWriter).Writer(name)
+	return writer, found
+}
+
+func (cxt *ExecutionContext) AddLogger(name string, logger io.Writer) {
+	cxt.loggers.(*cio.MultiWriter).AddWriter(name, logger)
+
+	// Waiting until the first logger is attached before telling the Go log
+	// system what the output is.
+	if cxt.loggerRegistered == false {
+		log.SetOutput(cxt.loggers)
+		cxt.loggerRegistered = true
+	}
+}
+
+func (cxt *ExecutionContext) RemoveLogger(name string) {
+	cxt.loggers.(*cio.MultiWriter).RemoveWriter(name)
+}
+
+func (cxt *ExecutionContext) Log(prefix string, v ...interface{}) {
+	tmpPrefix := log.Prefix()
+	log.SetPrefix(prefix)
+	log.Print(v...)
+	log.SetPrefix(tmpPrefix)
+}
+
+func (cxt *ExecutionContext) Logf(prefix string, format string, v ...interface{}) {
+	tmpPrefix := log.Prefix()
+	log.SetPrefix(prefix)
+	log.Printf(format, v...)
+	log.SetPrefix(tmpPrefix)
 }
 
 func (cxt *ExecutionContext) Len() int {

@@ -7,6 +7,9 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+	"bytes"
+	"regexp"
+	"log"
 )
 
 // An example datasource as can add to our store.
@@ -108,4 +111,68 @@ func TestCopy(t *testing.T) {
 	if v1.stuff[1] != "Noes" {
 		t.Error("! Expected shallow copy of array. Got ", v1)
 	}
+}
+
+func TestLogging(t *testing.T) {
+	logger := new(bytes.Buffer)
+	c := NewContext()
+	c.AddLogger("test", logger)
+	foo, found := c.Logger("test")
+
+	if found == false {
+		t.Error("! Logger not found.")
+	}
+
+	if foo != logger {
+		t.Error("! Loggers do not match.")
+	}
+
+	logger2 := new(bytes.Buffer)
+	c.AddLogger("test2", logger2)
+
+	log.Print("a test")
+	line := logger.String()
+	line = line[0 : len(line)-1]
+	pattern := "a test$"
+	matched, err := regexp.MatchString(pattern, line)
+	if err != nil {
+		t.Fatal("! Regex Pattern did not compile:", err)
+	}
+	if !matched {
+		t.Errorf("! Message was not logged to first test logger: %q", line)
+	}
+
+	logger2.Reset()
+	c.Log("foo", "this is a test")
+	line = logger2.String()
+	line = line[0 : len(line)-1]
+	pattern = "^foo.*this is a test$"
+	matched, err = regexp.MatchString(pattern, line)
+	if err != nil {
+		t.Fatal("! Regex Pattern did not compile:", err)
+	}
+	if !matched {
+		t.Errorf("! Log to second logger did not happen correctly: %q", line)
+	}
+
+	logger.Reset()
+	c.Logf("bar", "foo %d baz", 2)
+	line = logger.String()
+	line = line[0 : len(line)-1]
+	pattern = "^bar.*foo 2 baz$"
+	matched, err = regexp.MatchString(pattern, line)
+	if err != nil {
+		t.Fatal("! pattern did not compile:", err)
+	}
+	if !matched {
+		t.Errorf("! Logf to first logger did now happen correctly: %q", line)
+	}
+
+	c.RemoveLogger("test")
+	_, found = c.Logger("test")
+
+	if found == true {
+		t.Error("! Logger found but should have been removed.")
+	}
+
 }
