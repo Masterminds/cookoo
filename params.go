@@ -100,6 +100,10 @@ func (p *Params) AsMap() map[string]interface{} {
 	return p.storage
 }
 
+func (p *Params) Len() int {
+	return len(p.storage)
+}
+
 // Given a name and a validation function, return a valid value.
 // If the value is not valid, ok = false.
 func (p *Params) Validate(name string, validator func(interface{}) bool) (value interface{}, ok bool) {

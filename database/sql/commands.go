@@ -25,7 +25,7 @@ func Ping(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interr
 
 	dbname := params.Get("dbname", nil).(string)
 
-	db, err := getDb(cxt, dbname)
+	db, err := GetDb(cxt, dbname)
 	if err != nil {
 		return false, err
 	}
@@ -50,7 +50,7 @@ func Close(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inter
 
 	dbname := params.Get("dbname", nil).(string)
 
-	db, err := getDb(cxt, dbname)
+	db, err := GetDb(cxt, dbname)
 	if err != nil {
 		return fatalError(err)
 	}
@@ -84,7 +84,7 @@ func Execute(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Int
 
 	dbname := params.Get("dbname", nil).(string)
 	statement := params.Get("statement", nil).(string)
-	db, err := getDb(cxt, dbname)
+	db, err := GetDb(cxt, dbname)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,8 @@ func Execute(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Int
 	return res, nil
 }
 
-func getDb(cxt cookoo.Context, dbname string) (*sql.DB, error) {
+// Utility function to get the database from a datasource.
+func GetDb(cxt cookoo.Context, dbname string) (*sql.DB, error) {
 	dbO, ok := cxt.HasDatasource(dbname)
 	if !ok {
 		return nil, &cookoo.FatalError{fmt.Sprintf("No DB datasource named '%s' found.", dbname)}
