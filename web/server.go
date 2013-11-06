@@ -3,7 +3,7 @@ package web
 import (
 	"github.com/masterminds/cookoo"
 	//cookoo "../"
-	"fmt"
+	//"fmt"
 	"log"
 	"net/http"
 )
@@ -156,9 +156,35 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Find the route
 	path := req.Method + " " + req.URL.Path
 
-	fmt.Printf("Handling request for %s\n", path)
+	cxt.Logf("info", "Handling request for %s\n", path)
 
 	// If a route matches, run it.
+	err := h.Router.HandleRequest(path, cxt, true)
+	if err != nil {
+		switch err.(type) {
+
+		// For a 404, we bail.
+		case *cookoo.RouteError:
+			if h.Router.HasRoute("@404") {
+				h.Router.HandleRequest("@404", cxt, false)
+			} else {
+				http.NotFound(res, req)
+			}
+			return
+		// For any other, we go to a 500.
+		case *cookoo.FatalError:
+			log.Printf("Fatal Error: %s", err)
+		default:
+			log.Printf("Untagged error: %v (%T)", err, err)
+		}
+
+		if h.Router.HasRoute("@500") {
+			h.Router.HandleRequest("@500", cxt, false)
+		} else {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+		}
+	}
+	/*
 	if h.Router.HasRoute(path) {
 		err := h.Router.HandleRequest(path, cxt, true)
 
@@ -173,11 +199,6 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 				h.Router.HandleRequest("@500", cxt, false)
 			} else {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
-				/*
-					res.Header().Add("Content-Type", "text/html")
-					res.WriteHeader(http.StatusInternalServerError)
-					res.Write([]byte("<!DOCTYPE html><html><head><title>Internal Server Error</title></head><body><h1>Internal Server Error</h1><img src=\"https://httpcats.herokuapp.com/500\"></body></html>"))
-				*/
 			}
 		}
 
@@ -190,4 +211,5 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	} else {
 		http.NotFound(res, req)
 	}
+	*/
 }
