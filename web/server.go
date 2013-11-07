@@ -184,7 +184,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 		}
 	}
-	/*
+	/* This does not correctly resolve paths.
 	if h.Router.HasRoute(path) {
 		err := h.Router.HandleRequest(path, cxt, true)
 

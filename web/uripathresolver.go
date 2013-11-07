@@ -44,7 +44,6 @@ func (r *URIPathResolver) Init(registry *cookoo.Registry) {
 // This resolver is designed to match path-like strings to path patterns. For example,
 // the path `/foo/bar/baz` may match routes like `/foo/*/baz` or `/foo/bar/*`
 func (r *URIPathResolver) Resolve(pathName string, cxt cookoo.Context) (string, error) {
-	cxt.Logf("debug", "Resolving path %s", pathName)
 	// HTTP verb support naturally falls out of the fact that spaces in paths are legal in UNIXy systems, while
 	// illegal in URI paths. So presently we do no special handling for verbs. Yay for simplicity.
 	for _, pattern := range r.registry.RouteNames() {
