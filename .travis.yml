@@ -5,15 +5,3 @@ go:
 
 notifications:
   irc: "irc.freenode.net#masterminds"
-
-# There is a case sensitivity issue with Travis CI. The naming of the repo is
-# Masterminds/Cookoo. `go get` will try to get masterminds/cookoo (notice the
-# casing). Where Travis will test a commit, branch, or pull request the call
-# to `go get` will pull the tip of master. This just won't work. So, we much
-# with Travis CI to make this work cleanly.
-before_install:
-  - cd $HOME
-  - mv $HOME/gopath/src/github.com/Masterminds $HOME/gopath/src/github.com/masterminds
-  - mv $HOME/gopath/src/github.com/masterminds/Cookoo $HOME/gopath/src/github.com/masterminds/cookoo
-  - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/masterminds/cookoo
-  - cd $HOME/gopath/src/github.com/masterminds/cookoo

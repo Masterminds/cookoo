@@ -9,8 +9,8 @@ foo.go:
 package main
 
 import(
-  "github.com/masterminds/cookoo"
-  "github.com/masterminds/cookoo/cli"
+  "github.com/Masterminds/cookoo"
+  "github.com/Masterminds/cookoo/cli"
   "fmt"
   "os"
 )

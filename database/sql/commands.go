@@ -3,7 +3,7 @@ package sql
 import (
 	"database/sql"
 	"fmt"
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	"strings"
 )
 

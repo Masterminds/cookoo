@@ -3,7 +3,7 @@
 package cookoo
 
 import (
-	cio "github.com/masterminds/cookoo/io"
+	cio "github.com/Masterminds/cookoo/io"
 	"io"
 	"log"
 )

@@ -3,7 +3,7 @@ package web
 import (
 	"bytes"
 	"fmt"
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	"html/template"
 	"io"
 	"log"

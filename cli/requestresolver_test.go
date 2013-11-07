@@ -3,7 +3,7 @@ package cli
 import (
 	"flag"
 	"fmt"
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	"testing"
 )
 

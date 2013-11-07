@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	"path"
 )
 

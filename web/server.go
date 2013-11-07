@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	//cookoo "../"
 	//"fmt"
 	"log"
@@ -35,8 +35,8 @@ import (
 //
 //    import (
 //      //This is the path to Cookoo
-//      "github.com/masterminds/cookoo/src/cookoo"
-//      "github.com/masterminds/cookoo/src/cookoo/web"
+//      "github.com/Masterminds/cookoo/src/cookoo"
+//      "github.com/Masterminds/cookoo/src/cookoo/web"
 //      "fmt"
 //    )
 //

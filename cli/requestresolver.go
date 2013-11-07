@@ -2,7 +2,7 @@ package cli
 
 import (
 	"flag"
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	//"os"
 	"strings"
 )

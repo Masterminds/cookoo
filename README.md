@@ -19,7 +19,7 @@ package main
 
 import (
 	// This is the path to Cookoo
-	"github.com/masterminds/cookoo"
+	"github.com/Masterminds/cookoo"
 	"fmt"
 )
 
