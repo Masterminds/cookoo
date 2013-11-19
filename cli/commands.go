@@ -150,7 +150,7 @@ func ShiftArgs(c cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Int
 
 	args, ok := c.Get(argName, nil).([]string)
 	if !ok {
-		return nil, &cookoo.FatalError{"Could net get arg out of context: No such arg name."}
+		return nil, &cookoo.FatalError{"Could not get arg out of context: No such arg name."}
 	}
 
 	if len(args) < n {
