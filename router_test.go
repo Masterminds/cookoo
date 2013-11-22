@@ -239,9 +239,12 @@ func TestFromValues(t *testing.T) {
 	}
 
 	param, ok := params.Has("test6")
-	if !ok {
-		t.Error("! Expected a *Param with a nil value")
-	}
+	// This expectation has changed. A nil value must be treated
+	// as a non-existing param. Otherwise there is no way to
+	// trigger defaults when no default is set on the chain itself.
+	//if !ok {
+	//	t.Error("! Expected a *Param with a nil value")
+	//}
 	if param != nil {
 		t.Error("! Expected nil value")
 	}

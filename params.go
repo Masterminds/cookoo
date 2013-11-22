@@ -31,6 +31,9 @@ func (p *Params) set(name string, value interface{}) bool {
 // Check if a parameter exists, and return it if found.
 func (p *Params) Has(name string) (value interface{}, ok bool) {
 	value, ok = p.storage[name]
+	if value == nil {
+		ok = false
+	}
 	return
 }
 

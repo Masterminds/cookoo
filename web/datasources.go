@@ -56,7 +56,13 @@ func (d *QueryParameterDatasource) Init(vals url.Values) *QueryParameterDatasour
 }
 
 func (d *QueryParameterDatasource) Value(name string) interface{} {
-	return d.Parameters.Get(name)
+	v := d.Parameters.Get(name)
+
+	// We need to do this to meet the expectations of the datasource system.
+	if len(v) == 0 {
+		return nil
+	}
+	return v
 }
 
 func (d *URLDatasource) Init(parsedUrl *url.URL) *URLDatasource {

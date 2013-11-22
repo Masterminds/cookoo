@@ -226,7 +226,10 @@ func (r *Router) defaultFromSources(sources []*fromVal, cxt Context) interface{}
 			if ds, ok := cxt.HasDatasource(src.source); ok {
 				store, ok := ds.(KeyValueDatasource)
 				if ok {
-					return store.Value(src.key)
+					v := store.Value(src.key)
+					if v != nil {
+						return v
+					}
 				}
 			}
 		}
