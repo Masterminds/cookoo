@@ -230,6 +230,7 @@ func (r *Router) defaultFromSources(sources []*fromVal, cxt Context) interface{}
 					if v != nil {
 						return v
 					}
+					//fmt.Printf("V is nil for %v\n", src)
 				}
 			}
 		}
