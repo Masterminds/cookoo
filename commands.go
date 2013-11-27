@@ -2,16 +2,17 @@
 package cookoo
 
 import (
-	"log"
 )
 
 // Print a message to the log.
 //
 // Params:
 // - msg: The message to print
+// - level: The log level (default: "info")
 func LogMessage(cxt Context, params *Params) (interface{}, Interrupt) {
 	msg := params.Get("msg", "tick")
-	log.Print(msg)
+	level := params.Get("level", "info").(string)
+	cxt.Log(level, msg)
 	return nil, nil
 }
 
