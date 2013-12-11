@@ -6,6 +6,7 @@ import (
 	//"fmt"
 	"log"
 	"net/http"
+	"runtime"
 )
 
 // Create a new Cookoo web server.
@@ -173,9 +174,15 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			return
 		// For any other, we go to a 500.
 		case *cookoo.FatalError:
-			log.Printf("Fatal Error: %s", err)
+			cxt.Logf("error", "Fatal Error: %s", err)
+			var stack []byte
+			runtime.Stack(stack, true)
+			cxt.Logf("error", "Stack Trace: %s", stack)
 		default:
-			log.Printf("Untagged error: %v (%T)", err, err)
+			cxt.Logf("error", "Untagged error: %v (%T)", err, err)
+			var stack []byte
+			runtime.Stack(stack, true)
+			cxt.Logf("error", "Stack Trace: %s", stack)
 		}
 
 		if h.Router.HasRoute("@500") {

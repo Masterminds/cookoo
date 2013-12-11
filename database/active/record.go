@@ -17,6 +17,10 @@
 // function will handle this detail.
 package active
 
+import (
+	"github.com/Masterminds/cookoo"
+)
+
 // Record describes the data storage methods on an active record.
 type Record interface {
 
@@ -42,6 +46,16 @@ type Record interface {
 	// be manually set.
 	//
 	// Attribute values on the struct may be overwritten when this is executed.
+	//
+	// Load MUST NOT have side-effects when a load fails to find a record. It MUST
+	// NOT alter the existing record if it fails to find a new record.
+	//
+	// This allows the following desired behavior:
+	//
+	// 	r := NewRecord()
+	//  r.Id = someId
+	// 	r.Load()
+	// 	r.Save() // Creates record with someId if none was found.
 	Load() error
 
 }
@@ -54,4 +68,15 @@ type Records interface {
 	Paged(offset, limit int) ([]interface{}, error)
 	// Find all records that map the given filter.
 	// Find(filter map[string]interface{}, offset, limit int) ([]interface{}, error)
+}
+
+// Load loads an already initialized record.
+func Load(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	r := p.Get("record", nil).(Record)
+	return r, r.Load()	
+}
+
+func Save(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	r := p.Get("record", nil).(Record)
+	return r, r.Save()	
 }

@@ -2,7 +2,6 @@ package cookoo
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
