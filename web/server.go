@@ -63,7 +63,7 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	http.Handle("/", handler)
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
-		log.Printf("Caught error while serving: %s", err)
+		cxt.Logf("error", "Caught error while serving: %s", err)
 		if router.HasRoute("@crash") {
 			router.HandleRequest("@crash", cxt, false)
 		}
@@ -141,7 +141,8 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	defer func() {
 		// fmt.Printf("Deferred function executed for path %s\n", req.URL.Path)
 		if err := recover(); err != nil {
-			log.Printf("FOUND ERROR: %v", err)
+			//log.Printf("FOUND ERROR: %v", err)
+			h.BaseContext.Logf("error", "CookooHandler trapped a panic: %v", err)
 			http.Error(res, "An internal error occurred.", http.StatusInternalServerError)
 		}
 	}()
