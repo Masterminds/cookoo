@@ -27,15 +27,45 @@ func TestUriPathResolver(t *testing.T) {
 	reg.Route("* /foo/bar/baz", "Test with verb")
 	reg.Route("* /foo/last", "Test with verb")
 
-	names := []string{"/foo/bar/baz", "/foo/bar/blurp", "/foo/car/baz", "/foo/anything/baz", "/foo/far/baz", "POST /foo/bar/baz", "GET /foo/last"}
-	expects := []string{"/foo/bar/baz", "/foo/bar/*", "/foo/c??/baz", "/foo/*/baz", "/foo/[cft]ar/baz", "POST /foo/bar/baz", "* /foo/last"}
-	for i, name := range names {
+	reg.Route("GET /assets/**", "Test with double wildcard")
+	reg.Route("POST /assets/foo/bar/**", "Test with double wildcard")
+	reg.Route("DELETE /foo/assets/**", "Test with double wildcard")
+	reg.Route("* /foo/**", "Test with double wildcard")
+	reg.Route("GET /**", "Match with double wildcard")
+	reg.Route("PROPFIND /assets/z/*/a/**", "Mixed wildcards")
+
+	reg.Route("**", "Match anything")
+
+	tests := map[string]string{
+		// No Verb
+		"/foo/bar/baz": "/foo/bar/baz",
+		"/foo/bar/blurp": "/foo/bar/*",
+		"/foo/car/baz":  "/foo/c??/baz",
+		"/foo/anything/baz": "/foo/*/baz",
+		"/foo/far/baz": "/foo/[cft]ar/baz",
+
+		// Verb
+		"POST /foo/bar/baz": "POST /foo/bar/baz",
+		"GET /foo/last": "* /foo/last",
+
+		// Special Wildcards
+		"GET /foo/assets/img/foo.jpg": "* /foo/**",
+		"DELETE /foo/assets/img/foo.png": "DELETE /foo/assets/**",
+		"POST /assets/foo/bar/baz/bing/a/b/c/d/e.mov": "POST /assets/foo/bar/**",
+		"GET /assets/a/b/c/d/e/f/g/h/i": "GET /assets/**",
+		"GET /zzzz/a/b/c/d/e/fgh": "GET /**",
+		"PROPFIND /assets/z/foo/a/b/c/d": "PROPFIND /assets/z/*/a/**",
+
+		"STINKY /cheese/is/excellent": "**",
+	}
+
+	for name, expects := range tests {
 		resolved, err := router.ResolveRequest(name, cxt)
 		if err != nil {
-			t.Error("Unexpected resolver error", err)
+			t.Errorf("Unexpected resolver error: %s", err)
 		}
-		if resolved != expects[i] {
-			t.Error(fmt.Sprintf("! Expected to find %s at %d; found %s", expects[i], i, resolved))
+		if resolved != expects {
+			t.Error(fmt.Sprintf("! Expected `%s` to match `%s`; got `%s`", name, expects, resolved))
 		}
 	}
 }
