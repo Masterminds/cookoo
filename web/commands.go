@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -162,4 +164,73 @@ func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 	fmt.Fprintf(out, "Request:\n %+v\n", req)
 	fmt.Fprintf(out, "\n\n\nResponse:\n%+v\n", out)
 	return true, nil
+}
+
+// ServeFiles is a cookoo command to serve files from a set of filesystem directories.
+// 
+// If no writer is specified, this will attempt to write to whatever is in the
+// Context with the key "http.ResponseWriter". If no suitable writer is found, it will
+// not write to anything at all.
+// 
+// Example:
+// 
+//     registry.Route("GET /**", "Serve assets").
+//         Does(web.ServeFiles, "fileServer").
+//            Using("directory").WithDefault("static")
+// 
+// Example 2:
+// 
+//     registry.Route("GET /foo/**", "Serve assets").
+//         Does(web.ServeFiles, "fileServer").
+//             Using("directory").WithDefault("static").
+//             Using("removePrefix").WithDefault("/foo")
+// 
+// Params:
+// - directory: A directory to serve files from.
+// - removePrefix: A prefix to remove from the url before looking for it on the filesystem.
+// - writer: A Writer of some sort. This will try to write to the HTTP response if no writer
+//   is specified.
+// - request: A request of some sort. This will try to use the HTTP request if no request
+//   is specified.
+func ServeFiles(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
+
+	writer, ok := params.Has("writer")
+	if writer == nil {
+		writer, ok = cxt.Has("http.ResponseWriter")
+		if !ok {
+			return nil, &cookoo.Reroute{"@404"}
+		}
+	}
+	out := writer.(http.ResponseWriter)
+
+	req, ok := params.Has("request")
+	if req == nil {
+		req, ok = cxt.Has("http.Request")
+		if !ok {
+			return nil, &cookoo.Reroute{"@404"}
+		}
+	}
+
+	in := req.(*http.Request)
+
+	directory := params.Get("directory", nil)
+	if directory == nil {
+		return nil, &cookoo.Reroute{"@404"}
+	}
+
+	prefix := params.Get("removePrefix", "").(string)
+	urlPath := strings.TrimPrefix(in.URL.Path, prefix)
+	staticFile := path.Join(directory.(string), urlPath)
+
+	info, err := os.Stat(staticFile)
+	if err != nil {
+		return nil, &cookoo.Reroute{"@404"}
+	}
+
+	if info.IsDir() == false {
+        http.ServeFile(out, in, staticFile)
+        return true, nil
+    } else {
+    	return nil, &cookoo.Reroute{"@404"}
+    }
 }
