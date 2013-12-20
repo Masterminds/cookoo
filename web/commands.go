@@ -167,24 +167,24 @@ func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 }
 
 // ServeFiles is a cookoo command to serve files from a set of filesystem directories.
-// 
+//
 // If no writer is specified, this will attempt to write to whatever is in the
 // Context with the key "http.ResponseWriter". If no suitable writer is found, it will
 // not write to anything at all.
-// 
+//
 // Example:
-// 
+//
 //     registry.Route("GET /**", "Serve assets").
 //         Does(web.ServeFiles, "fileServer").
 //            Using("directory").WithDefault("static")
-// 
+//
 // Example 2:
-// 
+//
 //     registry.Route("GET /foo/**", "Serve assets").
 //         Does(web.ServeFiles, "fileServer").
 //             Using("directory").WithDefault("static").
 //             Using("removePrefix").WithDefault("/foo")
-// 
+//
 // Params:
 // - directory: A directory to serve files from.
 // - removePrefix: A prefix to remove from the url before looking for it on the filesystem.
@@ -228,9 +228,9 @@ func ServeFiles(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 	}
 
 	if info.IsDir() == false {
-        http.ServeFile(out, in, staticFile)
-        return true, nil
-    } else {
-    	return nil, &cookoo.Reroute{"@404"}
-    }
+		http.ServeFile(out, in, staticFile)
+		return true, nil
+	} else {
+		return nil, &cookoo.Reroute{"@404"}
+	}
 }
