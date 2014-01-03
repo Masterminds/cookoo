@@ -33,7 +33,7 @@ type Colorizer struct {
 	writer cio.Writer
 }
 
-// Creates a new colorizer that wraps a given io.Writer.
+// NewColorizer creates a new colorizer that wraps a given io.Writer.
 func NewColorizer(writer cio.Writer) *Colorizer {
 	c := new(Colorizer)
 	c.writer = writer
@@ -41,7 +41,7 @@ func NewColorizer(writer cio.Writer) *Colorizer {
 	return c
 }
 
-// Colorizes a message and then passes it to the underlying writer.
+// Write colorizes a message and then passes it to the underlying writer.
 func (r *Colorizer) Write(data []byte) (int, error) {
 
 	str := string(data)
