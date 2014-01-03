@@ -15,7 +15,7 @@ import (
 
 // Common web-oriented commands
 
-// Send content to output.
+// Flush sends content to output.
 //
 // If no writer is specified, this will attempt to write to whatever is in the
 // Context with the key "http.ResponseWriter". If no suitable writer is found, it will
@@ -87,7 +87,7 @@ func Flush(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inter
 	return true, nil
 }
 
-// Render an HTML template.
+// RenderHTML renders an HTML template.
 //
 // This uses the `html/template` system built into Go to render data into a writer.
 //
@@ -147,7 +147,7 @@ func RenderHTML(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 	return out, nil
 }
 
-// Get the server info for this request.
+// ServerInfo gets the server info for this request.
 //
 // This assumes that `http.Request` and `http.ResponseWriter` are in the context, which
 // they are by default.
@@ -230,7 +230,7 @@ func ServeFiles(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 	if info.IsDir() == false {
 		http.ServeFile(out, in, staticFile)
 		return true, nil
-	} else {
-		return nil, &cookoo.Reroute{"@404"}
 	}
+	
+	return nil, &cookoo.Reroute{"@404"}
 }
