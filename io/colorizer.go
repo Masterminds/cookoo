@@ -47,7 +47,7 @@ func (r *Colorizer) Write(data []byte) (int, error) {
 	str := string(data)
 	if strings.HasPrefix(str, "error") {
 		str = "\033[0;31m" + str + "\033[m"
-	} else if strings.HasPrefix(str, "warning") {
+	} else if strings.HasPrefix(str, "warn") {
 		str = "\033[0;33m" + str + "\033[m"
 	} else if strings.HasPrefix(str, "info") {
 		str = "\033[0;36m" + str + "\033[m"
