@@ -171,7 +171,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 			if isType {
 				// Swallow the error.
 				// XXX: Should this be logged?
-				cxt.Logf("warn", "Recoverable Error: %v", err)
+				cxt.Logf("warn", "Continuing after Recoverable Error on route %s: %v", route, err)
 			} else {
 				// return irq.(*FatalError)
 				return irq.(error)
