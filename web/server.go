@@ -2,11 +2,8 @@ package web
 
 import (
 	"github.com/Masterminds/cookoo"
-	//cookoo "../"
-	//"fmt"
 	"log"
 	"net/http"
-	"runtime"
 )
 
 // Create a new Cookoo web server.
@@ -135,7 +132,9 @@ func (h *CookooHandler) addDatasources(cxt cookoo.Context, req *http.Request) {
 	cxt.AddDatasource("path", pathDS)
 }
 
-// The Cookoo request handling function.
+// ServeHTTP is the Cookoo request handling function.
+//
+// This is capable of handling HTTP and HTTPS requests.
 func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Trap panics and make them 500 errors:
 	defer func() {
@@ -175,49 +174,18 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			return
 		// For any other, we go to a 500.
 		case *cookoo.FatalError:
-			cxt.Logf("error", "Fatal Error: %s", err)
-			var stack []byte
-			runtime.Stack(stack, true)
-			cxt.Logf("error", "Stack Trace: %s", stack)
+			cxt.Logf("error", "Fatal Error on route '%s': %s", path, err)
 		default:
-			cxt.Logf("error", "Untagged error: %v (%T)", err, err)
-			var stack []byte
-			runtime.Stack(stack, true)
-			cxt.Logf("error", "Stack Trace: %s", stack)
+			cxt.Logf("error", "Untagged error on route '%s': %v (%T)", path, err, err)
 		}
 
 		if h.Router.HasRoute("@500") {
+			cxt.Add("error", err)
 			h.Router.HandleRequest("@500", cxt, false)
 		} else {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			// Passing the error back to the client is a bad default.
+			//http.Error(res, err.Error(), http.StatusInternalServerError)
+			http.Error(res, "Internal error processing the request.", http.StatusInternalServerError)
 		}
 	}
-	/* This does not correctly resolve paths.
-	if h.Router.HasRoute(path) {
-		err := h.Router.HandleRequest(path, cxt, true)
-
-		if err != nil {
-			fatal, ok := err.(*cookoo.FatalError)
-			if !ok {
-				log.Printf("Unknown error: %v (%T)", err, err)
-			} else {
-				log.Printf("Fatal Error: %s", fatal)
-			}
-			if h.Router.HasRoute("@500") {
-				h.Router.HandleRequest("@500", cxt, false)
-			} else {
-				http.Error(res, err.Error(), http.StatusInternalServerError)
-			}
-		}
-
-		// Else if there is a custom 404 handler, run it.
-	} else if h.Router.HasRoute("@404") {
-		// Taint mode is false for error paths.
-		h.Router.HandleRequest("@404", cxt, false)
-
-		// Else run the default 404 handler.
-	} else {
-		http.NotFound(res, req)
-	}
-	*/
 }
