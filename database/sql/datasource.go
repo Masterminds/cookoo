@@ -91,6 +91,11 @@ func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 	return stmt, nil
 }
 
+// For compatibility with database/sql.DB.Prepare
+func (c *StmtCacheMap) Prepare(statement string) (*dbsql.Stmt, error) {
+	return c.Get(statement)
+}
+
 // Clear the cache.
 func (c *StmtCacheMap) Clear() error {
 	// While I don't think this is a good idea, it might be necessary. On the
