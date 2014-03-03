@@ -32,6 +32,7 @@ import (
 // the particular request.
 //
 // Correct Usage: A Word of Warning
+//
 // =================
 //
 // The Cookoo system was designed around the theory that commands should
@@ -59,7 +60,13 @@ type Context interface {
 	Add(string, ContextValue)
 
 	// Put inserts a name/value pair into the context.
+	//
+	// This is used to add data to a context. The context does nothing
+	// to manage manipulation of context values. Values are placed in
+	// as-is, and are retrieved as-is. Unless an implementor has
+	// made a value immutable, context values are mutable.
 	Put(string, ContextValue)
+
 	// Given a name, get a value from the context.
 	//
 	// Get requires a default value (which may be nil).
@@ -141,11 +148,16 @@ type KeyValueDatasource interface {
 	Value(key string) interface{}
 }
 
+// NewContext creates a new empty cookoo.ExecutionContext and calls its Init() method.
 func NewContext() Context {
 	cxt := new(ExecutionContext).Init()
 	return cxt
 }
 
+// Init initializes a context.
+//
+// If an existing context is re-initialized, all of its associated
+// values, datasources, and loggers will be unset.
 func (cxt *ExecutionContext) Init() *ExecutionContext {
 	cxt.datasources = make(map[string]Datasource)
 	cxt.values = make(map[string]ContextValue)
