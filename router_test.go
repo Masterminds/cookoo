@@ -169,7 +169,7 @@ func TestParseFromVal(t *testing.T) {
 func TestFromValues(t *testing.T) {
 	reg, router, cxt := Cookoo()
 
-	cxt.Add("test1", 1234)
+	cxt.Put("test1", 1234)
 	cxt.AddDatasource("test2", "foo")
 
 	ds := new(MockDatasource)

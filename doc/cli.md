@@ -20,7 +20,7 @@ func main() {
 	reg, router, cxt := cookoo.Cookoo();
 
 	// Put the arguments into the context.
-	cxt.Add("os.Args", os.Args)
+	cxt.Put("os.Args", os.Args)
 
 	// Create help text
 	reg.Route("help", "Show application-scoped help.").

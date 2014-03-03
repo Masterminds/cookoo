@@ -112,7 +112,7 @@ func TestRouteSpec(t *testing.T) {
 		t.Error("! Expected an execution context.")
 	} else {
 		// Canary
-		v.Add("test", "test")
+		v.Put("test", "test")
 	}
 }
 

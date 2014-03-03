@@ -47,9 +47,9 @@ func TestDatasource(t *testing.T) {
 func TestAddGet(t *testing.T) {
 	cxt := NewContext()
 
-	cxt.Add("test1", 42)
-	cxt.Add("test2", "Geronimo!")
-	cxt.Add("test3", func() string { return "Hello" })
+	cxt.Put("test1", 42)
+	cxt.Put("test2", "Geronimo!")
+	cxt.Put("test3", func() string { return "Hello" })
 
 	// Test Get
 	equal(t, 42, cxt.Get("test1", nil))
@@ -85,12 +85,12 @@ func TestCopy(t *testing.T) {
 	lame := new(LameStruct)
 	lame.stuff = []string{"O", "Hai"}
 	c := NewContext()
-	c.Add("a", lame)
-	c.Add("b", "This is the song that never ends")
+	c.Put("a", lame)
+	c.Put("b", "This is the song that never ends")
 
 	c2 := c.Copy()
 
-	c.Add("c", 1234)
+	c.Put("c", 1234)
 
 	if c.Len() != 3 {
 		t.Error("! Canary failed. c should be 3")
@@ -100,7 +100,7 @@ func TestCopy(t *testing.T) {
 		t.Error("! c2 should be 2.")
 	}
 
-	c.Add("b", "FOO")
+	c.Put("b", "FOO")
 	if c2.Get("b", nil) == "FOO" {
 		t.Error("! b should not have changed in C2.")
 	}
@@ -130,6 +130,8 @@ func TestLogging(t *testing.T) {
 	logger2 := new(bytes.Buffer)
 	c.AddLogger("test2", logger2)
 
+	c.(*ExecutionContext).SkipLogPrefix("tinker", "bell")
+
 	log.Print("a test")
 	line := logger.String()
 	line = line[0 : len(line)-1]
@@ -156,7 +158,9 @@ func TestLogging(t *testing.T) {
 	}
 
 	logger.Reset()
+	c.Logf("tinker", "ignore")
 	c.Logf("bar", "foo %d baz", 2)
+	c.Log("bell", "ignore")
 	line = logger.String()
 	line = line[0 : len(line)-1]
 	pattern = "^bar.*foo 2 baz$"

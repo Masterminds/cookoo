@@ -9,7 +9,7 @@ func TestAtoi(t *testing.T) {
 	reg, router, c := cookoo.Cookoo()
 	reg.Route("test", "Test convert.").Does(Atoi, "i").Using("str").From("cxt:a")
 
-	c.Add("a", "100")
+	c.Put("a", "100")
 	e := router.HandleRequest("test", c, false)
 
 	if e != nil {

@@ -7,7 +7,7 @@ import (
 func TestCookooForCoCo(t *testing.T) {
 	registry, router, cxt := Cookoo()
 
-	cxt.Add("Answer", 42)
+	cxt.Put("Answer", 42)
 
 	lifeUniverseEverything := cxt.Get("Answer", nil)
 

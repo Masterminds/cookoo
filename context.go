@@ -53,8 +53,13 @@ import (
 // interaction with that datasource should happen inside of commands themselves,
 // not at the registry level.
 type Context interface {
-	// Add a name/value pair to the context.
+	// Add puts a name/value pair to the context.
+	// DEPRECATED. This will be removed in Cookoo 2.0. Use
+	// Put instead.
 	Add(string, ContextValue)
+
+	// Put inserts a name/value pair into the context.
+	Put(string, ContextValue)
 	// Given a name, get a value from the context.
 	//
 	// Get requires a default value (which may be nil).
@@ -125,6 +130,7 @@ type ExecutionContext struct {
 
 	loggers          io.Writer
 	loggerRegistered bool
+	skiplist map[string]bool
 }
 
 // A datasource that can retrieve values by (string) keys.
@@ -145,13 +151,22 @@ func (cxt *ExecutionContext) Init() *ExecutionContext {
 	cxt.values = make(map[string]ContextValue)
 	cxt.loggers = cio.NewMultiWriter()
 	cxt.loggerRegistered = false
+	cxt.skiplist = map[string]bool{}
 	return cxt
 }
 
 // Add a name/value pair to the context.
+// DEPRECATED: Use Put instead.
 func (cxt *ExecutionContext) Add(name string, value ContextValue) {
+	cxt.Log("warn", "ExecutionContext.Add() is deprecated. Use Put() instead.")
+	cxt.Put(name, value)
+}
+
+// Put inserts a value into the context.
+func (cxt *ExecutionContext) Put(name string, value ContextValue) {
 	cxt.values[name] = value
 }
+
 
 func (cxt *ExecutionContext) AsMap() map[string]ContextValue {
 	return cxt.values
@@ -231,7 +246,28 @@ func (cxt *ExecutionContext) RemoveLogger(name string) {
 	cxt.loggers.(*cio.MultiWriter).RemoveWriter(name)
 }
 
+// SkipLogPrefix ignores logging messages to any of the given prefixes.
+//
+// While this is not a part of the Context interface, the
+// ExecutionContext allows you to ignore certain logging prefixes. For
+// example, to ignore the `debug` and `info` messages, you might want to do
+// something like this:
+//
+// 	cxt.(*ExecutionContext).SkipLogPrefix("debug", "info")
+// 	cxt.Logf("debug", "This message will be ignored.")
+//
+// In the above case, the subsequent call to `Logf()` is ignored.
+func (cxt *ExecutionContext) SkipLogPrefix(prefixes ...string) {
+	cxt.skiplist = make(map[string]bool, len(prefixes))
+	for _, pre := range prefixes {
+		cxt.skiplist[pre] = true
+	}
+}
+
 func (cxt *ExecutionContext) Log(prefix string, v ...interface{}) {
+	if _, ok := cxt.skiplist[prefix]; ok {
+		return
+	}
 	tmpPrefix := log.Prefix()
 	log.SetPrefix(prefix)
 	log.Print(v...)
@@ -239,6 +275,9 @@ func (cxt *ExecutionContext) Log(prefix string, v ...interface{}) {
 }
 
 func (cxt *ExecutionContext) Logf(prefix string, format string, v ...interface{}) {
+	if _, ok := cxt.skiplist[prefix]; ok {
+		return
+	}
 	tmpPrefix := log.Prefix()
 	log.SetPrefix(prefix)
 	log.Printf(format, v...)

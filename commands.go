@@ -23,7 +23,7 @@ func LogMessage(cxt Context, params *Params) (interface{}, Interrupt) {
 func AddToContext(cxt Context, params *Params) (interface{}, Interrupt) {
 	p := params.AsMap()
 	for k, v := range p {
-		cxt.Add(k, v)
+		cxt.Put(k, v)
 	}
 	return true, nil
 }

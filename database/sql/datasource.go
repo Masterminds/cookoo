@@ -56,7 +56,7 @@ func NewStmtCache(dbHandle *dbsql.DB, initialCapacity int) StmtCache {
 //
 // The cache is driver-agnostic.
 type StmtCache interface {
-	Get(statment string) (*dbsql.Stmt, error)
+	Prepare(statement string) (*dbsql.Stmt, error)
 	Clear() error
 }
 
@@ -66,15 +66,7 @@ type StmtCacheMap struct {
 	dbh      *dbsql.DB
 }
 
-// Get a prepared statement from a SQL string.
-//
-// This will return a cached statement if one exists, otherwise
-// this will generate one, insert it into the cache, and return
-// the new statement.
-//
-// It is assumed that the underlying database layer can handle
-// parallelism with prepared statements, and we make no effort
-// to deal with locking or synchronization.
+// Deprecated. Use Prepare()
 func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 	if stmt, ok := c.cache[statement]; ok {
 		return stmt, nil
@@ -91,6 +83,15 @@ func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 	return stmt, nil
 }
 
+// Get a prepared statement from a SQL string.
+//
+// This will return a cached statement if one exists, otherwise
+// this will generate one, insert it into the cache, and return
+// the new statement.
+//
+// It is assumed that the underlying database layer can handle
+// parallelism with prepared statements, and we make no effort
+// to deal with locking or synchronization.
 // For compatibility with database/sql.DB.Prepare
 func (c *StmtCacheMap) Prepare(statement string) (*dbsql.Stmt, error) {
 	return c.Get(statement)

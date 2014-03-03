@@ -145,7 +145,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 		res, irq := r.doCommand(cmd, cxt)
 
 		// This may store a nil.
-		cxt.Add(cmd.name, res)
+		cxt.Put(cmd.name, res)
 
 		// Handle interrupts.
 		if irq != nil {

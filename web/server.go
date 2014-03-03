@@ -148,8 +148,8 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// First we need to clone the context so we have a mutable copy.
 	cxt := h.BaseContext.Copy()
 
-	cxt.Add("http.Request", req)
-	cxt.Add("http.ResponseWriter", res)
+	cxt.Put("http.Request", req)
+	cxt.Put("http.ResponseWriter", res)
 
 	// Next, we add the datasources for URL and Query params.
 	h.addDatasources(cxt, req)
@@ -180,7 +180,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 
 		if h.Router.HasRoute("@500") {
-			cxt.Add("error", err)
+			cxt.Put("error", err)
 			h.Router.HandleRequest("@500", cxt, false)
 		} else {
 			// Passing the error back to the client is a bad default.
