@@ -118,15 +118,15 @@ type Context interface {
 	Logf(prefix string, format string, v ...interface{})
 }
 
-// An empty interface defining a context value.
+// ContextValue is an empty interface defining a context value.
 // Semantically, this is the same as interface{}
 type ContextValue interface{}
 
-// An empty interface defining a Datasource.
+// Datasource is an empty interface defining a Datasource.
 // Semantically, this is the same as interface{}
 type Datasource interface{}
 
-// The core implementation of a Context.
+// ExecutionContext is the core implementation of a Context.
 //
 // An ExecutionContext is an unordered map-based context.
 type ExecutionContext struct {
@@ -137,10 +137,10 @@ type ExecutionContext struct {
 
 	loggers          io.Writer
 	loggerRegistered bool
-	skiplist map[string]bool
+	skiplist         map[string]bool
 }
 
-// A datasource that can retrieve values by (string) keys.
+// KeyValueDatasource is a datasource that can retrieve values by (string) keys.
 // Datsources can be just about anything. But a key/value datasource
 // can be used for a special purpose. They can be accessed in From()
 // clauses in a registry configuration.
@@ -179,12 +179,13 @@ func (cxt *ExecutionContext) Put(name string, value ContextValue) {
 	cxt.values[name] = value
 }
 
-
+// AsMap returns the values of the context as a map keyed by a string.
 func (cxt *ExecutionContext) AsMap() map[string]ContextValue {
 	return cxt.values
 }
 
-// Given a name, return the corresponding value from the context.
+// Get retrieves a value from the context given a name. If a value does not
+// exist on the context the default is returned.
 func (cxt *ExecutionContext) Get(name string, defaultValue interface{}) ContextValue {
 	val, ok := cxt.values[name]
 	if !ok {
@@ -193,20 +194,20 @@ func (cxt *ExecutionContext) Get(name string, defaultValue interface{}) ContextV
 	return val
 }
 
-// Get a map of all name/value pairs in the present context.
+// GetAll gets a map of all name/value pairs in the present context.
 func (cxt *ExecutionContext) GetAll() map[string]ContextValue {
 	return cxt.values
 }
 
-// A special form of Get that also returns a flag indicating if the value is found.
-// This fetches the value and also returns a flag indicating if the value was
-// found. This is useful in cases where the value may legitimately be 0.
+// Has is a special form of Get that also returns a flag indicating if the value
+// is found. This fetches the value and also returns a flag indicating if the
+// value was found. This is useful in cases where the value may legitimately be 0.
 func (cxt *ExecutionContext) Has(name string) (value ContextValue, found bool) {
 	value, found = cxt.values[name]
 	return
 }
 
-// Get a datasource from the map of datasources.
+// Datasource get a datasource from the map of datasources.
 // A datasource (e.g., a connection to a database) is retrieved as an interface
 // so its type will need to be specified before it can be used. Take an example
 // of the variable foo that is a struct of type Foo.
@@ -215,17 +216,18 @@ func (cxt *ExecutionContext) Datasource(name string) Datasource {
 	return cxt.datasources[name]
 }
 
+// Datasources gets the map of datasources.
 func (cxt *ExecutionContext) Datasources() map[string]Datasource {
 	return cxt.datasources
 }
 
-// Check whether the named datasource exists, and return it if it does.
+// HasDatasource checks whether the named datasource exists, and return it if it does.
 func (cxt *ExecutionContext) HasDatasource(name string) (Datasource, bool) {
 	value, found := cxt.datasources[name]
 	return value, found
 }
 
-// Add a datasource to the map of datasources.
+// AddDatasource adds a datasource to the map of datasources.
 // A datasource is typically something like a connection to a database that you
 // want to keep open persistently and share between requests. To add a datasource
 // to the map just add it with a name. e.g. cxt.AddDatasource("mysql", foo) where
@@ -234,15 +236,20 @@ func (cxt *ExecutionContext) AddDatasource(name string, ds Datasource) {
 	cxt.datasources[name] = ds
 }
 
+// RemoveDatasource removes a datasouce from the map of datasources.
 func (cxt *ExecutionContext) RemoveDatasource(name string) {
 	delete(cxt.datasources, name)
 }
 
+// Logger gets a logger. The logging system can have one or more loggers that
+// are stored keyed by name.
 func (cxt *ExecutionContext) Logger(name string) (io.Writer, bool) {
 	writer, found := cxt.loggers.(*cio.MultiWriter).Writer(name)
 	return writer, found
 }
 
+// AddLogger adds a logger. The logging system can have one of more loggers keyed
+// by name.
 func (cxt *ExecutionContext) AddLogger(name string, logger io.Writer) {
 	cxt.loggers.(*cio.MultiWriter).AddWriter(name, logger)
 
@@ -254,6 +261,8 @@ func (cxt *ExecutionContext) AddLogger(name string, logger io.Writer) {
 	}
 }
 
+// RemoveLogger removes a logger. The logging system can have one of more
+// loggers keyed by name.
 func (cxt *ExecutionContext) RemoveLogger(name string) {
 	cxt.loggers.(*cio.MultiWriter).RemoveWriter(name)
 }
@@ -276,6 +285,7 @@ func (cxt *ExecutionContext) SkipLogPrefix(prefixes ...string) {
 	}
 }
 
+// Log logs a message to one of more loggers.
 func (cxt *ExecutionContext) Log(prefix string, v ...interface{}) {
 	if _, ok := cxt.skiplist[prefix]; ok {
 		return
@@ -286,6 +296,7 @@ func (cxt *ExecutionContext) Log(prefix string, v ...interface{}) {
 	log.SetPrefix(tmpPrefix)
 }
 
+// Logf logs a message to one or more loggers and uses a format string.
 func (cxt *ExecutionContext) Logf(prefix string, format string, v ...interface{}) {
 	if _, ok := cxt.skiplist[prefix]; ok {
 		return
@@ -296,6 +307,7 @@ func (cxt *ExecutionContext) Logf(prefix string, format string, v ...interface{}
 	log.SetPrefix(tmpPrefix)
 }
 
+// Len returns the length of the context as in the length of the values stores.
 func (cxt *ExecutionContext) Len() int {
 	return len(cxt.values)
 }
