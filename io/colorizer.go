@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// A Colorizing logger middleman.
+// Colorizer is a Colorizing logger middleman.
 //
 // This can be used to colorize logs as they pass through to another writer. The
 // colorization uses the UNIX-style shell color coding.

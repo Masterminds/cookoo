@@ -15,6 +15,7 @@ type MultiWriter struct {
 	writers map[string]io.Writer
 }
 
+// Write sends the bytes to each of the attached writers to be written.
 func (t *MultiWriter) Write(p []byte) (n int, err error) {
 	for _, w := range t.writers {
 		n, err = w.Write(p)
@@ -29,28 +30,34 @@ func (t *MultiWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+// Init initializes the MultiWriter.
 func (t *MultiWriter) Init() *MultiWriter {
 	t.writers = make(map[string]io.Writer)
 	return t
 }
 
+// Writer retrieves a given io.Writer given its name.
 func (t *MultiWriter) Writer(name string) (io.Writer, bool) {
 	value, found := t.writers[name]
 	return value, found
 }
 
+// Writers retrieves a map of all io.Writers keyed by name.
 func (t *MultiWriter) Writers() map[string]io.Writer {
 	return t.writers
 }
 
+// AddWriter adds an io.Writer with an associated name.
 func (t *MultiWriter) AddWriter(name string, writer io.Writer) {
 	t.writers[name] = writer
 }
 
+// RemoveWriter removes an io.Writer given a name.
 func (t *MultiWriter) RemoveWriter(name string) {
 	delete(t.writers, name)
 }
 
+// NewMultiWriter returns an initialized MultiWriter.
 func NewMultiWriter() io.Writer {
 	w := new(MultiWriter).Init()
 	return w
