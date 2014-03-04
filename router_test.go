@@ -330,6 +330,9 @@ func TestFatalError(t *testing.T) {
 	if e == nil {
 		t.Error("! Expected error executing TEST")
 	}
+	if e.Error() != "Blarg" {
+		t.Error("! Message from FatalError is incorrect.")
+	}
 
 	p := context.Get("fake2", nil)
 	if p != nil {
