@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// The request resolver.
+// RequestResolver is the interface for the request resolver.
 // A request resolver is responsible for transforming a request name to
 // a route name. For example, a web-specific resolver may take a URI
 // and return a route name. Or it make take an HTTP verb and return a
@@ -15,7 +15,7 @@ type RequestResolver interface {
 	Resolve(path string, cxt Context) (string, error)
 }
 
-// The Cookoo router.
+// Router is the Cookoo router.
 // A Cookoo app works by passing a request into a router, and
 // relying on the router to execute the appropriate chain of
 // commands.
@@ -24,29 +24,32 @@ type Router struct {
 	resolver RequestResolver
 }
 
-// A basic resolver that assumes that the given request name
-// *is* the route name.
+// BasicRequestResolver is a basic resolver that assumes that the given request
+// name *is* the route name.
 type BasicRequestResolver struct {
 	registry *Registry
 	resolver RequestResolver
 }
 
+// NewRouter creates a new Router.
 func NewRouter(reg *Registry) *Router {
 	router := new(Router)
 	router.Init(reg)
 	return router
 }
 
+// Init initializes the BasicRequestResolver.
 func (r *BasicRequestResolver) Init(registry *Registry) {
 	r.registry = registry
 }
 
-// Retirms the given path.
+// Resolve returns the given path.
 // This is a non-transforming resolver.
 func (r *BasicRequestResolver) Resolve(path string, cxt Context) (string, error) {
 	return path, nil
 }
 
+// Init initializes the Router.
 func (r *Router) Init(registry *Registry) *Router {
 	r.registry = registry
 	r.resolver = new(BasicRequestResolver)
@@ -54,12 +57,12 @@ func (r *Router) Init(registry *Registry) *Router {
 	return r
 }
 
-// Set the registry.
+// SetRegistry sets the registry.
 func (r *Router) SetRegistry(reg *Registry) {
 	r.registry = reg
 }
 
-// Set the request resolver.
+// SetRequestResolver sets the request resolver.
 // The resolver is responsible for taking an arbitrary string and
 // resolving it to a registry route.
 //
@@ -68,12 +71,12 @@ func (r *Router) SetRequestResolver(resolver RequestResolver) {
 	r.resolver = resolver
 }
 
-// Get the request resolver.
+// RequestResolver gets the request resolver.
 func (r *Router) RequestResolver() RequestResolver {
 	return r.resolver
 }
 
-// Resolve a given string into a route name.
+// ResolveRequest resolver a given string into a route name.
 func (r *Router) ResolveRequest(name string, cxt Context) (string, error) {
 	routeName, e := r.resolver.Resolve(name, cxt)
 
@@ -84,7 +87,7 @@ func (r *Router) ResolveRequest(name string, cxt Context) (string, error) {
 	return routeName, nil
 }
 
-// Do a request.
+// HandleRequest does a request.
 // This executes a request "named" name (this string is passed through the
 // request resolver.) The context is cloned (shallow copy) and passed in as the
 // base context.
@@ -117,7 +120,7 @@ func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 	return e
 }
 
-// This checks whether or not the route exists.
+// HasRoute checks whether or not the route exists.
 // Note that this does NOT resolve a request name into a route name. This
 // expects a route name.
 func (r *Router) HasRoute(name string) bool {
@@ -261,11 +264,12 @@ func parseFromVal(from string) *fromVal {
 	return &fromVal{vals[0], vals[1]}
 }
 
-// Indicates that a route cannot be executed successfully.
+// RouteError indicates that a route cannot be executed successfully.
 type RouteError struct {
 	Message string
 }
 
+// Error returns the error.
 func (e *RouteError) Error() string {
 	return e.Message
 }
