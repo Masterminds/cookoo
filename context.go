@@ -326,5 +326,10 @@ func (cxt *ExecutionContext) Copy() Context {
 		newCxt.AddDatasource(k, datasource)
 	}
 
+	newEC := newCxt.(*ExecutionContext)
+	newEC.loggers = cxt.loggers 
+	newEC.skiplist = cxt.skiplist
+	newEC.loggerRegistered = cxt.loggerRegistered
+
 	return newCxt
 }
