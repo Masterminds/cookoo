@@ -307,7 +307,7 @@ func (cxt *ExecutionContext) Copy() Context {
 	ds := cxt.Datasources()
 
 	for k, v := range vals {
-		newCxt.Add(k, v)
+		newCxt.Put(k, v)
 	}
 
 	for k, datasource := range ds {
