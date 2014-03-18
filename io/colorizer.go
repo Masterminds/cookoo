@@ -53,5 +53,15 @@ func (r *Colorizer) Write(data []byte) (int, error) {
 		str = "\033[0;36m" + str + "\033[m"
 	}
 
-	return r.writer.Write([]byte(str))
+	wlen, err := r.writer.Write([]byte(str))
+
+	dlen := len(data)
+
+	// Short write.
+	if wlen < dlen {
+		return wlen, err
+	}
+
+	return dlen, err
+
 }
