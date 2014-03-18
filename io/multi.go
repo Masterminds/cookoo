@@ -22,7 +22,6 @@ func (t *MultiWriter) Write(p []byte) (n int, err error) {
 		n, err = w.Write(p)
 		if err != nil {
 			// One broken logger should not stop the others.
-			//println(err.Error())
 			fmt.Printf("Error logging to '%s': %s", name, err)
 			continue
 		}
