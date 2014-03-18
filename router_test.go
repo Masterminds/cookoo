@@ -14,10 +14,23 @@ func (self *FakeRequestResolver) Resolve(name string, cxt Context) (string, erro
 	return "FOO", nil
 }
 
+type FakeErrorRequestResolver struct {
+	BasicRequestResolver
+}
+
+func (self *FakeErrorRequestResolver) Resolve(name string, cxt Context) (string, error) {
+	if name == "test" {
+		return "test", nil
+	}
+	return "test2", &RouteError{"Route not resolved."}
+}
+
 // Test the resolver.
 func TestResolver(t *testing.T) {
 	fakeCxt := new(ExecutionContext)
+	fakeCxt.Init()
 	registry := new(Registry)
+	registry.Init()
 	r := new(Router)
 	r.Init(registry)
 
@@ -41,6 +54,39 @@ func TestResolver(t *testing.T) {
 	if path != "FOO" {
 		t.Error("Expected path to be 'test'")
 	}
+
+	// Test errors on a resolver.
+	resolver2 := new(FakeErrorRequestResolver)
+	r.SetRequestResolver(resolver2)
+	resolver2, ok2 := r.RequestResolver().(*FakeErrorRequestResolver)
+
+	if !ok2 {
+		t.Error("! Resolver is not a FakeErrorRequestResolver.")
+	}
+
+	_, e := r.ResolveRequest("test2", fakeCxt)
+	if e == nil {
+		t.Error("! Resolver did not error when it should.")
+	}
+
+	e = r.HandleRequest("test2", fakeCxt, true)
+	if e == nil {
+		t.Error("! HandleRequest did not error when it should.")
+	}
+	// Testing errors on a resolver via a reroute.
+	registry.
+		Route("test", "A test route").
+		Does(RerouteCommand, "fake").
+		Using("route").WithDefault("test2").
+		Route("test2", "a test").
+		Does(AddToContext, "fake2").
+		Using("bar").WithDefault("baz")
+
+	e = r.HandleRequest("test", fakeCxt, true)
+	if e == nil {
+		t.Error("! HandleRequest did not error on a reroute.")
+	}
+
 }
 
 func MockCommand(cxt Context, params *Params) (interface{}, Interrupt) {
@@ -166,6 +212,26 @@ func TestParseFromVal(t *testing.T) {
 	}
 }
 
+func TestRouterSetRegistry(t *testing.T) {
+	reg, router, cxt := Cookoo()
+	reg2 := NewRegistry()
+
+	reg.Route("mock", "a test").
+		Does(AddToContext, "fake").
+		Using("foo").WithDefault("bar")
+
+	reg2.Route("foo", "a test").
+		Does(AddToContext, "fake2").
+		Using("bar").WithDefault("baz")
+
+	router.SetRegistry(reg2)
+
+	e := router.HandleRequest("mock", cxt, true)
+	if e == nil {
+		t.Error("! Router should have been set to one that does not handle request.")
+	}
+}
+
 func TestFromValues(t *testing.T) {
 	reg, router, cxt := Cookoo()
 
@@ -269,6 +335,9 @@ func TestHandleRequest(t *testing.T) {
 	if e == nil {
 		t.Error("Expected tainted route to not run protected name.")
 	}
+	if e.Error() != "Route is tainted. Refusing to run." {
+		t.Error("Expected RouteError to be a tainted one.")
+	}
 
 	e = router.HandleRequest("@tainted", context, false)
 	if e != nil {
@@ -281,6 +350,14 @@ func TestHandleRequest(t *testing.T) {
 	router.HandleRequest("Several", context, false)
 	if context.Len() != 3 {
 		t.Error("! Expected three items in the context, got ", context.Len())
+	}
+
+	e = router.HandleRequest("", context, true)
+	if e == nil {
+		t.Error("Expected empty route to give error.")
+	}
+	if e.Error() != "Empty route name." {
+		t.Error("Expected RouteError to be a empty route error.")
 	}
 }
 
@@ -329,6 +406,9 @@ func TestFatalError(t *testing.T) {
 	e := router.HandleRequest("TEST", context, false)
 	if e == nil {
 		t.Error("! Expected error executing TEST")
+	}
+	if e.Error() != "Blarg" {
+		t.Error("! Message from FatalError is incorrect.")
 	}
 
 	p := context.Get("fake2", nil)

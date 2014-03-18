@@ -3,20 +3,15 @@
 package cookoo
 
 import (
-	"log"
+	"fmt"
 )
 
 type Registry struct {
 	routes            map[string]*routeSpec
 	orderedRouteNames []string
-	loggers           []*loggerSpec
 	currentRoute      *routeSpec
 	// datasources map[string]datasourceSpec
 	// currentDS datasourceSpec
-}
-
-type Logger struct {
-	impl interface{}
 }
 
 func NewRegistry() *Registry {
@@ -103,30 +98,13 @@ func (r *Registry) Includes(route string) *Registry {
 	// route.
 	spec := r.routes[route]
 	if spec == nil {
-		log.Printf("Could not find route %s. Skipping include.", route)
-		return r
+		panicString := fmt.Sprintf("Could not find route %s. Skipping include.", route)
+		panic(panicString)
 	}
 	for _, cmd := range spec.commands {
 		r.currentRoute.commands = append(r.currentRoute.commands, cmd)
 	}
 	return r
-}
-
-// Add a logger to the registry.
-// Once at least one logger has been added, the application can begin logging.
-func (r *Registry) Logger(log *Logger, options map[string]string) *Registry {
-	// Create a logger spec.
-	spec := new(loggerSpec)
-	spec.logger = log
-	spec.options = options
-
-	// Add the spec.
-	r.loggers = append(r.loggers, spec)
-	return r
-}
-
-func (r *Registry) Loggers() []*loggerSpec {
-	return r.loggers
 }
 
 func (r *Registry) RouteSpec(routeName string) (spec *routeSpec, ok bool) {
@@ -179,9 +157,4 @@ type paramSpec struct {
 	name         string
 	defaultValue interface{}
 	from         string
-}
-
-type loggerSpec struct {
-	logger  *Logger
-	options map[string]string
 }

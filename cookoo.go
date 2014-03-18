@@ -1,4 +1,4 @@
-// Cookoo is a Chain-of-Command (CoCo) framework for writing
+// Package cookoo is a Chain-of-Command (CoCo) framework for writing
 // applications.
 //
 // A chain of command framework works as follows:
@@ -59,9 +59,10 @@
 // the small Skunk application: https://github.com/technosophos/skunk.
 package cookoo
 
+// VERSION provides the current version of Cookoo.
 const VERSION = "0.0.1"
 
-// Create a new Cookoo app.
+// Cookoo creates a new Cookoo app.
 func Cookoo() (reg *Registry, router *Router, cxt Context) {
 	cxt = NewContext()
 	reg = NewRegistry()
@@ -69,23 +70,25 @@ func Cookoo() (reg *Registry, router *Router, cxt Context) {
 	return
 }
 
-// Execute a command and return a result.
+// Command executes a command and returns a result.
 // A Cookoo app has a registry, which has zero or more routes. Each route
 // executes a sequence of zero or more commands. A command is of this type.
 type Command func(cxt Context, params *Params) (interface{}, Interrupt)
 
-// Generic return for a command.
+// Interrupt is a generic return for a command.
 // Generally, a command should return one of the following in the interrupt slot:
 // - A FatalError, which will stop processing.
 // - A RecoverableError, which will continue the chain.
 // - A Reroute, which will cause a different route to be run.
 type Interrupt interface{}
 
-// A command can return a Reroute to tell the router to execute a different route.
+// Reroute is a command can return a Reroute to tell the router to execute a
+// different route.
 type Reroute struct {
 	Route string
 }
 
+// RouteTo returns the route to reroute to.
 func (rr *Reroute) RouteTo() string {
 	return rr.Route
 }
@@ -93,20 +96,22 @@ func (rr *Reroute) RouteTo() string {
 // Stop a route, but not as an error condition.
 type Stop struct{}
 
-// An error that should not cause the router to stop processing.
+// RecoverableError is an error that should not cause the router to stop processing.
 type RecoverableError struct {
 	Message string
 }
 
+// Error returns the error message.
 func (err *RecoverableError) Error() string {
 	return err.Message
 }
 
-// A fatal error, which will stop the router from continuing a route.
+// FatalError is a fatal error, which will stop the router from continuing a route.
 type FatalError struct {
 	Message string
 }
 
+// Error returns the error message.
 func (err *FatalError) Error() string {
 	return err.Message
 }

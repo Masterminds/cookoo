@@ -1,10 +1,9 @@
 // Basic commands for Cookoo.
 package cookoo
 
-import (
-)
+import ()
 
-// Print a message to the log.
+// LogMessage prints a message to the log.
 //
 // Params:
 // - msg: The message to print
@@ -16,7 +15,7 @@ func LogMessage(cxt Context, params *Params) (interface{}, Interrupt) {
 	return nil, nil
 }
 
-// Add all of the param name/value pairs into the context.
+// AddToContext adds all of the param name/value pairs into the context.
 //
 // Params:
 // - Any params will be added into the context.
@@ -28,7 +27,7 @@ func AddToContext(cxt Context, params *Params) (interface{}, Interrupt) {
 	return true, nil
 }
 
-// Forward to the given route name.
+// ForwardTo forwards to the given route name.
 //
 // To prevent possible loops or problematic re-routes, use ignoreRoutes.
 //

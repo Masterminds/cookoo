@@ -75,6 +75,10 @@ func TestAddGet(t *testing.T) {
 		t.Error("! Expected a function.")
 	}
 
+	m := cxt.AsMap()
+	if m["test1"] != 42 {
+		t.Error("! Error retrieving context as a map.")
+	}
 }
 
 type LameStruct struct {
@@ -87,6 +91,10 @@ func TestCopy(t *testing.T) {
 	c := NewContext()
 	c.Put("a", lame)
 	c.Put("b", "This is the song that never ends")
+
+	foo := new(ExampleDatasource)
+	foo.name = "bar"
+	c.AddDatasource("foo", foo)
 
 	c2 := c.Copy()
 
@@ -110,6 +118,14 @@ func TestCopy(t *testing.T) {
 	v1 := c2.Get("a", nil).(*LameStruct)
 	if v1.stuff[1] != "Noes" {
 		t.Error("! Expected shallow copy of array. Got ", v1)
+	}
+
+	d2 := new(ExampleDatasource)
+	d2.name = "bar"
+	c.AddDatasource("d2", d2)
+	_, found := c2.HasDatasource("d2")
+	if found == true {
+		t.Error("! Datasource inadvertently copied from one context to another.")
 	}
 }
 
