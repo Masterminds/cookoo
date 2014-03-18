@@ -2,6 +2,7 @@ package io
 
 import (
 	"io"
+	"fmt"
 )
 
 // MultiWriter enables you to have a writer that passes on the writing to one
@@ -17,17 +18,22 @@ type MultiWriter struct {
 
 // Write sends the bytes to each of the attached writers to be written.
 func (t *MultiWriter) Write(p []byte) (n int, err error) {
-	for _, w := range t.writers {
+	for name, w := range t.writers {
 		n, err = w.Write(p)
 		if err != nil {
-			return
+			// One broken logger should not stop the others.
+			//println(err.Error())
+			fmt.Printf("Error logging to '%s': %s", name, err)
+			continue
 		}
-		if n != len(p) {
+		if n < len(p) {
+			// One broken logger should not stop the others.
 			err = io.ErrShortWrite
-			return
+			fmt.Printf("Short write logging to '%s': Expected to write %d (%V), wrote %d", name, len(p), w, n)
+			continue
 		}
 	}
-	return len(p), nil
+	return len(p), err
 }
 
 // Init initializes the MultiWriter.
