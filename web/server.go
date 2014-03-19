@@ -4,6 +4,7 @@ import (
 	"github.com/Masterminds/cookoo"
 	"log"
 	"net/http"
+	"runtime"
 )
 
 // Create a new Cookoo web server.
@@ -142,6 +143,12 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if err := recover(); err != nil {
 			//log.Printf("FOUND ERROR: %v", err)
 			h.BaseContext.Logf("error", "CookooHandler trapped a panic: %v", err)
+
+			// Buffer for a stack trace.
+			stack := make([]byte, 8192)
+			runtime.Stack(stack, false)
+			h.BaseContext.Logf("error", "Stack: %s", stack)
+
 			http.Error(res, "An internal error occurred.", http.StatusInternalServerError)
 		}
 	}()
