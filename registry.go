@@ -93,13 +93,6 @@ func (r *Registry) From(fromVal string) *Registry {
 	return r
 }
 
-// Done ends specifing a list of routes on a Registry. This is an optional
-// method.
-// TODO: Can this be removed?
-func (r *Registry) Done() *Registry {
-	return r
-}
-
 // Get the last parameter for the last command added.
 func (r *Registry) lastParamAdded() *paramSpec {
 	cspec := r.lastCommandAdded()

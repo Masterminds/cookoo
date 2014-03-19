@@ -132,8 +132,7 @@ func TestRouteSpec(t *testing.T) {
 	reg.Route("foo", "A test route").
 		Does(AnotherCommand, "fakeCommand").
 		Using("param").WithDefault("value").
-		Using("something").WithDefault(NewContext()).
-		Done()
+		Using("something").WithDefault(NewContext())
 
 	spec, ok := reg.RouteSpec("foo")
 
