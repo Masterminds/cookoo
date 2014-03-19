@@ -88,6 +88,43 @@ func TestBasicRoute(t *testing.T) {
 
 }
 
+func TestRouteIncludes(t *testing.T) {
+	reg := new(Registry)
+	reg.Init()
+
+	reg.Route("foo", "A test route").
+		Does(AnotherCommand, "fakeCommand").
+		Using("param").WithDefault("foo").
+		Route("bar", "Another test route").
+		Does(AnotherCommand, "fakeCommand2").
+		Using("param").WithDefault("bar").
+		Includes("foo").
+		Does(AnotherCommand, "fakeCommand3").
+		Using("param").WithDefault("baz")
+
+	expecting := []string{"fakeCommand2", "fakeCommand", "fakeCommand3"}
+	spec, ok := reg.RouteSpec("bar")
+	if !ok {
+		t.Error("! Expected to find a route named 'bar'")
+	}
+	for i, k := range expecting {
+		if k != spec.commands[i].name {
+			t.Error(fmt.Sprintf("Expecting %s at position %d; got %s", k, i, spec.commands[i].name))
+		}
+	}
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("! Failed to panic when including commands for a route that does not exist.")
+		}
+	}()
+	reg2 := new(Registry)
+	reg2.Init()
+
+	reg2.Route("foo", "A test route").
+		Includes("bar")
+}
+
 func TestRouteSpec(t *testing.T) {
 	reg := new(Registry)
 	reg.Init()
@@ -95,7 +132,8 @@ func TestRouteSpec(t *testing.T) {
 	reg.Route("foo", "A test route").
 		Does(AnotherCommand, "fakeCommand").
 		Using("param").WithDefault("value").
-		Using("something").WithDefault(NewContext())
+		Using("something").WithDefault(NewContext()).
+		Done()
 
 	spec, ok := reg.RouteSpec("foo")
 
