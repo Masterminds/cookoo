@@ -72,9 +72,11 @@ type StmtCacheMap struct {
 }
 
 // Deprecated. Use Prepare()
+/*
 func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 	return c.Prepare(statement)
 }
+*/
 
 // Prepare gets a prepared statement from a SQL string.
 //
