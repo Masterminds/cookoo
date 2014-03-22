@@ -2,6 +2,7 @@ package io
 
 import (
 	"io"
+	"os"
 	"fmt"
 )
 
@@ -22,13 +23,13 @@ func (t *MultiWriter) Write(p []byte) (n int, err error) {
 		n, err = w.Write(p)
 		if err != nil {
 			// One broken logger should not stop the others.
-			fmt.Printf("Error logging to '%s': %s", name, err)
+			fmt.Fprintf(os.Stderr, "Error logging to '%s': %s", name, err)
 			continue
 		}
 		if n < len(p) {
 			// One broken logger should not stop the others.
 			err = io.ErrShortWrite
-			fmt.Printf("Short write logging to '%s': Expected to write %d (%V), wrote %d", name, len(p), w, n)
+			fmt.Fprintf(os.Stderr, "Short write logging to '%s': Expected to write %d (%V), wrote %d", name, len(p), w, n)
 			continue
 		}
 	}
