@@ -1,13 +1,17 @@
 // SQL datasource and commands for Cookoo.
+// This provides basic SQL support for Cookoo.
 package sql
 
 import (
 	dbsql "database/sql"
 )
 
-// Create a new SQL datasource.
+// NewDbDatasource creates a new SQL datasource.
 //
-// Currently, this is an empty wrapper around the built-in DB object.
+// Currently, this returns an actual *"database/sql".Db instance. Note that
+// you do not *need* to use this function in order to create a new database
+// datasource. You can simply place a database handle into the context
+// as a datasource.
 //
 // Example:
 //	ds, err := sql.NewDatasource("mysql", "root@/mpbtest")
@@ -25,13 +29,14 @@ func NewDbDatasource(driverName, datasourceName string) (*dbsql.DB, error) {
 	return dbsql.Open(driverName, datasourceName)
 }
 
-// TODO: Prepared statement cache.
-// Create a new cache for prepared statements.
+// NewStmtCache creates a new cache for prepared statements.
 //
 // Initial capacity determines how big the cache will be.
 //
 // Warning: The implementation of the caching layer will likely
-// change from relatively static to an LRU.
+// change from relatively static to an LRU. To avoid memory leaks, the
+// statement cache will automatically clear itself each time it hits
+// 1000 distinct statements.
 func NewStmtCache(dbHandle *dbsql.DB, initialCapacity int) StmtCache {
 	c := new(StmtCacheMap)
 	c.cache = make(map[string]*dbsql.Stmt, initialCapacity)
@@ -68,22 +73,10 @@ type StmtCacheMap struct {
 
 // Deprecated. Use Prepare()
 func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
-	if stmt, ok := c.cache[statement]; ok {
-		return stmt, nil
-	}
-	// Else we prepare the statement and then cache it.
-	stmt, err := c.dbh.Prepare(statement)
-	if err != nil {
-		return nil, err
-	}
-
-	// Cache by string key.
-	c.cache[statement] = stmt
-
-	return stmt, nil
+	return c.Prepare(statement)
 }
 
-// Get a prepared statement from a SQL string.
+// Prepare gets a prepared statement from a SQL string.
 //
 // This will return a cached statement if one exists, otherwise
 // this will generate one, insert it into the cache, and return
@@ -94,10 +87,29 @@ func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 // to deal with locking or synchronization.
 // For compatibility with database/sql.DB.Prepare
 func (c *StmtCacheMap) Prepare(statement string) (*dbsql.Stmt, error) {
-	return c.Get(statement)
+	if stmt, ok := c.cache[statement]; ok {
+		return stmt, nil
+	}
+	// Else we prepare the statement and then cache it.
+	stmt, err := c.dbh.Prepare(statement)
+	if err != nil {
+		return nil, err
+	}
+
+	// Hack: Until we have a statement cache, we stop memory leaks by clearing
+	// the entire cache when it hits 1000.
+	if len(c.cache) > 1000 {
+		c.cache = make(map[string]*dbsql.Stmt, c.capacity)
+	}
+
+	// Cache by string key.
+	c.cache[statement] = stmt
+	return stmt, nil
 }
 
-// Clear the cache.
+// Clear clears the cache.
+//
+// Right now, it is suggested that the 
 func (c *StmtCacheMap) Clear() error {
 	// While I don't think this is a good idea, it might be necessary. On the
 	// flip side, it might cause race conditions if one goroutine is running
