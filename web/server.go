@@ -146,8 +146,12 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 			// Buffer for a stack trace.
 			stack := make([]byte, 8192)
-			runtime.Stack(stack, false)
+			size := runtime.Stack(stack, false)
 			h.BaseContext.Logf("error", "Stack: %s", stack)
+
+			if size == 8192 {
+				h.BaseContext.Logf("error", "<truncated stack trace at 8192 bytes>")
+			}
 
 			http.Error(res, "An internal error occurred.", http.StatusInternalServerError)
 		}
