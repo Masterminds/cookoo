@@ -87,6 +87,19 @@ func TestResolver(t *testing.T) {
 		t.Error("! HandleRequest did not error on a reroute.")
 	}
 
+	if fakeCxt.Get("route.Name", "foo").(string) != "test" {
+		t.Error("! Expected route name to be test.")
+	}
+	if fakeCxt.Get("route.Description", "").(string) != "A test route" {
+		t.Error("! Unexpected route description")
+	}
+	if fakeCxt.Get("route.RequestName", "").(string) != "test" {
+		t.Errorf("Expected raw route name to be test.")
+	}
+	if n := fakeCxt.Get("command.Name", "").(string); n != "fake" {
+		t.Errorf("Expected fake to be the last command run. Got %s", n)
+	}
+
 }
 
 func MockCommand(cxt Context, params *Params) (interface{}, Interrupt) {
@@ -348,8 +361,8 @@ func TestHandleRequest(t *testing.T) {
 
 	context = NewContext()
 	router.HandleRequest("Several", context, false)
-	if context.Len() != 3 {
-		t.Error("! Expected three items in the context, got ", context.Len())
+	if context.Len() != 7 {
+		t.Errorf("! Expected three items in the context, got %d", context.Len())
 	}
 
 	e = router.HandleRequest("", context, true)

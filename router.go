@@ -101,6 +101,13 @@ func (r *Router) ResolveRequest(name string, cxt Context) (string, error) {
 // - look up the route
 // - execute each command on the route in order
 //
+// The following context variables are placed into the context during a run:
+//
+// 	route.Name - Processed name of the current route
+// 	route.Description - Description of the current route
+// 	route.RequestName - raw route name as passed by the client
+// 	command.Name - current command name (changed with each command)
+//
 // If an error occurred during processing, an error type is returned.
 func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 
@@ -111,6 +118,13 @@ func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 
 	if e != nil {
 		return e
+	}
+
+
+	cxt.Put("route.RequestName", name)
+	cxt.Put("route.Name", routeName)
+	if spec, ok := r.registry.RouteSpec(routeName); ok {
+		cxt.Put("route.Description", spec.description)
 	}
 
 	// Let an outer routine call go HandleRequest()
@@ -144,6 +158,9 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 	}
 	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
 	for _, cmd := range spec.commands {
+		// Provide info for each run.
+		cxt.Put("command.Name", cmd.name)
+
 		// fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
 		res, irq := r.doCommand(cmd, cxt)
 
