@@ -1,0 +1,8 @@
+markdown: rdiscount
+baseurl: http://masterminds.github.io/cookoo
+
+navigation:
+- text: Documentation
+  url: http://godoc.org/github.com/Masterminds/cookoo
+- text: Github
+  url: https://github.com/Masterminds/cookoo
