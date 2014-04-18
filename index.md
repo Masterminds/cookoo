@@ -1,7 +1,10 @@
 ---
 layout: article
-title: "Parsing and Serializing HTML5 in PHP"
-keywords: "PHP, HTML5, Parser, Serializer, Writer"
-description: "Parsing and Serializing (Writing) HTML5 in PHP."
+title: "Cookoo, The Chain-of-Command Controller for Go"
+keywords: "Go, Chain-of-Command, front controller, golang"
+description: ""
 ---
-Foo
+# Cookoo, The Chain-of-Command Controller for Go
+
+Cookoo is a high performance reusable controller pattern that can be used to build console (CLI) applications, API servers, middle ware, bots, and web applications.
+
