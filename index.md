@@ -6,11 +6,22 @@ description: "Learn about using the Chain-of-Command pattern in Go."
 ---
 # Cookoo, The Chain-of-Command Controller for Go
 
-Cookoo is a high performance reusable controller pattern that can be used to build console (CLI) applications, API servers, middle ware, bots, and web applications.
+Cookoo is a high performance reusable controller pattern that can be used to build console (CLI) applications, API servers, middle ware, integration tests, bots, and web applications.
 
-In its simplest form, you have a set of re-usable commands. For a callback a series of commands are executed. Each command receives information from a context and can put information back into the context.
+Think of Cookoo as a better front-controller:
+
+* Map a route pattern to a chain of commands
+* Each time a route is matched, commands are processed in order
+* A `Context` travels from command to command, making it possible to
+  pass information along.
+
+Since commands are re-usable, you can begin with existing commands, add
+your own, and rapidly assemble a collection of components that can
+simply and speed up application development.
 
 ## Getting Started with Hello World
+
+Here is a dead-simple Cookoo "Hello World" command line app.
 
     package main
 
@@ -43,4 +54,14 @@ When creating a new cookoo based application there are tree main parts:
 2. Router: handles incoming requests and routes them to the correct callback on the registry. Different types of applications will have different routers. Commands coming in from a REST application or a CLI will happen differently. Cookoo includes routers for REST and console applications.
 2. Context: an execution context passed through the chain of commands as they are executed. It contains information passed around the application along with access to other useful functions such as data sources and logging.
 
-To learn more about cookoo please see the [documentation](http://godoc.org/github.com/Masterminds/cookoo).
+But Cookoo can be used for much more than just command line apps. We use
+it for:
+
+* Web apps
+* REST servers
+* Sophisticated integration tests
+* Complex (think Git) CLIs with multiple subcommands
+
+...and that's just what *we've* done with it so far.
+
+To learn more about cookoo, check out the extensive [Go documentation](http://godoc.org/github.com/Masterminds/cookoo). And we're just getting started on the tutorial documentation. Check out the `doc/` directory in our [Git repository](https://github.com/Masterminds/cookoo) to view our work-in-progress.
