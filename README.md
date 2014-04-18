@@ -9,7 +9,7 @@ A chain-of-command framework written in Go
 
 ```
 $ cd $GOPATH
-$ go get github.com/Masterminds/Cookoo
+$ go get github.com/Masterminds/cookoo
 ```
 
 Use it as follows:
