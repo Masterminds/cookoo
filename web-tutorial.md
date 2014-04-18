@@ -1,0 +1,110 @@
+---
+layout: article
+title: Cookoo Web
+keywords: "Go, web, framework, context, http, www, html"
+description: "Learn how to build a simple web app with Cookoo."
+
+---
+
+In this short tutorial we will learn how to build a simple Web server with Cookoo.
+
+While you can build your own Cookoo-based web server, the project comes with all of the basics out of the box. Usually, that's all you need.
+
+Let's start with a simple "Hello World" server:
+
+```go
+package main
+
+import (
+	"github.com/Masterminds/cookoo"
+	"github.com/Masterminds/cookoo/web"
+)
+
+func main() {
+	registry, router, cxt := cookoo.Cookoo()
+
+	registry.Route("GET /", "The Homepage").
+		Does(web.Flush, "out").
+		Using("contentType").WithDefault("text/plain").
+		Using("content").WithDefault("Hello World")
+
+	web.Serve(registry, router, cxt)
+}
+```
+
+The above is a very simple (but functional) web server. It listens only for `GET` requests on the root (`/`) URL for this server. And it answers with a plain text document containing only the string `Hello World`.
+
+Here's how it works.
+
+## The imports
+
+Above, we import two packages:
+
+* github.com/Masterminds/cookoo: This contains the Cookoo core, and pretty much all Cookoo apps import this package.
+* github.com/Masterminds/cookoo/web: This contains the web helpers for Cookoo, including the web server and a variety of generally useful commands (like `web.Flush`).
+
+## The main Cookoo parts
+
+The first line of the `main()` function calls `cookoo.Cookoo()` to create three things:
+
+* The registry
+* The router
+* The base context
+
+The *registry* is used to declare routes. With it, we map route patterns to the chain of commands that each route will execute. In our example, we use it to create one route.
+
+The *router* is the piece responsible for executing the routes defined in the registry. In some Cookoo apps, you manually call `router.HandleRequest()`. But with our web server, we'll pass that responsibility on to `web,Serve()`.
+
+The *context* is the general-purpose container for execution data. As a route executes, commands use the context for four things:
+
+* Accessing data about its runtime environment
+* Storing data that later commands may use
+* Accessing long-term data services (think database connections) as `datasources`
+* Logging
+
+In the example above, we don't directly use the context for anything. But behind the scenes, Cookoo is using it to manage information.
+
+## Building the registry
+
+Here's our registry entry:
+
+```go
+registry.Route("GET /", "The Homepage").
+	Does(web.Flush, "out").
+	Using("contentType").WithDefault("text/plain").
+	Using("content").WithDefault("Hello World")
+```
+
+Just by reading it, we should be able to understand what it is doing:
+
+When we receive a request for "GET /" (which we'll call "The Homepage"), the router `Does` (or executes) `web.Flush` (and we call that step "out") `Using` two different parameters:
+
+* `contentType`, which has a default value of `text/plain`
+* `content`, which has a default value of `"Hello World"`
+
+Since we don't specify any way of overriding those defaults, they will always be the case.
+
+So, for example, if we use Curl to access our site, we will get a Hello World response:
+
+```
+$ curl localhost:8080/
+Hello World
+```
+
+## And... the server
+
+The last line of our `main()` function does the obvious:
+
+```go
+web.Serve(registry, router, cxt)
+```
+
+This starts up a web server, and passes in our registry, router, and context. Under the hood, Cookoo handles the basics of web serving, including basic error handling (404 and 500 errors).
+
+You can run the server on a UNIX-like system with this command:
+
+```
+$ go run server.go
+```
+
+And whenever you're tired of it, you can kill it with `CTRL-c`.
