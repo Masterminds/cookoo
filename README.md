@@ -62,8 +62,7 @@ Here's what Skunk's registry looks like:
 			Using("basedir").From("cxt:basedir").
 			Using("templates").From("cxt:templates").
 	Route("help", "Print help").
-		Does(Usage, "Testing").
-	Done()
+		Does(Usage, "Testing")
 ```
 
 This has two routes:
