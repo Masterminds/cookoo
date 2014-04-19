@@ -1,5 +1,5 @@
 markdown: rdiscount
-baseurl: http://masterminds.github.io/cookoo
+baseurl: http://masterminds.github.io/cookoo/
 
 navigation:
 - text: Documentation

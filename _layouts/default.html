@@ -11,11 +11,11 @@
     {% if page.description != empty %}
     <meta name="description" content="{{ page.description }}">
     {% endif %}
-    <link rel="stylesheet" href="assets/css/normalize.css?A" />
-    <link rel="stylesheet" href="assets/css/unsemantic-grid-responsive.css?A" />
-    <link rel="stylesheet" href="assets/css/prettify.css?A" />
-    <link rel="stylesheet" href="assets/css/github.css?A" />
-    <link rel="stylesheet" href="assets/css/cookoo.css?A" />
+    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/normalize.css?A" />
+    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/unsemantic-grid-responsive.css?A" />
+    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/prettify.css?A" />
+    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/github.css?A" />
+    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/cookoo.css?A" />
   </head>
   <body>
     <header role="banner">
@@ -46,8 +46,8 @@
       </div>
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="{{ site.baseurl }}/assets/js/jquery-1.10.2.min.js"><\/script>')</script>
-    <script src="{{ site.baseurl }}/assets/js/prettify.js?A"></script>
+    <script>window.jQuery || document.write('<script src="{{ site.baseurl }}assets/js/jquery-1.10.2.min.js"><\/script>')</script>
+    <script src="{{ site.baseurl }}assets/js/prettify.js?A"></script>
     <script>
       (function($, window, undefined) {
 
