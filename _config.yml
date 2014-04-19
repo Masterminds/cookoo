@@ -1,8 +1,10 @@
-markdown: rdiscount
+markdown: redcarpet
 baseurl: http://masterminds.github.io/cookoo/
 
 navigation:
-- text: Documentation
+- text: Docs
   url: http://godoc.org/github.com/Masterminds/cookoo
+- text: Tutorials
+  url: http://masterminds.github.io/cookoo/tutorial/
 - text: Github
   url: https://github.com/Masterminds/cookoo
