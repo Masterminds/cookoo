@@ -108,3 +108,160 @@ $ go run server.go
 ```
 
 And whenever you're tired of it, you can kill it with `CTRL-c`.
+
+## One Step Further
+
+Now that we have the basics, let's write our own command and add it to
+the existing chain. For simplicity, this command will create a simple
+text string.
+
+
+### The Cookoo Command
+
+Cookoo commands are just functions of the `cookoo.Command` type:
+
+```go 
+type Command func(cxt Context, params *Params) (interface{}, Interrupt)
+```
+
+So it's a function that takes two things:
+
+* The `cookoo.Context`, which holds data about the current route.
+* The `cookoo.Params` instance, which holds the parameters passed into
+  this specific command (think of it like `argv` on steriods).
+
+And a command returns two things:
+
+* Some value, which may be `nil`. This will get stored in the context as
+  the return value for the command.
+* A `cookoo.Interrupt` if you want to interrupt the current route. This
+  can be one of several things, including...
+  - An `error`, `cookoo.FatalError`, or `cookoo.RecoverableError`. The
+    first two will halt the executio of the route and report the error.
+    The third will report the error, but continue executing the route.
+  - A `cookoo.Reroute`, which will begin executing a different route.
+  - A `cookoo.Stop`, which will simply tell the current route to stop
+    and return.
+
+Don't fret over the details. The command we are about to build will show
+the basics, and the rest you will pick up as you go.
+
+### Making Our Own
+
+Now we can write a simple command that meets that interface.
+
+As with the rest of Go, you can organize source as you wish. I have
+created a new file, which I have named `cmd.go`. And here's what's in
+it:
+
+```go
+package main
+
+import (
+	"github.com/Masterminds/cookoo"
+	"time"
+	"fmt"
+)
+
+// MyMessage builds a simple text message and put it in the context.
+func MyMessage(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	tpl := "Route %s executed on %s"
+	now := time.Now().Format("Jan 2, 2006 at 3:04pm (MST)")
+	name := c.Get("route.Name", "unknown").(string)
+	msg := fmt.Sprintf(tpl, name, now)
+
+	return msg, nil
+}
+
+```
+
+Really, all we're doing here is creating a short string that says "Route
+NAME exectued on DATE". Nothing fancy. So let's take a look at how it
+works.
+
+The first few lines of the function body are generic. We create a string
+format (mainly so the code above formats well), and we create a string
+indicating today's date/time.
+
+But the third line of the function body illustrates one of the features
+of Cookoo:
+
+```go
+	name := c.Get("route.Name", "unknown").(string)
+```
+
+Recall that `c` is a handle to the `cookoo.Context`. There are a number
+of data that Cookoo puts into the context for each run. One such piece
+of information is `route.Name`, which is the name of the currently
+executing route (e.g. `GET /`). We could also get the description of the
+route with `route.Description`.
+
+`Get()` takes the name of a context value as the first param, and a
+default value as the second. Since context values are stored as
+`interface{}`, you will have to explicitly change the type. that's why
+we do `.(string)` at the end.
+
+**Tip**
+Cookoo's `Context` and `Params` both follow a convention where there are
+both `Get()` and `Has()` methods. `Has()` does not take a default value,
+and returns `interface{}, bool`, where the bool indicates whether the
+value was found. (That, in turn, allows you to intentionally store `nil`
+or default values in the context.)
+
+From there, we just format a string and return the resulting message.
+Note that the last line of the function does not return a
+`cookoo.Interrupt`.
+
+### Adding The Command
+
+Now we can modify the route that we declared earlier in the article:
+
+```go
+	registry.Route("GET /", "The Homepage").
+		Does(MyMessage, "msg").
+		Does(web.Flush, "out").
+		Using("contentType").WithDefault("text/plain").
+		Using("content").From("cxt:msg")
+```
+
+Notice that we've added `Does(MyMessage, "msg")`. That means that the
+first command to be executed during processing will be `MyMessage`, and
+that it's return value will be stored in the Context with the name
+`msg`.
+
+So the formatted string is generated and then stored in the context. How
+do we use it?
+
+Take a look at the second command. We've modified it since our first
+example:
+
+```go
+		Does(web.Flush, "out").
+		Using("contentType").WithDefault("text/plain").
+		Using("content").From("cxt:msg") // <-- Ooo!
+```
+
+Instead of setting the `content` param to a default message, we tell it
+to get its value from `cxt:msg`, which means "Get `msg` from the
+context".
+
+**Two Tips**
+1. You can combine `.From().WithDefault()` to achieve the effect of
+   trying to get a value from the context, but using a default if
+   nothing is found.
+2. You can draw from multiple sources in a single `From()` clause. In
+   this case, it will search the sources in the given order:
+  `From("cxt:msg path:1 post:foo"` would look for 'msg' in the context,
+  the second URL path variable, or the 'foo' value in POSTed form data.
+
+Now if we were to start the server (`go run server.go cmd.go`), we would
+get data like this:
+
+```
+$ curl localhost:8080/
+Route GET / executed on Apr 22, 2014 at 8:45am (MDT)
+```
+
+At this point you should have a basic understanding of working with
+Cookoo as a web server. Check out some of the other articles here to
+learn more.
