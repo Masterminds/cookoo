@@ -50,9 +50,9 @@ Here is a dead-simple Cookoo "Hello World" command line app.
 
 When creating a new cookoo based application there are tree main parts:
 
-1. Registry: contains the mapping of commands to callbacks along with how information is passed around the context.
-2. Router: handles incoming requests and routes them to the correct callback on the registry. Different types of applications will have different routers. Commands coming in from a REST application or a CLI will happen differently. Cookoo includes routers for REST and console applications.
-2. Context: an execution context passed through the chain of commands as they are executed. It contains information passed around the application along with access to other useful functions such as data sources and logging.
+1. _Registry_: contains the mapping of commands to callbacks along with how information is passed around the context.
+2. _Router_: handles incoming requests and routes them to the correct callback on the registry. Different types of applications will have different routers. Commands coming in from a REST application or a CLI will happen differently. Cookoo includes routers for REST and console applications.
+2. _Context_: an execution context passed through the chain of commands as they are executed. It contains information passed around the application along with access to other useful functions such as data sources and logging.
 
 But Cookoo can be used for much more than just command line apps. We use
 it for:
