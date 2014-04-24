@@ -1,5 +1,5 @@
 markdown: redcarpet
-# baseurl: http://masterminds.github.io/cookoo/
+baseurl: http://masterminds.github.io/cookoo/
 
 navigation:
 - text: Docs
