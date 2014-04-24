@@ -12,3 +12,5 @@ An introduction to building web applications with cookoo.
 
 ## [Building A Console Application](http://masterminds.github.io/cookoo/tutorial/cli/)
 A code heavy overview of building a console (CLI) application.
+
+## [Tips For Creating Reusable Commands](http://masterminds.github.io/cookoo/tutorial/tips-creating-commands/)
