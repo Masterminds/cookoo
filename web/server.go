@@ -49,9 +49,17 @@ import (
 //      	Using("writer").From(
 //
 //    	// Create a server
-//    	web.Serve(reg, router, cxt)
+//    	web.Serve(reg, router, cookoo.SyncContext(cxt))
 //    }
 //
+// Note that we synchronize the context before passing it into Serve(). This
+// is optional because each handler gets its own copy of the context already.
+// However, if commands pass the context to goroutines, the context ought to be
+// synchronized to avoid race conditions.
+//
+// Note that copies of the context are not synchronized with each other.
+// So by declaring the context synchronized here, you
+// are not therefore synchronizing across handlers.
 func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	defer shutdown(router, cxt)
 
