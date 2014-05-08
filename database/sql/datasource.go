@@ -4,6 +4,7 @@ package sql
 
 import (
 	dbsql "database/sql"
+	"sync"
 )
 
 // NewDbDatasource creates a new SQL datasource.
@@ -69,6 +70,7 @@ type StmtCacheMap struct {
 	cache    map[string]*dbsql.Stmt
 	capacity int
 	dbh      *dbsql.DB
+	mu sync.Mutex
 }
 
 // Deprecated. Use Prepare()
@@ -89,6 +91,10 @@ func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 // to deal with locking or synchronization.
 // For compatibility with database/sql.DB.Prepare
 func (c *StmtCacheMap) Prepare(statement string) (*dbsql.Stmt, error) {
+	// Protect the statment cache.
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if stmt, ok := c.cache[statement]; ok {
 		return stmt, nil
 	}
@@ -121,6 +127,8 @@ func (c *StmtCacheMap) Clear() error {
 	//	stmt.Close()
 	//}
 
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.cache = make(map[string]*dbsql.Stmt, c.capacity)
 	return nil
 }
