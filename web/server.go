@@ -157,6 +157,8 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			h.BaseContext.Logf("error", "CookooHandler trapped a panic on route '%s' in command '%s': %v", rname, where, err)
 
 			// Buffer for a stack trace.
+			// This is pretty much always worthless, as the stack has been
+			// unwound up to here.
 			stack := make([]byte, 8192)
 			size := runtime.Stack(stack, false)
 			h.BaseContext.Logf("error", "Stack: %s", stack)
