@@ -153,7 +153,8 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if err := recover(); err != nil {
 			//log.Printf("FOUND ERROR: %v", err)
 			where := cxt.Get("command.Name", "<unknown>").(string)
-			h.BaseContext.Logf("error", "CookooHandler trapped a panic in command '%s': %v", where, err)
+			rname := cxt.Get("route.Name", "<unknown>").(string)
+			h.BaseContext.Logf("error", "CookooHandler trapped a panic on route '%s' in command '%s': %v", rname, where, err)
 
 			// Buffer for a stack trace.
 			stack := make([]byte, 8192)
