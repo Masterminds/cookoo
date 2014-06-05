@@ -34,8 +34,8 @@ import (
 //
 //    import (
 //      //This is the path to Cookoo
-//      "github.com/Masterminds/cookoo/src/cookoo"
-//      "github.com/Masterminds/cookoo/src/cookoo/web"
+//      "github.com/Masterminds/cookoo"
+//      "github.com/Masterminds/cookoo/web"
 //      "fmt"
 //    )
 //
@@ -46,7 +46,6 @@ import (
 //      // Fill the registry.
 //      registry.Route("GET /", "The index").Does(web.Flush, "example").
 //      	Using("content").WithDefault("Hello World")
-//      	Using("writer").From(
 //
 //    	// Create a server
 //    	web.Serve(reg, router, cookoo.SyncContext(cxt))
