@@ -160,7 +160,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			// unwound up to here.
 			stack := make([]byte, 8192)
 			size := runtime.Stack(stack, false)
-			h.BaseContext.Logf("error", "Stack: %s", stack)
+			h.BaseContext.Logf("error", "Stack: %s", stack[:size])
 
 			if size == 8192 {
 				h.BaseContext.Logf("error", "<truncated stack trace at 8192 bytes>")
