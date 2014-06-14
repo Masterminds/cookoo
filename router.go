@@ -177,7 +177,9 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 					return e
 				}
 				//fmt.Printf("Routing to %s\n", routeName)
-				return r.runRoute(routeName, cxt, taint)
+				// MPB: I think re-routes should disable taint mode, since they
+				// are explicitly called from within the code.
+				return r.runRoute(routeName, cxt, /*taint*/ false)
 			}
 
 			_, isType = irq.(*Stop)
