@@ -188,6 +188,7 @@ func (h *CookooHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 		// For a 404, we bail.
 		case *cookoo.RouteError:
+			cxt.Logf("info", "(recovering) RouteError on route %s: %s", path, err)
 			if h.Router.HasRoute("@404") {
 				h.Router.HandleRequest("@404", cxt, false)
 			} else {
