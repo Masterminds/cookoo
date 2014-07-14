@@ -26,9 +26,10 @@ import (
 // flag levels. (The local will overwrite the global.)
 //
 // Params:
-// - args: (required) A slice of arguments. Typically, this is `cxt:args` as set by
+//
+// 	- args: (required) A slice of arguments. Typically, this is `cxt:args` as set by
 // 		cookoo.cli.RequestResolver.
-// - flagset: (required) A set if flags (see flag.FlagSet) to parse.
+// 	- flagset: (required) A set if flags (see flag.FlagSet) to parse.
 //
 // A slice of all non-flag arguments remaining after the parse are returned into the context.
 //
