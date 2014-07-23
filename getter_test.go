@@ -57,4 +57,47 @@ func TestGetters (t *testing.T) {
 	if float64(0.1234) != GetFloat64("float64", 0, p) {
 		t.Error("Expected 0.1234")
 	}
+
+	if v, ok := HasBool("bool", p); !ok {
+		t.Errorf("Expected to find bool")
+	} else if !v {
+		t.Errorf("Expected book to be true")
+	}
+
+	if v, ok := HasString("string", p); !ok {
+		t.Error("Expected to find string")
+	} else if v != "hello" {
+		t.Errorf("Expected to get the string hello")
+	}
 }
+
+func TestGetFromFirst(t *testing.T) {
+	ds := &testDs{"hello"}
+	gds := GettableDS(ds)
+	c := NewContext()
+	c.Put("test", "world")
+	gcxt := GettableCxt(c)
+
+	first, foundIn := GetFromFirst("test", "foo", gcxt, gds)
+	if "world" != first {
+		t.Errorf("Expected 'world', but got '%s'", first)
+	}
+	if _, ok := foundIn.(*gettableContext); !ok {
+		t.Error("Expected to find in context.")
+	}
+
+	second, _ := GetFromFirst("bar", "foo", gcxt, gds)
+	if "hello" != second {
+		t.Errorf("Expected hello, got %s", second)
+	}
+
+	third, defSrc := GetFromFirst("bar", "foo", gcxt)
+	if "foo" != third {
+		t.Errorf("Expected foo, got %s", third)
+	}
+
+	if GetString("***", "***", defSrc) != "foo" {
+		t.Errorf("Expected default datasource to always return foo.")
+	}
+}
+

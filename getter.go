@@ -1,9 +1,32 @@
 package cookoo
 
+/*
+This file contains mainly convenience functions for working with Params,
+Context, and KeyValueDatasource.
+
+Many of these functions are forward-looking to Cookoo 2.x, where Context and
+KeyValueDatasource will both be Getter implementations.
+*/
+
 import (
 	"reflect"
 )
 
+// Getter can get values in two ways.
+//
+// A Get() can be given a default value, in which case it will return either
+// the value associated with the key or, if that's not found, the default value.
+//
+// A Has() doesn't take a default value, but instead returns both the value
+// (if found) and a boolean flag indicating whether it is found.
+//
+// In Cookoo 1.x, Context's Get() function returns a ContextValue instead of
+// an interface. For that reason, you may need to wrap Cxt in GettableCxt
+// to make it a true Getter.
+//
+// In Cookoo 1.x, KeyValueDatasource uses Value() instead of Get()/Has(). For
+// that reason, you can wrap a KeyValueDatasource in a GettableDS() to make
+// it behave like a Getter.
 type Getter interface {
 	Get(string, interface{}) interface{}
 	Has(string) (interface{}, bool)
@@ -75,6 +98,7 @@ func GetString(key, defaultValue string, source Getter) string {
 	return ret
 }
 
+// GetBool gets a boolean value from any Getter.
 func GetBool(key string, defaultValue bool, source Getter) bool {
 	out := source.Get(key, defaultValue)
 	ret, ok := out.(bool)
@@ -84,6 +108,7 @@ func GetBool(key string, defaultValue bool, source Getter) bool {
 	return ret
 }
 
+// GetInt gets an int from any Getter.
 func GetInt(key string, defaultValue int, source Getter) int {
 	out := source.Get(key, defaultValue)
 	ret, ok := out.(int)
@@ -93,6 +118,7 @@ func GetInt(key string, defaultValue int, source Getter) int {
 	return ret
 }
 
+// GetInt64 gets an int64 from any Getter.
 func GetInt64(key string, defaultValue int64, source Getter) int64 {
 	out := source.Get(key, defaultValue)
 	ret, ok := out.(int64)
@@ -102,6 +128,7 @@ func GetInt64(key string, defaultValue int64, source Getter) int64 {
 	return ret
 }
 
+// GetInt32 gets an int32 from any Getter.
 func GetInt32(key string, defaultValue int32, source Getter) int32 {
 	out := source.Get(key, defaultValue)
 	ret, ok := out.(int32)
@@ -111,6 +138,7 @@ func GetInt32(key string, defaultValue int32, source Getter) int32 {
 	return ret
 }
 
+// GetUint64 gets a uint64 from any Getter.
 func GetUint64(key string, defaultVal uint64, source Getter) uint64 {
 	out := source.Get(key, defaultVal)
 	ret, ok := out.(uint64)
@@ -120,6 +148,7 @@ func GetUint64(key string, defaultVal uint64, source Getter) uint64 {
 	return ret
 }
 
+// GetFloat64 gets a float64 from any Getter.
 func GetFloat64(key string, defaultVal float64, source Getter) float64 {
 	out := source.Get(key, defaultVal)
 	ret, ok := out.(float64)
@@ -142,7 +171,10 @@ func HasString(key string, source Getter) (string, bool) {
 	return strval, kk
 }
 
-func HasBool(key string, defaultValue bool, source Getter) (bool, bool) {
+// HasBool returns the value and a flag indicated whether the flag value was found.
+//
+// Default value is false if ok is false.
+func HasBool(key string, source Getter) (bool, bool) {
 	v, ok := source.Has(key)
 	if !ok {
 		return false, ok
@@ -154,7 +186,10 @@ func HasBool(key string, defaultValue bool, source Getter) (bool, bool) {
 	return strval, kk
 }
 
-func HasInt(key string, defaultValue int, source Getter) (int, bool) {
+// HasInt returns the int value for key, and a flag indicated if it was found.
+//
+// If ok is false, the int value will be 0
+func HasInt(key string, source Getter) (int, bool) {
 	v, ok := source.Has(key)
 	if !ok {
 		return 0, ok
@@ -166,7 +201,10 @@ func HasInt(key string, defaultValue int, source Getter) (int, bool) {
 	return val, kk
 }
 
-func HasInt64(key string, defaultValue int64, source Getter) (int64, bool) {
+// HasInt64 returns the int64 value for key, and a flag indicated if it was found.
+//
+// If ok is false, the int value will be 0
+func HasInt64(key string, source Getter) (int64, bool) {
 	v, ok := source.Has(key)
 	if !ok {
 		return 0, ok
@@ -178,7 +216,10 @@ func HasInt64(key string, defaultValue int64, source Getter) (int64, bool) {
 	return val, kk
 }
 
-func HasInt32(key string, defaultValue int32, source Getter) (int32, bool) {
+// HasInt32 returns the int32 value for key, and a flag indicated if it was found.
+//
+// If ok is false, the int value will be 0
+func HasInt32(key string, source Getter) (int32, bool) {
 	v, ok := source.Has(key)
 	if !ok {
 		return 0, ok
@@ -190,7 +231,10 @@ func HasInt32(key string, defaultValue int32, source Getter) (int32, bool) {
 	return val, kk
 }
 
-func HasUint64(key string, defaultVal uint64, source Getter) (uint64, bool) {
+// HasUint64 returns the uint64 value for key, and a flag indicated if it was found.
+//
+// If ok is false, the int value will be 0
+func HasUint64(key string, source Getter) (uint64, bool) {
 	v, ok := source.Has(key)
 	if !ok {
 		return 0, ok
@@ -202,7 +246,10 @@ func HasUint64(key string, defaultVal uint64, source Getter) (uint64, bool) {
 	return val, kk
 }
 
-func HasFloat64(key string, defaultVal float64, source Getter) (float64, bool) {
+// HasFloat64 returns the float64 value for key, and a flag indicated if it was found.
+//
+// If ok is false, the float value will be 0
+func HasFloat64(key string, source Getter) (float64, bool) {
 	v, ok := source.Has(key)
 	if !ok {
 		return 0, ok
@@ -215,6 +262,9 @@ func HasFloat64(key string, defaultVal float64, source Getter) (float64, bool) {
 }
 
 // GetFromFirst gets the value from the first Getter that has the key.
+//
+// This provides a method for scanning, for example, Params, Context, and
+// KeyValueDatasource and returning the first one that matches.
 //
 // If no Getter has the key, the default value is returned, and the returned
 // Getter is an instance of DefaultGetter.

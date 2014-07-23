@@ -1,4 +1,29 @@
 /* The Cookoo `fmt` package provides utility wrappers for formatting text.
+
+The commands in this package provide simple string formatting and printing
+at the command level.
+
+For convenience, a basic "text/template" wrapper is included in this library,
+though a more robust "html/template" set of commands are provided in
+"github.com/Masterminds/cookoo/web".
+
+Example usage:
+
+	reg.Route("test", "Test").
+	Does(Template, "out").
+	Using("template").WithDefault("{{.Hello}} {{.one}}").
+	Using("Hello").WithDefault("Hello").
+	Using("one").WithDefault(1)
+
+Or
+
+	reg.Route("test", "Test").
+	Does(Sprintf, "out").
+	Using("format").WithDefault("%s %d").
+	Using("0").WithDefault("Hello").
+	Using("1").WithDefault(1)
+
+
 */
 package fmt
 
