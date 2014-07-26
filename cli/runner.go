@@ -129,7 +129,8 @@ func (r *Runner) startup() {
 			Does(RunSubcommand, "subcommand").
 			Using("default").WithDefault("help").
 			Using("offset").WithDefault(0).
-			Using("args").From("cxt:runner.Args")
+			Using("args").From("cxt:runner.Args").
+			Using("ignoreRoutes").WithDefault([]string{"@startup", "@subcommand"})
 	}
 
 	if _, ok := r.reg.RouteSpec("help"); !ok {
