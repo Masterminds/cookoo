@@ -127,7 +127,7 @@ func (r *Runner) startup() {
 		r.reg.Route("@subcommand", "Startup and run subcommand").
 			Includes("@startup").
 			Does(RunSubcommand, "subcommand").
-			Using("default").WithDefault("help").
+			Using("default").WithDefault("help").From("cxt:defaultRoute").
 			Using("offset").WithDefault(0).
 			Using("args").From("cxt:runner.Args").
 			Using("ignoreRoutes").WithDefault([]string{"@startup", "@subcommand"})

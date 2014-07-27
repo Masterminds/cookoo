@@ -44,6 +44,12 @@ func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.I
 	flagset := params.Get("flagset", nil).(*flag.FlagSet)
 	args := params.Get("args", nil).([]string)
 
+	// If this is true, we shift the args first.
+	if params.Get("subcommand", false).(bool) {
+		args = args[1:]
+	}
+
+
 	flagset.Parse(args)
 	addFlagsToContext(flagset, cxt)
 	return flagset.Args(), nil
