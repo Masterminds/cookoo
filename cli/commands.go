@@ -74,19 +74,25 @@ func ShowHelp(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.In
 
 	writer := params.Get("writer", os.Stdout).(io.Writer)
 
+	pmap := params.AsMap()
+
+	// Last resort: If no summary, pull it from the route description.
+	if summary, ok := pmap["summary"]; !ok || len(summary.(string)) == 0 {
+		pmap["summary"] = cxt.Get("route.Description", "").(string)
+	}
+
 	if showHelp {
-		displayHelp([]string{"summary", "description", "usage"}, params, writer)
+		displayHelp([]string{"summary", "description", "usage"}, pmap, writer)
 		return true, new(cookoo.Stop)
 	}
 
 	return false, nil
 }
 
-func displayHelp(keys []string, params *cookoo.Params, out io.Writer) {
+func displayHelp(keys []string, params map[string]interface{}, out io.Writer) {
 	for i := range keys {
 		key := keys[i]
-		msg, ok := params.Has(key)
-		if ok {
+		if msg, ok := params[key]; ok && len(msg.(string)) > 0 {
 			spacer := strings.Repeat("=", len(key))
 			fmt.Fprintf(out, "\n%s\n%s\n\n%s\n", strings.ToUpper(key), spacer, msg)
 		}
@@ -94,7 +100,7 @@ func displayHelp(keys []string, params *cookoo.Params, out io.Writer) {
 	fmt.Fprintf(out, "\n")
 
 	// Handle the flags, if set.
-	args, ok := params.Has("flags")
+	args, ok := params["flags"]
 	if ok {
 		fmt.Fprintf(out, "FLAGS\n=====\n")
 		// Name: Description (default)
