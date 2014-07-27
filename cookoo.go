@@ -1,7 +1,7 @@
 // Package cookoo is a Chain-of-Command (CoCo) framework for writing
 // applications.
 //
-// Tutorials:
+// Tutorials
 //
 // * Building Web Apps with Cookoo: https://github.com/Masterminds/cookoo-web-tutorial
 //
@@ -21,7 +21,7 @@
 // From there, use the Registry to build chains of commands, and then
 // use the Router to execute chains of commands.
 //
-// Example:
+// Example
 //
 // 	package main
 //
@@ -51,7 +51,7 @@
 // Unlike other CoCo implementations (like Pronto.js or Fortissimo),
 // Cookoo commands are just functions.
 //
-// Interrupts:
+// Interrupts
 //
 // There are four types of interrupts that you may wish to return:
 //
