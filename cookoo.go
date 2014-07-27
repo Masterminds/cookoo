@@ -9,15 +9,12 @@
 //
 // A chain of command framework works as follows:
 //
-// * A "route" is constructed as a chain of commands -- a series of
-// single-purpose tasks that are run in sequence.
-//
-// * An application is composed of one or more routes.
-//
-// * Commands in a route communicate using a Context.
-//
-// * An application Router is used to receive a route name and then
-// execute the appropriate chain of commands.
+// 	* A "route" is constructed as a chain of commands -- a series of
+// 	single-purpose tasks that are run in sequence.
+// 	* An application is composed of one or more routes.
+// 	* Commands in a route communicate using a Context.
+// 	* An application Router is used to receive a route name and then
+// 	execute the appropriate chain of commands.
 //
 // To create a new Cookoo application, use cookoo.Cookoo(). This will
 // configure and create a new registry, request router, and context.
@@ -26,29 +23,30 @@
 //
 // Example:
 //
-//    package main
+// 	package main
 //
-//    import (
-//      //This is the path to Cookoo
-//      "github.com/Masterminds/cookoo/src/cookoo"
-//      "fmt"
-//    )
+// 	import (
+// 		//This is the path to Cookoo
+// 		"github.com/Masterminds/cookoo/src/cookoo"
+// 		"fmt"
+// 	)
 //
-//    func main() {
-//      // Build a new Cookoo app.
-//      registry, router, context := cookoo.Cookoo()
+// 	func main() {
+// 		// Build a new Cookoo app.
+// 		registry, router, context := cookoo.Cookoo()
 //
-//      // Fill the registry.
-//      registry.Route("TEST", "A test route").Does(HelloWorld, "hi") //...
+// 		// Fill the registry.
+// 		registry.Route("TEST", "A test route").Does(HelloWorld, "hi") //...
 //
-//      // Execute the route.
-//      router.HandleRequest("TEST", context, false)
-//    }
+// 		// Execute the route.
+// 		router.HandleRequest("TEST", context, false)
+// 	}
 //
-//    func HelloWorld(cxt cookoo.Context, params *cookoo.Params) (interface{}, Interrupt) {
-//      fmt.Println("Hello World")
-//      return true, nil
-//    }
+// 	// An example command
+// 	func HelloWorld(cxt cookoo.Context, params *cookoo.Params) (interface{}, Interrupt) {
+// 		fmt.Println("Hello World")
+// 		return true, nil
+// 	}
 //
 // Unlike other CoCo implementations (like Pronto.js or Fortissimo),
 // Cookoo commands are just functions.
@@ -56,17 +54,18 @@
 // Interrupts:
 //
 // There are four types of interrupts that you may wish to return:
-// - FatalError: This will stop the route immediately.
-// - RecoverableError: This will allow the route to continue moving.
-// - Stop: This will stop the current request, but not as an error.
-// - Reroute: This will stop executing the current route, and switch to executing another route.
+//
+// 	1. FatalError: This will stop the route immediately.
+// 	2. RecoverableError: This will allow the route to continue moving.
+// 	3. Stop: This will stop the current request, but not as an error.
+// 	4. Reroute: This will stop executing the current route, and switch to executing another route.
 //
 // To learn how to write Cookoo applications, you may wish to examine
 // the small Skunk application: https://github.com/technosophos/skunk.
 package cookoo
 
 // VERSION provides the current version of Cookoo.
-const VERSION = "0.0.1"
+const VERSION = "1.3.0"
 
 // Cookoo creates a new Cookoo app.
 func Cookoo() (reg *Registry, router *Router, cxt Context) {
