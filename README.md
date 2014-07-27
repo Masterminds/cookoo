@@ -42,6 +42,13 @@ func HelloWorld(cxt cookoo.Context, params *cookoo.Params) interface{} {
 
 ~~~
 
+## Documentation
+
+- The [Web App tutorial](https://github.com/Masterminds/cookoo-web-tutorial)
+- The [CLI Tutorial](https://github.com/Masterminds/cookoo-cli-tutorial)
+- The [API
+  Reference](https://github.com/Masterminds/cookoo-web-tutorial)
+
 ## A Real Example
 
 For a real example of Cookoo, take a look at

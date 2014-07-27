@@ -1,5 +1,8 @@
 # Writing a CLI
 
+**Note:** There is now an official [CLI Tutorial](https://github.com/Masterminds/cookoo-cli-tutorial)
+that explains by example how to build Cookoo CLIs.
+
 The shortest Cookoo CLI you can write is this:
 
 ```go
