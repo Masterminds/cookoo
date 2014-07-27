@@ -68,6 +68,20 @@ package cookoo
 const VERSION = "1.3.0"
 
 // Cookoo creates a new Cookoo app.
+//
+// This is the main progenitor of a Cookoo application. Whether a plain
+// Cookoo app, or a Web or CLI program, this is the function you will use
+// to bootstrap.
+//
+// The `*Registry` is used to declare new routes, where a "route" may be thought
+// of as a task composed of a series of steps (commands).
+//
+// The `*Router` is responsible for the actual execution of a Cookoo route. The
+// main method used to call a route is `Router.HandleRequest()`.
+//
+// The `Context` is a container for passing information down a chain of commands.
+// Apps may insert "global" information to a context at startup and make it
+// available to all commands.
 func Cookoo() (reg *Registry, router *Router, cxt Context) {
 	cxt = NewContext()
 	reg = NewRegistry()
@@ -89,6 +103,13 @@ type Interrupt interface{}
 
 // Reroute is a command can return a Reroute to tell the router to execute a
 // different route.
+//
+// A `Command` may return a `Reroute` to cause Cookoo to stop executing the
+// current route and jump to another.
+//
+// 	func Forward(c Context, p *Params) (interface{}, Interrupt) {
+// 		return nil, &Reroute{"anotherRoute"}
+// 	}
 type Reroute struct {
 	Route string
 }
@@ -99,9 +120,15 @@ func (rr *Reroute) RouteTo() string {
 }
 
 // Stop a route, but not as an error condition.
+//
+// When Cookoo encounters a `Stop`, it will not execute any more commands on a
+// given route. However, it will not emit an error, either.
 type Stop struct{}
 
 // RecoverableError is an error that should not cause the router to stop processing.
+//
+// When Cookoo encounters a `RecoverableError`, it will log the error as a
+// warning, but will then continue to execute the next command in the route.
 type RecoverableError struct {
 	Message string
 }
@@ -112,6 +139,12 @@ func (err *RecoverableError) Error() string {
 }
 
 // FatalError is a fatal error, which will stop the router from continuing a route.
+//
+// When Cookoo encounters a `FatalError`, it will log the error and immediately
+// stop processing the route.
+//
+// Note that by default Cookoo treats and unhandled `error` as if it were a
+// `FatalError`.
 type FatalError struct {
 	Message string
 }
