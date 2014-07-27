@@ -1,6 +1,12 @@
 // Package cookoo is a Chain-of-Command (CoCo) framework for writing
 // applications.
 //
+// Tutorials:
+//
+// * Building Web Apps with Cookoo: https://github.com/Masterminds/cookoo-web-tutorial
+//
+// * Building CLI Apps with Cookoo: https://github.com/Masterminds/cookoo-cli-tutorial
+//
 // A chain of command framework works as follows:
 //
 // * A "route" is constructed as a chain of commands -- a series of
