@@ -1,6 +1,6 @@
-// Copyright 2013 Masterminds.
-
 package cookoo
+
+// Copyright 2013 Masterminds.
 
 import (
 	"fmt"

@@ -6,6 +6,9 @@
 * Added the Get* and Has* utility functions (getter.go)
 * Added GetFromFirst(string, interface) (Contextvalue, Getter) function
 * Added DefaultGetter struct
+* Added 'subcommand' param to cli.ParseArgs
+* Added 'cli.New' and 'cli.Runner'
+* Added 'fmt' package
 
 ## v1.1.0 (2014-06-06)
 
