@@ -1,6 +1,6 @@
-// Copyright 2013 Masterminds
-
 package cookoo
+
+// Copyright 2013, 1014 Masterminds
 
 import (
 	cio "github.com/Masterminds/cookoo/io"
@@ -31,9 +31,9 @@ import (
 // generally it is safe to assume that modifying a variable is localized to
 // the particular request.
 //
-// Correct Usage: A Word of Warning
+// Correct Usage
 //
-// =================
+// A word of warning.
 //
 // The Cookoo system was designed around the theory that commands should
 // generally work with datasources *directly* and context variables

@@ -1,13 +1,11 @@
-// Basic commands for Cookoo.
 package cookoo
-
-import ()
 
 // LogMessage prints a message to the log.
 //
-// Params:
-// - msg: The message to print
-// - level: The log level (default: "info")
+// Params
+//
+// 	- msg: The message to print
+// 	- level: The log level (default: "info")
 func LogMessage(cxt Context, params *Params) (interface{}, Interrupt) {
 	msg := params.Get("msg", "tick")
 	level := params.Get("level", "info").(string)
@@ -17,8 +15,9 @@ func LogMessage(cxt Context, params *Params) (interface{}, Interrupt) {
 
 // AddToContext adds all of the param name/value pairs into the context.
 //
-// Params:
-// - Any params will be added into the context.
+// Params
+//
+// 	- Any params will be added into the context.
 func AddToContext(cxt Context, params *Params) (interface{}, Interrupt) {
 	p := params.AsMap()
 	for k, v := range p {
@@ -31,9 +30,10 @@ func AddToContext(cxt Context, params *Params) (interface{}, Interrupt) {
 //
 // To prevent possible loops or problematic re-routes, use ignoreRoutes.
 //
-// Params:
-// - route: The route to forward to. This is required.
-// - ignoreRoutes: Route names that should be ignored (generate recoverable errors).
+// Params
+//
+// 	- route: The route to forward to. This is required.
+// 	- ignoreRoutes: Route names that should be ignored (generate recoverable errors).
 func ForwardTo(cxt Context, params *Params) (interface{}, Interrupt) {
 	ok, _ := params.Requires("route")
 
