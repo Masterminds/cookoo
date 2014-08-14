@@ -2,6 +2,9 @@
 
 ## v1.2.0 (Upcomming)
 
+* From() now takes an vararg of strings: `From("cxt:foo", "cxt:bar")`.
+  It can still take a space-delimited set of strings, too. In fact, both
+  can be used together:`From("cxt:foo", "cxt:bar cxt:baz")`.
 * Added Getter interface
 * Added the Get* and Has* utility functions (getter.go)
 * Added GetFromFirst(string, interface) (Contextvalue, Getter) function

@@ -4,6 +4,7 @@ package cookoo
 
 import (
 	"fmt"
+	"strings"
 )
 
 // A Registry contains the the callback routes and the commands each
@@ -87,9 +88,11 @@ func (r *Registry) WithDefault(value interface{}) *Registry {
 
 // From sepcifies where to get the value from for the most recently specified
 // paramater as set by Using.
-func (r *Registry) From(fromVal string) *Registry {
+func (r *Registry) From(fromVal ...string) *Registry {
 	param := r.lastParamAdded()
-	param.from = fromVal
+
+	// This is sort of a hack. Really, we should make params.from a []string.
+	param.from = strings.Join(fromVal, " ")
 	return r
 }
 
