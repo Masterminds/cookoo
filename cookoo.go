@@ -101,6 +101,11 @@ type Command func(cxt Context, params *Params) (interface{}, Interrupt)
 // - A Reroute, which will cause a different route to be run.
 type Interrupt interface{}
 
+// Creates a new Reroute.
+func NewReroute(route string) *Reroute {
+	return &Reroute{route}
+}
+
 // Reroute is a command can return a Reroute to tell the router to execute a
 // different route.
 //
