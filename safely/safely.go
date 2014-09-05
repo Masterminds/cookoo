@@ -26,6 +26,11 @@ type SafelyLogger interface {
 	Printf(string, ...interface{})
 }
 
+// Captures the log portion of a cookoo.Context.
+type Logger interface {
+	Logf(string, string, ...interface{})
+}
+
 // Go executes a function as a goroutine, but recovers from any panics.
 //
 // Normally, if a GoRoutine panics, it will stop execution on the current
@@ -42,6 +47,25 @@ func Go(todo GoDoer) {
 				// Seems like there should be a way to get the default logger
 				// and then pass this into GoLog.
 				log.Printf("Panic in safely.Go: %s", err)
+			}
+		}()
+		todo()
+	}()
+}
+
+// GoDo runs a Goroutine, traps panics, and logs panics to a safely.Logger.
+//
+// Example:
+//
+// 	_, _, cxt := cookoo.Cookoo()
+// 	safely.GoDo(cxt, func(){})
+//
+//
+func GoDo(cxt Logger, todo GoDoer) {
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				cxt.Logf("error", "Panic in safely.Go: %s", err)
 			}
 		}()
 		todo()
