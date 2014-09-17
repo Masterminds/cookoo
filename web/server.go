@@ -71,6 +71,7 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	http.Handle("/", handler)
 
 	server := &http.Server{Addr:addr}
+	go handleSignals(router, cxt, server)
 	err := server.ListenAndServe()
 	//err := http.ListenAndServe(addr, nil)
 	if err != nil {
@@ -79,7 +80,6 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 			router.HandleRequest("@crash", cxt, false)
 		}
 	}
-	go handleSignals(router, cxt, server)
 	// TODO: Need to figure out how to trap signals here, instead of outside.
 }
 
