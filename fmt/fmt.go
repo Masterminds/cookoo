@@ -81,9 +81,9 @@ func Template(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt
 // Also see web.Flush.
 //
 // Params:
-// 	- contents (string): The string to print.
+// 	- content (string): The string to print.
 func Println(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
-	msg := cookoo.GetString("contents", "", p)
+	msg := cookoo.GetString("content", "", p)
 	fmt.Println(msg)
 	return msg, nil
 }
