@@ -76,6 +76,18 @@ func Template(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt
 	return out.String(), nil
 }
 
+// Println prints a string to standard output, and appends a newline.
+//
+// Also see web.Flush.
+//
+// Params:
+// 	- contents (string): The string to print.
+func Println(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	msg := cookoo.GetString("contents", "", p)
+	fmt.Println(msg)
+	return msg, nil
+}
+
 // Printf formats a string and then sends it to standard out.
 //
 // This is a command wrapper for the core `fmt.Printf` function, but tooled
