@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 	"runtime"
+
+	"os"
+	"os/signal"
 )
 
 // Create a new Cookoo web server.
@@ -66,15 +69,31 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 
 	handler := NewCookooHandler(reg, router, cxt)
 	http.Handle("/", handler)
-	err := http.ListenAndServe(addr, nil)
+
+	server := &http.Server{Addr:addr}
+	err := server.ListenAndServe()
+	//err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		cxt.Logf("error", "Caught error while serving: %s", err)
 		if router.HasRoute("@crash") {
 			router.HandleRequest("@crash", cxt, false)
 		}
 	}
+	go handleSignals(router, cxt, server)
 	// TODO: Need to figure out how to trap signals here, instead of outside.
 }
+
+func handleSignals(router *cookoo.Router, cxt cookoo.Context, server *http.Server) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Kill, os.Interrupt)
+
+	s := <-sig
+	cxt.Logf("info", "Received signal %s. Shutting down.", s)
+	server.SetKeepAlivesEnabled(false)
+	shutdown(router, cxt)
+
+}
+
 func shutdown(router *cookoo.Router, cxt cookoo.Context) {
 	log.Print("Shutdown")
 	if router.HasRoute("@shutdown") {
