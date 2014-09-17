@@ -90,6 +90,7 @@ func handleSignals(router *cookoo.Router, cxt cookoo.Context, server *http.Serve
 	server.SetKeepAlivesEnabled(false)
 	// TODO: Implement graceful shutdowns.
 	shutdown(router, cxt)
+	os.Exit(0)
 
 }
 
