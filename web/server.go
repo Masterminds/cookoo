@@ -2,7 +2,6 @@ package web
 
 import (
 	"github.com/Masterminds/cookoo"
-	"log"
 	"net/http"
 	"runtime"
 
