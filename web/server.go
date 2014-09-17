@@ -93,6 +93,7 @@ func handleSignals(router *cookoo.Router, cxt cookoo.Context, server *http.Serve
 
 }
 
+// shutdown runs an @shutdown route if it's found in the router.
 func shutdown(router *cookoo.Router, cxt cookoo.Context) {
 	if router.HasRoute("@shutdown") {
 		cxt.Logf("info", "Executing route @shutdown")
