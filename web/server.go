@@ -63,8 +63,6 @@ import (
 // So by declaring the context synchronized here, you
 // are not therefore synchronizing across handlers.
 func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
-	defer shutdown(router, cxt)
-
 	addr := cxt.Get("server.Address", ":8080").(string)
 
 	handler := NewCookooHandler(reg, router, cxt)
@@ -80,9 +78,9 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 			router.HandleRequest("@crash", cxt, false)
 		}
 	}
-	// TODO: Need to figure out how to trap signals here, instead of outside.
 }
 
+// handleSignals traps kill and interrupt signals and runs shutdown().
 func handleSignals(router *cookoo.Router, cxt cookoo.Context, server *http.Server) {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Kill, os.Interrupt)
@@ -90,13 +88,14 @@ func handleSignals(router *cookoo.Router, cxt cookoo.Context, server *http.Serve
 	s := <-sig
 	cxt.Logf("info", "Received signal %s. Shutting down.", s)
 	server.SetKeepAlivesEnabled(false)
+	// TODO: Implement graceful shutdowns.
 	shutdown(router, cxt)
 
 }
 
 func shutdown(router *cookoo.Router, cxt cookoo.Context) {
-	log.Print("Shutdown")
 	if router.HasRoute("@shutdown") {
+		cxt.Logf("info", "Executing route @shutdown")
 		router.HandleRequest("@shutdown", cxt, false)
 	}
 }
