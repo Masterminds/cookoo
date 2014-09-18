@@ -2,8 +2,7 @@
 
 ## v1.2.0 (Upcomming)
 
-* Added support for @shutdown routes on web.Serve(). This requires Go
-  1.3.
+* Added support for @shutdown routes on web.Serve(). 
 * Added safely.GoDo(cxt, GoDoer)
 * NewReroute(route string) can be used to create Reroutes now.
 * From() now takes an vararg of strings: `From("cxt:foo", "cxt:bar")`.

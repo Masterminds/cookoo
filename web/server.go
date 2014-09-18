@@ -86,7 +86,8 @@ func handleSignals(router *cookoo.Router, cxt cookoo.Context, server *http.Serve
 
 	s := <-sig
 	cxt.Logf("info", "Received signal %s. Shutting down.", s)
-	server.SetKeepAlivesEnabled(false)
+	// Not particularly useful on its own.
+	// server.SetKeepAlivesEnabled(false)
 	// TODO: Implement graceful shutdowns.
 	shutdown(router, cxt)
 	os.Exit(0)
