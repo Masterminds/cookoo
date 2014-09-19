@@ -22,20 +22,21 @@ import (
 // not write to anything at all.
 //
 // Params:
-// - writer: A Writer of some sort. This will try to write to the HTTP response if no writer
-//   is specified.
-// - content: The content to write as a body. If this is a byte[], it is sent unchanged. Otherwise.
-//   we first try to convert to a string, then pass it into a writer.
-// - contentType: The content type header (e.g. text/html). Default is text/plain
-// - responseCode: Integer HTTP Response Code: Default is `http.StatusOK`.
-// - headers: a map[string]string of HTTP headers. The keys will be run through
-//   http.CannonicalHeaderKey()
+// 	- writer: A Writer of some sort. This will try to write to the HTTP response if no writer
+// 	is specified.
+// 	- content: The content to write as a body. If this is a byte[], it is sent unchanged. Otherwise.
+// 	we first try to convert to a string, then pass it into a writer.
+// 	- contentType: The content type header (e.g. text/html). Default is text/plain
+// 	- responseCode: Integer HTTP Response Code: Default is `http.StatusOK`.
+// 	- headers: a map[string]string of HTTP headers. The keys will be run through
+// 	 http.CannonicalHeaderKey()
 //
 // Note that this is optimized for writing from strings or arrays, not Readers. For larger
 // objects, you may find it more efficient to use a different command.
 //
 // Returns
-// - boolean true
+//
+// 	- boolean true
 func Flush(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 
 	// Make sure we have a place to write this stuff.
@@ -92,18 +93,18 @@ func Flush(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inter
 // This uses the `html/template` system built into Go to render data into a writer.
 //
 // Params:
-// - template (required): An html/templates.Template object.
-// - templateName (required): The name of the template to render.
-// - values: An interface{} with the values to be passed to the template. If
-//   this is not specified, the contents of the Context are passed as a map[string]interface{}.
-//   Note that datasources, in this model, are not accessible to the template.
-// - writer: The writer that data should be sent to. By default, this will create a new
-//   Buffer and put it into the context. (If no Writer was passed in, the returned writer
-//   is actually a bytes.Buffer.) To flush the contents directly to the client, you can
-//   use `.Using('writer').From('http.ResponseWriter')`.
+// 	- template (required): An html/templates.Template object.
+// 	- templateName (required): The name of the template to render.
+// 	- values: An interface{} with the values to be passed to the template. If
+// 	  this is not specified, the contents of the Context are passed as a map[string]interface{}.
+// 	  Note that datasources, in this model, are not accessible to the template.
+// 	- writer: The writer that data should be sent to. By default, this will create a new
+// 	  Buffer and put it into the context. (If no Writer was passed in, the returned writer
+// 	  is actually a bytes.Buffer.) To flush the contents directly to the client, you can
+// 	  use `.Using('writer').From('http.ResponseWriter')`.
 //
 // Returns
-// - An io.Writer. The template's contents have already been written into the writer.
+// 	- An io.Writer. The template's contents have already been written into the writer.
 //
 // Example:
 //
@@ -119,12 +120,12 @@ func Flush(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inter
 //			Using("content").From("cxt:render")
 //
 // In the example above, we do three things:
-// - Add Title and Body to the context. For the template rendered, it will see these as
-//   {{.Title}} and {{.Body}}.
-// - Render the template located in a local file called "index.html". It is recommended that
-//   a template.Template object be created at startup. This way, all of the templates can
-//   be cached immediately and shared throughout processing.
-// - Flush the result out to the client. This gives you a chance to add any additional headers.
+// 	- Add Title and Body to the context. For the template rendered, it will see these as
+// 	  {{.Title}} and {{.Body}}.
+// 	- Render the template located in a local file called "index.html". It is recommended that
+// 	  a template.Template object be created at startup. This way, all of the templates can
+// 	  be cached immediately and shared throughout processing.
+// 	- Flush the result out to the client. This gives you a chance to add any additional headers.
 func RenderHTML(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	ok, missing := params.Requires("template", "templateName")
 	if !ok {
@@ -153,7 +154,7 @@ func RenderHTML(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 // they are by default.
 //
 // Returns:
-// - boolean true
+// 	- boolean true
 func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	req := cxt.Get("http.Request", nil).(*http.Request)
 	out := cxt.Get("http.ResponseWriter", nil).(http.ResponseWriter)
@@ -186,12 +187,12 @@ func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 //             Using("removePrefix").WithDefault("/foo")
 //
 // Params:
-// - directory: A directory to serve files from.
-// - removePrefix: A prefix to remove from the url before looking for it on the filesystem.
-// - writer: A Writer of some sort. This will try to write to the HTTP response if no writer
-//   is specified.
-// - request: A request of some sort. This will try to use the HTTP request if no request
-//   is specified.
+// 	- directory: A directory to serve files from.
+// 	- removePrefix: A prefix to remove from the url before looking for it on the filesystem.
+// 	- writer: A Writer of some sort. This will try to write to the HTTP response if no writer
+// 	  is specified.
+// 	- request: A request of some sort. This will try to use the HTTP request if no request
+// 	  is specified.
 func ServeFiles(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 
 	writer, ok := params.Has("writer")
@@ -231,6 +232,5 @@ func ServeFiles(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 		http.ServeFile(out, in, staticFile)
 		return true, nil
 	}
-	
 	return nil, &cookoo.Reroute{"@404"}
 }
