@@ -15,10 +15,10 @@ import (
 // Convert a string to an integer.
 //
 // Params:
-// - str (string): A string that contains a number.
+// 	- str (string): A string that contains a number.
 //
 // Returns:
-// - An integer.
+// 	- An integer.
 func Atoi(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	src := p.Get("str", "0").(string)
 	return strconv.Atoi(src)

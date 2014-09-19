@@ -13,23 +13,23 @@ import (
  * Perform authentication.
  *
  * Params:
- * - realm (string): The name of the realm. (Default: "web")
- * - datasource (string): The name of the datasource that should be used to authenticate.
- *   This datasource must be an `auth.UserDatasource`. (Default: "auth.UserDatasource")
+ * 	- realm (string): The name of the realm. (Default: "web")
+ * 	- datasource (string): The name of the datasource that should be used to authenticate.
+ * 	  This datasource must be an `auth.UserDatasource`. (Default: "auth.UserDatasource")
  *
  * Context:
- * - http.Request (*http.Request): The HTTP request. This is usually placed into the
- * context for you.
- * - http.ResponseWriter (http.ResponseWriter): The response. This is usually placed
- *  into the context for you.
+ * 	- http.Request (*http.Request): The HTTP request. This is usually placed into the
+ * 	context for you.
+ * 	- http.ResponseWriter (http.ResponseWriter): The response. This is usually placed
+ * 	 into the context for you.
  *
  * Datasource:
- * - An auth.UserDatasource. By default, this will look for a datasource named
- *   "auth.UserDatasource". This can be overridden by the `datasource` param.
+ * 	- An auth.UserDatasource. By default, this will look for a datasource named
+ * 	  "auth.UserDatasource". This can be overridden by the `datasource` param.
  *
  * Returns:
- * - True if the user authenticated. If not, this will send a 401 and then stop
- *   the current chain.
+ * 	- True if the user authenticated. If not, this will send a 401 and then stop
+ * 	  the current chain.
  */
 func Basic(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	realm := p.Get("realm", "web").(string)

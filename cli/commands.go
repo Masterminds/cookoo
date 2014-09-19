@@ -62,12 +62,12 @@ func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.I
 // can, for example, check for a "-h" or "-help" flag and set "show" based on that.
 //
 // Params:
-// - show (bool): If `true`, show help.
-// - summary (string): A one-line summary of the command.
-// - description (string): A short description of what the command does.
-// - usage (string): usage information.
-// - flags (FlagSet): Flags that are supported. The FlagSet will be converted to help text.
-// - writer (Writer): The location that this will write to. Default is os.Stdout
+// 	- show (bool): If `true`, show help.
+// 	- summary (string): A one-line summary of the command.
+// 	- description (string): A short description of what the command does.
+// 	- usage (string): usage information.
+// 	- flags (FlagSet): Flags that are supported. The FlagSet will be converted to help text.
+// 	- writer (Writer): The location that this will write to. Default is os.Stdout
 func ShowHelp(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	showHelp := false
 	showHelpO := params.Get("show", false)
@@ -120,12 +120,12 @@ func displayHelp(keys []string, params map[string]interface{}, out io.Writer) {
 // Run a subcommand.
 //
 // Params:
-// - args: a string[] of arguments, like you get from os.Args. This will assume the first arg
-//   is a subcommand. If you have options, you should parse those out first with ParseArgs.
-// - default: The default subcommand to run if none is found.
-// - offset: By default, this assumes an os.Args, and looks up the item in os.Args[1]. You can
-//   override this behavior by setting offset to something else.
-// - ignoreRoutes: A []string of routes that should not be executed.
+// 	- args: a string[] of arguments, like you get from os.Args. This will assume the first arg
+// 	  is a subcommand. If you have options, you should parse those out first with ParseArgs.
+// 	- default: The default subcommand to run if none is found.
+// 	- offset: By default, this assumes an os.Args, and looks up the item in os.Args[1]. You can
+// 	  override this behavior by setting offset to something else.
+// 	- ignoreRoutes: A []string of routes that should not be executed.
 func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	params.Requires("args")
 
@@ -153,9 +153,9 @@ func RunSubcommand(cxt cookoo.Context, params *cookoo.Params) (interface{}, cook
 // Shift the args N (default 1) times, returning the last shifted value.
 //
 // Params:
-// n: The number of times to shift. Only the last value is returned.
-// args: The name of the context slice/array to modify. This value will be retrieved
-//   from the context. Default: "os.Args"
+// 	- n: The number of times to shift. Only the last value is returned.
+// 	- args: The name of the context slice/array to modify. This value will be retrieved
+// 	 from the context. Default: "os.Args"
 func ShiftArgs(c cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 
 	n := params.Get("n", 1).(int)
