@@ -68,6 +68,7 @@ func ParseArgs(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.I
 // 	- usage (string): usage information.
 // 	- flags (FlagSet): Flags that are supported. The FlagSet will be converted to help text.
 // 	- writer (Writer): The location that this will write to. Default is os.Stdout
+// 	- subcommands ([]string): A list of subcommands. This will be formatted as help text.
 func ShowHelp(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Interrupt) {
 	showHelp := false
 	showHelpO := params.Get("show", false)
@@ -87,8 +88,13 @@ func ShowHelp(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.In
 		pmap["summary"] = cxt.Get("route.Description", "").(string)
 	}
 
+	sections := []string{"summary", "description", "usage"}
+	if _, ok := params.Has("subcommands"); ok {
+		sections = append(sections, "subcommands")
+	}
+
 	if showHelp {
-		displayHelp([]string{"summary", "description", "usage"}, pmap, writer)
+		displayHelp(sections, pmap, writer)
 		return true, new(cookoo.Stop)
 	}
 

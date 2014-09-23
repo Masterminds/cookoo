@@ -155,9 +155,22 @@ func (r *Registry) lastCommandAdded() *commandSpec {
 	return r.currentRoute.commands[lastIndex]
 }
 
+type RouteDetails interface {
+	Name() string
+	Description() string
+}
+
 type routeSpec struct {
 	name, description string
 	commands          []*commandSpec
+}
+
+func (r *routeSpec) Name() string {
+	return r.name
+}
+
+func (r *routeSpec) Description() string {
+	return r.description
 }
 
 type commandSpec struct {

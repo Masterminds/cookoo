@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"strings"
 )
 
 
@@ -94,6 +96,70 @@ func (r *Runner) Help(summary, usage string, flags *flag.FlagSet) *Runner {
 	return r
 }
 
+// Subcommand sets up the basics for a subcommand.
+//
+// It creates a route complete with help and flags parser, then returns that
+// route for you to add commands.
+//
+// Example:
+// 	package main
+
+// 	import (
+// 		"github.com/Masterminds/cookoo"
+// 		"github.com/Masterminds/cookoo/cli"
+// 		"github.com/Masterminds/cookoo/fmt"
+//
+// 		"flag"
+// 	)
+//
+// 	func main() {
+// 		reg, router, cxt := cookoo.Cookoo()
+//
+// 		// global flags
+// 		flags := flag.NewFlagSet("global", flag.PanicOnError)
+// 		flags.Bool("h", false, "Print help")
+//
+// 		// Create a new app
+// 		app := cli.New(reg, router, cxt).Help("Test", "test -h", flags)
+//
+// 		// Create a new subcommand on that app
+// 		app.Subcommand("test", "A test route.", "example test", nil).
+// 			Does(fmt.Println, "out").Using("content").WithDefault("Hello World")
+//
+// 		helloFlags := flag.NewFlagSet("test", flag.ContinueOnError)
+// 		helloFlags.Bool("h", false, "Print help")
+// 		helloFlags.String("n", "World!", "A name to greet.")
+// 		app.Subcommand("hello", "Print hello.", "example hello -n Matt", helloFlags).
+// 			Does(fmt.Printf, "out").
+// 				Using("format").WithDefault("Hello %s\n").
+// 				Using("0").WithDefault("World").From("cxt:n")
+//
+// 		// Run the app, and let it figure out which subcommand to run.
+// 		app.RunSubcommand()
+// 	}
+//
+// The above declares two subcommands: 'test' and 'hello'. If the flags argument
+// is nil, the Subcommand will automatically create a default flagset with 
+// '-h' mapped to the help.
+//
+// Any remaining arguments are placed into the context as "subcommand.Args"
+func (r *Runner) Subcommand(name, summary, usage string, flags *flag.FlagSet) *cookoo.Registry {
+	if flags == nil {
+		flags = flag.NewFlagSet("nada", flag.ContinueOnError)
+		flags.Bool("h", false, "Show help")
+	}
+	return r.reg.Route(name, summary).
+		Does(ShiftArgs, "_").Using("n").WithDefault(1).
+		Does(ParseArgs, "subcommand.Args").
+			Using("flagset").WithDefault(flags).
+			Using("args").From("cxt:os.Args").
+		Does(ShowHelp, "subcommandHelp").
+			Using("show").From("cxt:h").
+			Using("summary").WithDefault(summary).
+			Using("usage").WithDefault(usage).
+			Using("flags").WithDefault(flags)
+}
+
 func (r *Runner) startup() {
 
 	if r.flags == nil {
@@ -117,11 +183,13 @@ func (r *Runner) startup() {
 				Using("summary").WithDefault(r.summary).
 				Using("usage").WithDefault(r.usage).
 				Using("flags").WithDefault(r.flags).
+				Using("subcommands").From("cxt:subcommandHelp").
 			Does(ShowHelp, "-help"). // Stupid hack. FIXME.
 				Using("show").From("cxt:help").
 				Using("summary").WithDefault(r.summary).
 				Using("usage").WithDefault(r.usage).
-				Using("flags").WithDefault(r.flags)
+				Using("flags").WithDefault(r.flags).
+				Using("subcommands").From("cxt:subcommandHelp")
 	}
 	if _, ok := r.reg.RouteSpec("@subcommand"); !ok {
 		r.reg.Route("@subcommand", "Startup and run subcommand").
@@ -134,7 +202,7 @@ func (r *Runner) startup() {
 	}
 
 	if _, ok := r.reg.RouteSpec("help"); !ok {
-		r.reg.Route("help", "Basic help command.").
+		r.reg.Route("help", "Show help.").
 			Does(ShowHelp, "help").
 			Using("show").WithDefault(true).
 			Using("summary").WithDefault(r.summary).
@@ -181,5 +249,22 @@ func (r *Runner) Run(route string) error {
 //
 func (r *Runner) RunSubcommand() error {
 	r.startup()
+	shelp := subcommandHelp(r.reg)
+	r.cxt.Put("subcommandHelp", shelp)
 	return r.router.HandleRequest("@subcommand", r.cxt, false)
+}
+
+func subcommandHelp(reg *cookoo.Registry) string {
+	names := reg.RouteNames()
+	helptext := make([]string, 0, len(names))
+	for _, name := range names {
+		if strings.HasPrefix(name, "@") {
+			continue
+		}
+
+		rs, _ := reg.RouteSpec(name)
+		help := fmt.Sprintf("\t%s: %s", name, cookoo.RouteDetails(rs).Description())
+		helptext = append(helptext, help)
+	}
+	return strings.Join(helptext, "\n")
 }
