@@ -29,6 +29,18 @@ type URLDatasource struct {
 	URL *url.URL
 }
 
+type RequestHeaderDatasource struct {
+	req *http.Request
+}
+
+func (r *RequestHeaderDatasource) Init(req *http.Request) *RequestHeaderDatasource {
+	r.req = req
+	return r
+}
+func (r *RequestHeaderDatasource) Value(name string) interface{} {
+	return r.req.Header.Get(name)
+}
+
 // Access to name/value pairs in POST/PUT form data from the body.
 // This will attempt to access form data supplied in the HTTP request's body.
 // If the MIME type is not correct or if there is no POST data, no data will

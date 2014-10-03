@@ -152,12 +152,14 @@ func (h *CookooHandler) addDatasources(cxt cookoo.Context, req *http.Request) {
 	queryDS := new(QueryParameterDatasource).Init(parsedURL.Query())
 	formDS := new(FormValuesDatasource).Init(req)
 	pathDS := new(PathDatasource).Init(parsedURL.Path)
+	headerDS := new(RequestHeaderDatasource).Init(req)
 
 	cxt.AddDatasource("url", urlDS)
 	cxt.AddDatasource("query", queryDS)
 	// cxt.AddDatasource("q", queryDS)
 	cxt.AddDatasource("post", formDS)
 	cxt.AddDatasource("path", pathDS)
+	cxt.AddDatasource("header", headerDS)
 }
 
 // ServeHTTP is the Cookoo request handling function.
