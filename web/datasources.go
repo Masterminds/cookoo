@@ -38,7 +38,15 @@ func (r *RequestHeaderDatasource) Init(req *http.Request) *RequestHeaderDatasour
 	return r
 }
 func (r *RequestHeaderDatasource) Value(name string) interface{} {
-	return r.req.Header.Get(name)
+	// We return a nil so that the context can substitute in a
+	// default value. Empty string for headers seems to always mean
+	// "No header found". So a default value 'bar' is what is expected when
+	// From("header:foo").WithDefault("bar") and foo is not present.
+	v := r.req.Header.Get(name)
+	if len(v) == 0 {
+		return nil
+	}
+	return v
 }
 
 // Access to name/value pairs in POST/PUT form data from the body.
