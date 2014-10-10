@@ -9,7 +9,7 @@ import (
 	"os/signal"
 )
 
-// Create a new Cookoo web server.
+// Serve creates a new Cookoo web server.
 //
 // Important details:
 //
@@ -71,6 +71,30 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	go handleSignals(router, cxt, server)
 	err := server.ListenAndServe()
 	//err := http.ListenAndServe(addr, nil)
+	if err != nil {
+		cxt.Logf("error", "Caught error while serving: %s", err)
+		if router.HasRoute("@crash") {
+			router.HandleRequest("@crash", cxt, false)
+		}
+	}
+}
+
+// ServeTLS does the same as Serve, but with SSL support.
+//
+// If `server.Address` is not found in the context, the default address is
+// `:4433`.
+//
+// Neither certFile nor keyFile are stored in the context. These values are
+// considered to be security sensitive.
+func ServeTLS(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context, certFile, keyFile string) {
+	addr := cxt.Get("server.Address", ":4433").(string)
+
+	handler := NewCookooHandler(reg, router, cxt)
+	http.Handle("/", handler)
+
+	server := &http.Server{Addr:addr}
+	go handleSignals(router, cxt, server)
+	err := server.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		cxt.Logf("error", "Caught error while serving: %s", err)
 		if router.HasRoute("@crash") {
