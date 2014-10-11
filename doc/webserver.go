@@ -30,7 +30,7 @@ func main() {
 	reg.Route("GET /test", "Simple test route.").
 		Does(fmt.Template, "content").
 			Using("template").WithDefault("Hello {{.you}}").
-			Using("you").WithDefault("test").From("query:you").
+		Using("you").WithDefault("test").From("query:you").
 		Does(web.Flush, "out").
 			Using("content").From("cxt:content")
 

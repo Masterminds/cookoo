@@ -66,7 +66,11 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 
 	handler := NewCookooHandler(reg, router, cxt)
 
-	// MPB: Do we need the multiplexer if we do things this way?
+	// MPB: I dont think there's any real point in having a multiplexer in
+	// this particular case. The Cookoo handler is mux enough.
+	//
+	// Note that we can always use Cookoo with the built-in multiplexer. It
+	// just doesn't make sense if Cookoo's the only handler on the app.
 	//http.Handle("/", handler)
 
 	server := &http.Server{Addr:addr}
@@ -97,10 +101,9 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 func ServeTLS(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context, certFile, keyFile string) {
 	addr := cxt.Get("server.Address", ":4433").(string)
 
-	handler := NewCookooHandler(reg, router, cxt)
-	http.Handle("/", handler)
-
 	server := &http.Server{Addr:addr}
+	server.Handler = NewCookooHandler(reg, router, cxt)
+
 	go handleSignals(router, cxt, server)
 	err := server.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
