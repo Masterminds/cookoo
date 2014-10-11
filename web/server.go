@@ -65,9 +65,17 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	addr := cxt.Get("server.Address", ":8080").(string)
 
 	handler := NewCookooHandler(reg, router, cxt)
-	http.Handle("/", handler)
+
+	// MPB: Do we need the multiplexer if we do things this way?
+	//http.Handle("/", handler)
 
 	server := &http.Server{Addr:addr}
+
+	// Instead of mux, set a single default handler.
+	// What we might be losing:
+	// - Handling of non-conforming paths.
+	server.Handler = handler
+
 	go handleSignals(router, cxt, server)
 	err := server.ListenAndServe()
 	//err := http.ListenAndServe(addr, nil)
