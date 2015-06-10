@@ -13,21 +13,21 @@ import (
 //
 // Important details:
 //
-// - A URIPathResolver is used for resolving request names.
-// - The following datasources are added to the Context:
-//   * url: A URLDatasource (Provides access to parts of the URL)
-//   * path: A PathDatasource (Provides access to parts of a path. E.g. "/foo/bar")
-//   * query: A QueryParameterDatasource (Provides access to URL query parameters.)
-//   * post: A FormValuesDatasource (Provides access to form data or the body of a request.)
-// - The following context variables are set:
-//   * http.Request: A pointer to the http.Request object
-//   * http.ResponseWriter: The response writer.
-//   * server.Address: The server's address and port (NOT ALWAYS PRESENT)
-// - The handler includes logic to redirect "not found" errors to a path named "@404" if present.
+// 	- A URIPathResolver is used for resolving request names.
+// 	- The following datasources are added to the Context:
+// 	  * url: A URLDatasource (Provides access to parts of the URL)
+// 	  * path: A PathDatasource (Provides access to parts of a path. E.g. "/foo/bar")
+// 	  * query: A QueryParameterDatasource (Provides access to URL query parameters.)
+// 	  * post: A FormValuesDatasource (Provides access to form data or the body of a request.)
+// 	- The following context variables are set:
+// 	  * http.Request: A pointer to the http.Request object
+// 	  * http.ResponseWriter: The response writer.
+// 	  * server.Address: The server's address and port (NOT ALWAYS PRESENT)
+// 	- The handler includes logic to redirect "not found" errors to a path named "@404" if present.
 //
 // Context Params:
 //
-// - server.Address: If this key exists in the context, it will be used to determine the host/port the
+// 	- server.Address: If this key exists in the context, it will be used to determine the host/port the
 //   server runes on. EXPERIMENTAL. Default is ":8080".
 //
 // Example:
@@ -43,7 +43,7 @@ import (
 //
 //    func main() {
 //      // Build a new Cookoo app.
-//      handler, registry, router, context := cookoo.Cookoo()
+//      registry, router, context := cookoo.Cookoo()
 //
 //      // Fill the registry.
 //      registry.Route("GET /", "The index").Does(web.Flush, "example").
@@ -73,7 +73,7 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 	// just doesn't make sense if Cookoo's the only handler on the app.
 	//http.Handle("/", handler)
 
-	server := &http.Server{Addr:addr}
+	server := &http.Server{Addr: addr}
 
 	// Instead of mux, set a single default handler.
 	// What we might be losing:
@@ -101,7 +101,7 @@ func Serve(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context) {
 func ServeTLS(reg *cookoo.Registry, router *cookoo.Router, cxt cookoo.Context, certFile, keyFile string) {
 	addr := cxt.Get("server.Address", ":4433").(string)
 
-	server := &http.Server{Addr:addr}
+	server := &http.Server{Addr: addr}
 	server.Handler = NewCookooHandler(reg, router, cxt)
 
 	go handleSignals(router, cxt, server)
