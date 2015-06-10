@@ -47,10 +47,10 @@ import (
 //
 //      // Fill the registry.
 //      registry.Route("GET /", "The index").Does(web.Flush, "example").
-//      	Using("content").WithDefault("Hello World")
+//        Using("content").WithDefault("Hello World")
 //
-//    	// Create a server
-//    	web.Serve(reg, router, cookoo.SyncContext(cxt))
+//      // Create a server
+//      web.Serve(reg, router, cookoo.SyncContext(cxt))
 //    }
 //
 // Note that we synchronize the context before passing it into Serve(). This
