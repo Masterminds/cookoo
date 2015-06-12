@@ -44,37 +44,37 @@ func TestBasicRoute(t *testing.T) {
 
 	rspec := routes["foo"]
 
-	if rspec.name != "foo" {
+	if rspec.RouteName != "foo" {
 		t.Error("! Expected route to be named 'foo'")
 	}
-	if rspec.description != "A test route" {
+	if rspec.Help != "A test route" {
 		t.Error("! Expected description to be 'A test route'")
 	}
 
-	if len(rspec.commands) != 1 {
-		t.Error("! Expected exactly one command. Found ", len(rspec.commands))
+	if len(rspec.Does) != 1 {
+		t.Error("! Expected exactly one command. Found ", len(rspec.Does))
 	}
 
-	cmd := rspec.commands[0]
-	if "fakeCommand" != cmd.name {
+	cmd := rspec.Does[0]
+	if "fakeCommand" != cmd.Name {
 		t.Error("! Expected to find fakeCommand command.")
 	}
 
-	if len(cmd.parameters) != 1 {
-		t.Error("! Expected exactly one paramter. Found ", len(cmd.parameters))
+	if len(cmd.Parameters) != 1 {
+		t.Error("! Expected exactly one paramter. Found ", len(cmd.Parameters))
 	}
 
-	pspec := cmd.parameters[0]
-	if pspec.name != "param" {
+	pspec := cmd.Parameters[0]
+	if pspec.Name != "param" {
 		t.Error("! Expected the first param to be 'param'")
 	}
 
-	if pspec.defaultValue != "value" {
+	if pspec.DefaultValue != "value" {
 		t.Error("! Expected the value to be 'value'")
 	}
 	fakeCxt := new(ExecutionContext)
 	fakeParams := NewParamsWithValues(map[string]interface{}{"foo": "bar", "baz": 2})
-	rr, err := cmd.command(fakeCxt, fakeParams)
+	rr, err := cmd.Command(fakeCxt, fakeParams)
 
 	if err != nil {
 		t.Error("! Expected no errors.")
@@ -108,8 +108,8 @@ func TestRouteIncludes(t *testing.T) {
 		t.Error("! Expected to find a route named 'bar'")
 	}
 	for i, k := range expecting {
-		if k != spec.commands[i].name {
-			t.Error(fmt.Sprintf("Expecting %s at position %d; got %s", k, i, spec.commands[i].name))
+		if k != spec.Does[i].Name {
+			t.Error(fmt.Sprintf("Expecting %s at position %d; got %s", k, i, spec.Does[i].Name))
 		}
 	}
 
@@ -140,12 +140,12 @@ func TestRouteSpec(t *testing.T) {
 		t.Error("! Expected to find a route named 'foo'")
 	}
 
-	if spec.name != "foo" {
+	if spec.RouteName != "foo" {
 		t.Error("! Expected a spec named 'foo'")
 	}
 
-	param := spec.commands[0].parameters[1]
-	if v, ok := param.defaultValue.(Context); !ok {
+	param := spec.Does[0].Parameters[1]
+	if v, ok := param.DefaultValue.(Context); !ok {
 		t.Error("! Expected an execution context.")
 	} else {
 		// Canary
@@ -173,6 +173,41 @@ func TestRouteNames(t *testing.T) {
 		if k != names[i] {
 			t.Error(fmt.Sprintf("Expecting %s at position %d; got %s", k, i, names[i]))
 		}
+	}
+
+}
+
+func TestNewStyleRoutes(t *testing.T) {
+	reg := NewRegistry()
+	route := &RouteSpec{
+		RouteName: "test",
+		Help:      "This is a test",
+		Does: []*CommandSpec{
+			&CommandSpec{
+				Name:    "foo",
+				Command: AnotherCommand,
+				Parameters: []*ParamSpec{
+					&ParamSpec{
+						Name:         "one",
+						DefaultValue: "two",
+						From:         "cxt:three",
+					},
+				},
+			},
+		},
+	}
+
+	reg.AddRoute(route)
+	spec, ok := reg.RouteSpec("test")
+	if !ok || spec == nil {
+		t.Errorf("Expected to find the test route.")
+	}
+
+	if len(route.Does) != 1 {
+		t.Errorf("Expected one command, got %d", len(route.Does))
+	}
+	if route.Does[0].Name != "foo" {
+		t.Errorf("Expected command named 'foo', got '%s'", route.Does[0].Name)
 	}
 
 }

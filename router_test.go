@@ -359,10 +359,12 @@ func TestHandleRequest(t *testing.T) {
 
 	router.HandleRequest("NO Such Route", context, false)
 
+	// This is a fragile test, since every time we add a new built-in context
+	// param, we have to update this test.
 	context = NewContext()
 	router.HandleRequest("Several", context, false)
-	if context.Len() != 7 {
-		t.Errorf("! Expected three items in the context, got %d", context.Len())
+	if context.Len() != 8 {
+		t.Errorf("! Expected 8 items in the context, got %d", context.Len())
 	}
 
 	e = router.HandleRequest("", context, true)

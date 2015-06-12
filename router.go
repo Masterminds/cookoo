@@ -120,11 +120,13 @@ func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 		return e
 	}
 
-
 	cxt.Put("route.RequestName", name)
 	cxt.Put("route.Name", routeName)
 	if spec, ok := r.registry.RouteSpec(routeName); ok {
-		cxt.Put("route.Description", spec.description)
+		// Old key -- deprecated.
+		cxt.Put("route.Description", spec.Help)
+		// New key
+		cxt.Put("route.Help", spec.Help)
 	}
 
 	// Let an outer routine call go HandleRequest()
@@ -157,15 +159,15 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 		return &RouteError{fmt.Sprintf("Route %s does not exist.", route)}
 	}
 	// fmt.Printf("Running route %s: %s\n", spec.name, spec.description)
-	for _, cmd := range spec.commands {
+	for _, cmd := range spec.Does {
 		// Provide info for each run.
-		cxt.Put("command.Name", cmd.name)
+		cxt.Put("command.Name", cmd.Name)
 
 		// fmt.Printf("Command %d is %s (%T)\n", i, cmd.name, cmd.command)
 		res, irq := r.doCommand(cmd, cxt)
 
 		// This may store a nil.
-		cxt.Put(cmd.name, res)
+		cxt.Put(cmd.Name, res)
 
 		// Handle interrupts.
 		if irq != nil {
@@ -179,7 +181,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 				//fmt.Printf("Routing to %s\n", routeName)
 				// MPB: I think re-routes should disable taint mode, since they
 				// are explicitly called from within the code.
-				return r.runRoute(routeName, cxt, /*taint*/ false)
+				return r.runRoute(routeName, cxt /*taint*/, false)
 			}
 
 			_, isType = irq.(*Stop)
@@ -204,24 +206,24 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 }
 
 // Do an individual command.
-func (r *Router) doCommand(cmd *commandSpec, cxt Context) (interface{}, Interrupt) {
+func (r *Router) doCommand(cmd *CommandSpec, cxt Context) (interface{}, Interrupt) {
 	params := r.resolveParams(cmd, cxt)
 
-	ret, irq := cmd.command(cxt, params)
+	ret, irq := cmd.Command(cxt, params)
 	return ret, irq
 }
 
 // Get the appropriate values for each param.
-func (r *Router) resolveParams(cmd *commandSpec, cxt Context) *Params {
-	parameters := NewParams(len(cmd.parameters))
-	for _, ps := range cmd.parameters {
-		sources := parseFromStatement(ps.from)
+func (r *Router) resolveParams(cmd *CommandSpec, cxt Context) *Params {
+	parameters := NewParams(len(cmd.Parameters))
+	for _, ps := range cmd.Parameters {
+		sources := parseFromStatement(ps.From)
 		val := r.defaultFromSources(sources, cxt)
 		if val == nil {
-			parameters.set(ps.name, ps.defaultValue)
-			val = ps.defaultValue
+			parameters.set(ps.Name, ps.DefaultValue)
+			val = ps.DefaultValue
 		}
-		parameters.set(ps.name, val)
+		parameters.set(ps.Name, val)
 	}
 	return parameters
 }

@@ -10,9 +10,9 @@ import (
 // A Registry contains the the callback routes and the commands each
 // route executes.
 type Registry struct {
-	routes            map[string]*routeSpec
+	routes            map[string]*RouteSpec
 	orderedRouteNames []string
-	currentRoute      *routeSpec
+	currentRoute      *RouteSpec
 }
 
 // NewRegistry returns a new initialized registry.
@@ -26,19 +26,39 @@ func NewRegistry() *Registry {
 // than NewRegistry Init should be called on it.
 func (r *Registry) Init() *Registry {
 	// Why 8?
-	r.routes = make(map[string]*routeSpec, 8)
+	r.routes = make(map[string]*RouteSpec, 8)
 	r.orderedRouteNames = make([]string, 0, 8)
 	return r
+}
+
+// AddRoute adds an app.Route to this registry.
+//
+func (r *Registry) AddRoute(spec *RouteSpec) {
+	/*
+		cmds := make([]*commandSpec, 0, len(app.Route.Commands))
+		for i, c := range app.Route.Commands {
+			cmds[i] := &commandSpec {
+			}
+		}
+
+		newroute := &RouteSpec{
+			name:        route.Name,
+			description: route.Help,
+		}
+	*/
+	r.currentRoute = spec
+	r.routes[spec.RouteName] = spec
+	r.orderedRouteNames = append(r.orderedRouteNames, spec.RouteName)
 }
 
 // Route specifies a new route to add to the registry.
 func (r *Registry) Route(name, description string) *Registry {
 
 	// Create the route spec.
-	route := new(routeSpec)
-	route.name = name
-	route.description = description
-	route.commands = make([]*commandSpec, 0, 4)
+	route := new(RouteSpec)
+	route.RouteName = name
+	route.Help = description
+	route.Does = make([]*CommandSpec, 0, 4)
 
 	// Add the route spec.
 	r.currentRoute = route
@@ -53,12 +73,13 @@ func (r *Registry) Route(name, description string) *Registry {
 func (r *Registry) Does(cmd Command, commandName string) *Registry {
 
 	// Configure command spec.
-	spec := new(commandSpec)
-	spec.name = commandName
-	spec.command = cmd
+	spec := &CommandSpec{
+		Name:    commandName,
+		Command: cmd,
+	}
 
 	// Add command spec.
-	r.currentRoute.commands = append(r.currentRoute.commands, spec)
+	r.currentRoute.Does = append(r.currentRoute.Does, spec)
 
 	return r
 }
@@ -70,11 +91,12 @@ func (r *Registry) Using(name string) *Registry {
 	lastCommand := r.lastCommandAdded()
 
 	// Create a new spec.
-	spec := new(paramSpec)
-	spec.name = name
+	spec := &ParamSpec{
+		Name: name,
+	}
 
 	// Add it to the list.
-	lastCommand.parameters = append(lastCommand.parameters, spec)
+	lastCommand.Parameters = append(lastCommand.Parameters, spec)
 	return r
 }
 
@@ -82,7 +104,7 @@ func (r *Registry) Using(name string) *Registry {
 // parameter as set by Using.
 func (r *Registry) WithDefault(value interface{}) *Registry {
 	param := r.lastParamAdded()
-	param.defaultValue = value
+	param.DefaultValue = value
 	return r
 }
 
@@ -92,15 +114,15 @@ func (r *Registry) From(fromVal ...string) *Registry {
 	param := r.lastParamAdded()
 
 	// This is sort of a hack. Really, we should make params.from a []string.
-	param.from = strings.Join(fromVal, " ")
+	param.From = strings.Join(fromVal, " ")
 	return r
 }
 
 // Get the last parameter for the last command added.
-func (r *Registry) lastParamAdded() *paramSpec {
+func (r *Registry) lastParamAdded() *ParamSpec {
 	cspec := r.lastCommandAdded()
-	last := len(cspec.parameters) - 1
-	return cspec.parameters[last]
+	last := len(cspec.Parameters) - 1
+	return cspec.Parameters[last]
 }
 
 // Includes makes the commands from another route avaiable on this route.
@@ -113,14 +135,14 @@ func (r *Registry) Includes(route string) *Registry {
 		panicString := fmt.Sprintf("Could not find route %s. Skipping include.", route)
 		panic(panicString)
 	}
-	for _, cmd := range spec.commands {
-		r.currentRoute.commands = append(r.currentRoute.commands, cmd)
+	for _, cmd := range spec.Does {
+		r.currentRoute.Does = append(r.currentRoute.Does, cmd)
 	}
 	return r
 }
 
 // RouteSpec gets a ruote cased on its name.
-func (r *Registry) RouteSpec(routeName string) (spec *routeSpec, ok bool) {
+func (r *Registry) RouteSpec(routeName string) (spec *RouteSpec, ok bool) {
 	spec, ok = r.routes[routeName]
 	return
 }
@@ -128,7 +150,7 @@ func (r *Registry) RouteSpec(routeName string) (spec *routeSpec, ok bool) {
 // Routes gets an unordered map of routes names to route specs.
 //
 // If order is important, use RouteNames to get the names (in order).
-func (r *Registry) Routes() map[string]*routeSpec {
+func (r *Registry) Routes() map[string]*RouteSpec {
 	return r.routes
 }
 
@@ -150,9 +172,9 @@ func (r *Registry) RouteNames() []string {
 }
 
 // Look up the last command.
-func (r *Registry) lastCommandAdded() *commandSpec {
-	lastIndex := len(r.currentRoute.commands) - 1
-	return r.currentRoute.commands[lastIndex]
+func (r *Registry) lastCommandAdded() *CommandSpec {
+	lastIndex := len(r.currentRoute.Does) - 1
+	return r.currentRoute.Does[lastIndex]
 }
 
 type RouteDetails interface {
@@ -160,27 +182,27 @@ type RouteDetails interface {
 	Description() string
 }
 
-type routeSpec struct {
-	name, description string
-	commands          []*commandSpec
+type RouteSpec struct {
+	RouteName, Help string
+	Does            []*CommandSpec
 }
 
-func (r *routeSpec) Name() string {
-	return r.name
+func (r *RouteSpec) Name() string {
+	return r.RouteName
 }
 
-func (r *routeSpec) Description() string {
-	return r.description
+func (r *RouteSpec) Description() string {
+	return r.Help
 }
 
-type commandSpec struct {
-	name       string
-	command    Command
-	parameters []*paramSpec
+type CommandSpec struct {
+	Name       string
+	Command    Command
+	Parameters []*ParamSpec
 }
 
-type paramSpec struct {
-	name         string
-	defaultValue interface{}
-	from         string
+type ParamSpec struct {
+	Name         string
+	DefaultValue interface{}
+	From         string
 }
