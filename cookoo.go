@@ -21,33 +21,6 @@
 // From there, use the Registry to build chains of commands, and then
 // use the Router to execute chains of commands.
 //
-// Example
-//
-// 	package main
-//
-// 	import (
-// 		//This is the path to Cookoo
-// 		"github.com/Masterminds/cookoo/src/cookoo"
-// 		"fmt"
-// 	)
-//
-// 	func main() {
-// 		// Build a new Cookoo app.
-// 		registry, router, context := cookoo.Cookoo()
-//
-// 		// Fill the registry.
-// 		registry.Route("TEST", "A test route").Does(HelloWorld, "hi") //...
-//
-// 		// Execute the route.
-// 		router.HandleRequest("TEST", context, false)
-// 	}
-//
-// 	// An example command
-// 	func HelloWorld(cxt cookoo.Context, params *cookoo.Params) (interface{}, Interrupt) {
-// 		fmt.Println("Hello World")
-// 		return true, nil
-// 	}
-//
 // Unlike other CoCo implementations (like Pronto.js or Fortissimo),
 // Cookoo commands are just functions.
 //
