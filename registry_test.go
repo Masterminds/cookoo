@@ -176,3 +176,97 @@ func TestRouteNames(t *testing.T) {
 	}
 
 }
+
+func TestAddRoutes(t *testing.T) {
+	reg := NewRegistry()
+	err := reg.AddRoutes(
+		Route{
+			Name: "@boot",
+			Does: Tasks{
+				Cmd{Name: "startup"},
+				Cmd{Name: "ready"},
+			},
+		},
+		Route{
+			Name: "Foo",
+			Help: "Bar",
+			Does: Tasks{
+				Cmd{
+					Name: "cmd1",
+					Fn:   AnotherCommand,
+					Using: []Param{
+						{"test", 1, "cxt:test"},
+						{"test2", "foo", "cxt:test2"},
+					},
+				},
+				Cmd{
+					Name: "cmd2",
+				},
+				// This will include all of the commands on route @boot.
+				Include{"@boot"},
+				Cmd{
+					Name: "cmd3",
+				},
+			},
+		},
+		Route{
+			Name: "Another",
+			Does: Tasks{
+				Cmd{
+					Name: "cmd3",
+				},
+				Cmd{
+					Name: "cmd4",
+				},
+			},
+		},
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	spec, ok := reg.RouteSpec("Foo")
+	if !ok {
+		t.Error("Expected to find route Foo.")
+	}
+	if spec.Name() != "Foo" {
+		t.Errorf("Expected route named 'Foo', got '%s'", spec.Name())
+	}
+	if spec.Description() != "Bar" {
+		t.Errorf("Expected description 'Bar', got '%s'", spec.Description())
+	}
+
+	if len(spec.commands) != 5 {
+		t.Errorf("Expected exactly 5 commands, got %d", len(spec.commands))
+	}
+
+	// Check that each command is in the order we expect
+	order := []string{"cmd1", "cmd2", "startup", "ready", "cmd3"}
+	for i, c := range spec.commands {
+		if c.name != order[i] {
+			t.Errorf("Expected commnd %d to be %s, got %s", i, order[i], c.name)
+		}
+	}
+
+	cmd := spec.commands[0]
+	if cmd.name != "cmd1" {
+		t.Errorf("Expected command named cmd1, got %s", cmd.name)
+	}
+	if cmd.command == nil {
+		t.Error("Expected AnotherCommand.")
+	}
+	if len(cmd.parameters) != 2 {
+		t.Errorf("Expected 2 paramters, got %d", len(cmd.parameters))
+	}
+	param := cmd.parameters[0]
+	if param.name != "test" {
+		t.Errorf("Expected param named 'test', got '%s'", param.name)
+	}
+	if param.defaultValue.(int) != 1 {
+		t.Error("Expected int 1.")
+	}
+	if param.from != "cxt:test" {
+		t.Error("Expected cxt:test, got %s", param.from)
+	}
+}

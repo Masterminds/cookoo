@@ -184,3 +184,92 @@ type paramSpec struct {
 	defaultValue interface{}
 	from         string
 }
+
+// New public API
+
+// AddRoute adds a single route to the registry.
+func (r *Registry) AddRoute(route Route) error {
+	return r.AddRoutes(route)
+}
+
+// AddRoutes adds one or more routes to the registry.
+func (r *Registry) AddRoutes(routes ...Route) error {
+	for _, route := range routes {
+
+		cmdspecs := make([]*commandSpec, 0, len(route.Does))
+		for _, cmd := range route.Does {
+			switch cmd := cmd.(type) {
+			case Cmd:
+				paramspecs := make([]*paramSpec, len(cmd.Using))
+				for j, prm := range cmd.Using {
+					pspec := &paramSpec{
+						name:         prm.Name,
+						defaultValue: prm.DefaultValue,
+						from:         prm.From,
+					}
+					paramspecs[j] = pspec
+				}
+
+				cmdspec := &commandSpec{
+					name:       cmd.Name,
+					command:    cmd.Fn,
+					parameters: paramspecs,
+				}
+				cmdspecs = append(cmdspecs, cmdspec)
+			case Include:
+				other, ok := r.RouteSpec(cmd.Path)
+				if !ok {
+					// Route not found.
+					return fmt.Errorf("Route '%s' not found.", cmd.Path)
+				}
+				cmdspecs = append(cmdspecs, other.commands...)
+			}
+		}
+
+		rspec := &routeSpec{
+			name:        route.Name,
+			description: route.Help,
+			commands:    cmdspecs,
+		}
+		// Add the route spec.
+		r.currentRoute = rspec
+		r.routes[rspec.name] = rspec
+		r.orderedRouteNames = append(r.orderedRouteNames, rspec.name)
+	}
+	return nil
+}
+
+type Route struct {
+	Name, Help string
+	Does       Tasks
+}
+type Tasks []Task
+type Cmd struct {
+	Name  string
+	Fn    Command
+	Using Parameters
+}
+type Include struct {
+	Path string
+}
+
+// A Task can be either an Include or a Cmd. This is a very lame way of
+// making this behavior private.
+
+type Task interface {
+	include() bool
+}
+
+func (i Include) include() bool {
+	return true
+}
+func (c Cmd) include() bool {
+	return false
+}
+
+type Parameters []Param
+type Param struct {
+	Name         string
+	DefaultValue interface{}
+	From         string
+}
