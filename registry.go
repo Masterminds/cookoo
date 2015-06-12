@@ -10,9 +10,9 @@ import (
 // A Registry contains the the callback routes and the commands each
 // route executes.
 type Registry struct {
-	routes            map[string]*RouteSpec
+	routes            map[string]*Route
 	orderedRouteNames []string
-	currentRoute      *RouteSpec
+	currentRoute      *Route
 }
 
 // NewRegistry returns a new initialized registry.
@@ -26,14 +26,15 @@ func NewRegistry() *Registry {
 // than NewRegistry Init should be called on it.
 func (r *Registry) Init() *Registry {
 	// Why 8?
-	r.routes = make(map[string]*RouteSpec, 8)
+	r.routes = make(map[string]*Route, 8)
 	r.orderedRouteNames = make([]string, 0, 8)
 	return r
 }
 
 // AddRoute adds an app.Route to this registry.
 //
-func (r *Registry) AddRoute(spec *RouteSpec) {
+func (r *Registry) AddRoute(specs ...*Route) {
+
 	/*
 		cmds := make([]*commandSpec, 0, len(app.Route.Commands))
 		for i, c := range app.Route.Commands {
@@ -41,21 +42,23 @@ func (r *Registry) AddRoute(spec *RouteSpec) {
 			}
 		}
 
-		newroute := &RouteSpec{
+		newroute := &Route{
 			name:        route.Name,
 			description: route.Help,
 		}
 	*/
-	r.currentRoute = spec
-	r.routes[spec.RouteName] = spec
-	r.orderedRouteNames = append(r.orderedRouteNames, spec.RouteName)
+	for _, spec := range specs {
+		r.currentRoute = spec
+		r.routes[spec.RouteName] = spec
+		r.orderedRouteNames = append(r.orderedRouteNames, spec.RouteName)
+	}
 }
 
 // Route specifies a new route to add to the registry.
 func (r *Registry) Route(name, description string) *Registry {
 
 	// Create the route spec.
-	route := new(RouteSpec)
+	route := new(Route)
 	route.RouteName = name
 	route.Help = description
 	route.Does = make([]*CommandSpec, 0, 4)
@@ -96,7 +99,7 @@ func (r *Registry) Using(name string) *Registry {
 	}
 
 	// Add it to the list.
-	lastCommand.Parameters = append(lastCommand.Parameters, spec)
+	lastCommand.Using = append(lastCommand.Using, spec)
 	return r
 }
 
@@ -121,8 +124,8 @@ func (r *Registry) From(fromVal ...string) *Registry {
 // Get the last parameter for the last command added.
 func (r *Registry) lastParamAdded() *ParamSpec {
 	cspec := r.lastCommandAdded()
-	last := len(cspec.Parameters) - 1
-	return cspec.Parameters[last]
+	last := len(cspec.Using) - 1
+	return cspec.Using[last]
 }
 
 // Includes makes the commands from another route avaiable on this route.
@@ -141,8 +144,8 @@ func (r *Registry) Includes(route string) *Registry {
 	return r
 }
 
-// RouteSpec gets a ruote cased on its name.
-func (r *Registry) RouteSpec(routeName string) (spec *RouteSpec, ok bool) {
+// RouteSpec gets a route cased on its name.
+func (r *Registry) RouteSpec(routeName string) (spec *Route, ok bool) {
 	spec, ok = r.routes[routeName]
 	return
 }
@@ -150,7 +153,7 @@ func (r *Registry) RouteSpec(routeName string) (spec *RouteSpec, ok bool) {
 // Routes gets an unordered map of routes names to route specs.
 //
 // If order is important, use RouteNames to get the names (in order).
-func (r *Registry) Routes() map[string]*RouteSpec {
+func (r *Registry) Routes() map[string]*Route {
 	return r.routes
 }
 
@@ -177,32 +180,63 @@ func (r *Registry) lastCommandAdded() *CommandSpec {
 	return r.currentRoute.Does[lastIndex]
 }
 
+// RouteDetails provides important information about a route.
 type RouteDetails interface {
 	Name() string
 	Description() string
 }
 
-type RouteSpec struct {
+// Route describes a route.
+//
+// Formerly, this was a routeSpec.
+type Route struct {
 	RouteName, Help string
 	Does            []*CommandSpec
 }
 
-func (r *RouteSpec) Name() string {
+func (r *Route) Name() string {
 	return r.RouteName
 }
 
-func (r *RouteSpec) Description() string {
+func (r *Route) Description() string {
 	return r.Help
 }
 
+// CommandSpec describes how a Route should treat a Command.
+//
+// This is used to link a command to a given route.
 type CommandSpec struct {
-	Name       string
-	Command    Command
-	Parameters []*ParamSpec
+	Name    string
+	Command Command
+	Using   Parameters
 }
 
+// ParamSpec is used to link a paramater (argument) to a Command.
+//
+// The router will pass in arguments to a command based on the
+// ParamSpec.
 type ParamSpec struct {
 	Name         string
 	DefaultValue interface{}
 	From         string
+}
+
+type Parameters []*ParamSpec
+type Commands []*CommandSpec
+
+func Foo(foo ...CommandSpec) []*CommandSpec {
+	res := make([]*CommandSpec, len(foo))
+	for i, f := range foo {
+		res[i] = &f
+	}
+	return res
+}
+
+// Param is a convenience function for building a new ParamSpec.
+func Param(name string, defaultVal interface{}, from string) *ParamSpec {
+	return &ParamSpec{
+		Name:         name,
+		DefaultValue: defaultVal,
+		From:         from,
+	}
 }

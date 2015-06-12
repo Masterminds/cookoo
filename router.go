@@ -215,8 +215,8 @@ func (r *Router) doCommand(cmd *CommandSpec, cxt Context) (interface{}, Interrup
 
 // Get the appropriate values for each param.
 func (r *Router) resolveParams(cmd *CommandSpec, cxt Context) *Params {
-	parameters := NewParams(len(cmd.Parameters))
-	for _, ps := range cmd.Parameters {
+	parameters := NewParams(len(cmd.Using))
+	for _, ps := range cmd.Using {
 		sources := parseFromStatement(ps.From)
 		val := r.defaultFromSources(sources, cxt)
 		if val == nil {

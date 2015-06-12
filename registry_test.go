@@ -60,11 +60,11 @@ func TestBasicRoute(t *testing.T) {
 		t.Error("! Expected to find fakeCommand command.")
 	}
 
-	if len(cmd.Parameters) != 1 {
-		t.Error("! Expected exactly one paramter. Found ", len(cmd.Parameters))
+	if len(cmd.Using) != 1 {
+		t.Error("! Expected exactly one paramter. Found ", len(cmd.Using))
 	}
 
-	pspec := cmd.Parameters[0]
+	pspec := cmd.Using[0]
 	if pspec.Name != "param" {
 		t.Error("! Expected the first param to be 'param'")
 	}
@@ -144,7 +144,7 @@ func TestRouteSpec(t *testing.T) {
 		t.Error("! Expected a spec named 'foo'")
 	}
 
-	param := spec.Does[0].Parameters[1]
+	param := spec.Does[0].Using[1]
 	if v, ok := param.DefaultValue.(Context); !ok {
 		t.Error("! Expected an execution context.")
 	} else {
@@ -179,35 +179,30 @@ func TestRouteNames(t *testing.T) {
 
 func TestNewStyleRoutes(t *testing.T) {
 	reg := NewRegistry()
-	route := &RouteSpec{
+	reg.AddRoute(&Route{
 		RouteName: "test",
 		Help:      "This is a test",
-		Does: []*CommandSpec{
+		Does: Commands{
 			&CommandSpec{
 				Name:    "foo",
 				Command: AnotherCommand,
-				Parameters: []*ParamSpec{
-					&ParamSpec{
-						Name:         "one",
-						DefaultValue: "two",
-						From:         "cxt:three",
-					},
+				Using: Parameters{
+					&ParamSpec{Name: "One", DefaultValue: "Two", From: "cxt:Three"},
 				},
 			},
 		},
-	}
+	})
 
-	reg.AddRoute(route)
 	spec, ok := reg.RouteSpec("test")
 	if !ok || spec == nil {
 		t.Errorf("Expected to find the test route.")
 	}
 
-	if len(route.Does) != 1 {
-		t.Errorf("Expected one command, got %d", len(route.Does))
+	if len(spec.Does) != 1 {
+		t.Errorf("Expected one command, got %d", len(spec.Does))
 	}
-	if route.Does[0].Name != "foo" {
-		t.Errorf("Expected command named 'foo', got '%s'", route.Does[0].Name)
+	if spec.Does[0].Name != "foo" {
+		t.Errorf("Expected command named 'foo', got '%s'", spec.Does[0].Name)
 	}
 
 }
