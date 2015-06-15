@@ -255,15 +255,24 @@ func TestFromValues(t *testing.T) {
 	ds.RetVal = "1234"
 	cxt.AddDatasource("foo", ds)
 
-	reg.
-		Route("mock", "Test from.").
-		Does(FetchParams, "first").
-		Using("test1").From("cxt:test1").
-		Using("test2").From("datasource:test2").
-		Using("test3").From("foo:test3").
-		Using("test4").WithDefault("test4").From("NONE:none").
-		Using("test5").WithDefault("Z").From("NONE:none foo:test3 cxt:test1").
-		Using("test6").From("None:none")
+	reg.AddRoute(Route{
+		Name: "mock",
+		Help: "Test from.",
+		Does: Tasks{
+			Cmd{
+				Name: "first",
+				Fn:   FetchParams,
+				Using: []Param{
+					{Name: "test1", From: "cxt:test1"},
+					{Name: "test2", From: "datasource:test2"},
+					{Name: "test3", From: "foo:test3"},
+					{Name: "test4", From: "NONE:none", DefaultValue: "test4"},
+					{Name: "test5", From: "NONE:none foo:test3 cxt:test1", DefaultValue: "Z"},
+					{Name: "test6", From: "None:none"},
+				},
+			},
+		},
+	})
 
 	e := router.HandleRequest("mock", cxt, true)
 	if e != nil {
