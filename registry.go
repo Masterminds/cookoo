@@ -239,16 +239,41 @@ func (r *Registry) AddRoutes(routes ...Route) error {
 	return nil
 }
 
+// Route declares a new Cookoo route.
+//
+// A Route has a name, which is used to identify and call it, and Help. The
+// Help can be used by other tools to generate help text or information about
+// an application's structure.
+//
+// Routes are composed of a series of Tasks, each of which is executed in
+// order.
 type Route struct {
 	Name, Help string
 	Does       Tasks
 }
+
+// Tasks represents a list of discrete tasks that are run on a Route.
+//
+// There are two kinds of Tasks: Cmd (a command) and Include, which imports a
+// Tasks list from another route.
 type Tasks []Task
+
+// Cmd associates a cookoo.Command to a Route.
+//
+// The Name is the direct reference to a command. When a Command returns output,
+// that output is inserted into the Context with the key Name.
+//
+// Fn specifies which cookoo.Command should be executed during this step.
+//
+// Using contains a list of Parameters that Cookoo can pass into the Command
+// at execution time.
 type Cmd struct {
 	Name  string
 	Fn    Command
 	Using Parameters
 }
+
+// Include imports all of the Tasks on another route into the present Route.
 type Include struct {
 	Path string
 }
@@ -268,6 +293,16 @@ func (c Cmd) include() bool {
 }
 
 type Parameters []Param
+
+// Param describes an individual parameter which will be passed to a Command.
+//
+// The Name is the name of the parameter. The Command itself dictates which
+// Names it uses.
+//
+// The DefaultValue is the value of the Parameter if nothing else is specified.
+//
+// From indicates where the Param value may come from. Examples: `From("cxt:foo")`
+// gets the value from the value of the key 'foo' in the Context.
 type Param struct {
 	Name         string
 	DefaultValue interface{}
