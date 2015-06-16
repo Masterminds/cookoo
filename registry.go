@@ -216,11 +216,13 @@ func (r *Registry) AddRoutes(routes ...Route) error {
 		for _, cmd := range route.Does {
 			switch cmd := cmd.(type) {
 			case CmdDef:
-				// This wraps the
+				// This wraps the CmdDef inside of a command.
 				paramspecs := extractParams(cmd)
 				cmdspec := &commandSpec{
 					name: cmd.Name,
 					command: func(c Context, p *Params) (interface{}, Interrupt) {
+						// We don't have to clone cmd.Def because Map builds
+						// a new copy.
 						o, err := Map(c, p, cmd.Def)
 						if err != nil {
 							return nil, err

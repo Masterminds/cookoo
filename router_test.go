@@ -25,6 +25,19 @@ func (self *FakeErrorRequestResolver) Resolve(name string, cxt Context) (string,
 	return "test2", &RouteError{"Route not resolved."}
 }
 
+type CmdDefStub struct {
+	Name string `coo:"name"`
+	Age  int    `coo:"age"`
+}
+
+func (c *CmdDefStub) Run(cxt Context) (interface{}, Interrupt) {
+	if len(c.Name) == 0 {
+		return false, &FatalError{"Expected a name."}
+	}
+
+	return true, nil
+}
+
 // Test the resolver.
 func TestResolver(t *testing.T) {
 	fakeCxt := new(ExecutionContext)
@@ -380,6 +393,89 @@ func TestHandleRequest(t *testing.T) {
 	}
 	if e.Error() != "Empty route name." {
 		t.Error("Expected RouteError to be a empty route error.")
+	}
+}
+
+func TestHandleRequestCmdDef(t *testing.T) {
+	reg, router, context := Cookoo()
+	reg.AddRoutes(Route{
+		Name: "TEST",
+		Help: "A test route",
+		Does: Tasks{
+			Cmd{
+				Name: "fake",
+				Fn:   MockCommand,
+			},
+		},
+	},
+		Route{
+			Name: "@tainted",
+			Help: "Tainted route",
+			Does: Tasks{
+				Cmd{Name: "fake", Fn: MockCommand},
+			},
+		},
+		Route{
+			Name: "Several",
+			Help: "Test multiple",
+			Does: Tasks{
+				Cmd{Name: "first", Fn: MockCommand},
+				Cmd{Name: "second", Fn: MockCommand},
+				Cmd{Name: "third", Fn: MockCommand},
+			},
+		},
+		Route{
+			Name: "CmdDef",
+			Help: "Test command defs.",
+			Does: Tasks{
+				CmdDef{
+					Name: "test",
+					Def:  &CmdDefStub{},
+					Using: []Param{
+						{Name: "name", DefaultValue: "test"},
+						{Name: "age", DefaultValue: 5},
+					},
+				},
+			},
+		})
+
+	e := router.HandleRequest("TEST", context, true)
+	if e != nil {
+		t.Error("Unexpected: ", e.Error())
+	}
+
+	e = router.HandleRequest("@tainted", context, true)
+	if e == nil {
+		t.Error("Expected tainted route to not run protected name.")
+	}
+	if e.Error() != "Route is tainted. Refusing to run." {
+		t.Error("Expected RouteError to be a tainted one.")
+	}
+
+	e = router.HandleRequest("@tainted", context, false)
+	if e != nil {
+		t.Error("Unexpected: ", e.Error())
+	}
+
+	router.HandleRequest("NO Such Route", context, false)
+
+	context = NewContext()
+	router.HandleRequest("Several", context, false)
+	if context.Len() != 7 {
+		t.Errorf("! Expected three items in the context, got %d", context.Len())
+	}
+
+	e = router.HandleRequest("", context, true)
+	if e == nil {
+		t.Error("Expected empty route to give error.")
+	}
+	if e.Error() != "Empty route name." {
+		t.Error("Expected RouteError to be a empty route error.")
+	}
+
+	// Test command def
+	if e = router.HandleRequest("CmdDef", context, true); e != nil {
+		t.Error(e)
 	}
 }
 
