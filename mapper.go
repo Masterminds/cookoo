@@ -35,7 +35,20 @@ import (
 //
 // When no such modifier is present, the value is gotten only from the params list.
 
+// CommandDefinition describes the fields that should be attached to a Command.
+//
+// CommandDefinitions should be composed of public fields and a Run method.
+//
+// 	type Person struct {
+// 		Name string
+// 		Age int
+//		IgnoreMe string `coo:"-"`
+// 	}
 type CommandDefinition interface {
+	// Run provides the same functionality as a Command function, but with
+	// the added benefit of having all of the fields present on the struct. For that
+	// reason, there is no Params attached.
+	Run(c Context) (interface{}, Interrupt)
 }
 
 // Map merges params into a CommandDefinition and returns a Command Definition.

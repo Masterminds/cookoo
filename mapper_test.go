@@ -69,6 +69,10 @@ type mystruct struct {
 	StructPtrField *basic
 }
 
+func (m *mystruct) Run(c Context) (interface{}, Interrupt) {
+	return nil, nil
+}
+
 type basic struct {
 	hai bool
 }

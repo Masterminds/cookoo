@@ -192,6 +192,22 @@ func (r *Registry) AddRoute(route Route) error {
 	return r.AddRoutes(route)
 }
 
+func extractParams(cmd Task) []*paramSpec {
+	var paramspecs []*paramSpec
+
+	// FIXME: This is a horrible way to do this.
+	paramspecs = make([]*paramSpec, len(cmd.getParams()))
+	for j, prm := range cmd.getParams() {
+		pspec := &paramSpec{
+			name:         prm.Name,
+			defaultValue: prm.DefaultValue,
+			from:         prm.From,
+		}
+		paramspecs[j] = pspec
+	}
+	return paramspecs
+}
+
 // AddRoutes adds one or more routes to the registry.
 func (r *Registry) AddRoutes(routes ...Route) error {
 	for _, route := range routes {
@@ -199,16 +215,24 @@ func (r *Registry) AddRoutes(routes ...Route) error {
 		cmdspecs := make([]*commandSpec, 0, len(route.Does))
 		for _, cmd := range route.Does {
 			switch cmd := cmd.(type) {
-			case Cmd:
-				paramspecs := make([]*paramSpec, len(cmd.Using))
-				for j, prm := range cmd.Using {
-					pspec := &paramSpec{
-						name:         prm.Name,
-						defaultValue: prm.DefaultValue,
-						from:         prm.From,
-					}
-					paramspecs[j] = pspec
+			case CmdDef:
+				// This wraps the
+				paramspecs := extractParams(cmd)
+				cmdspec := &commandSpec{
+					name: cmd.Name,
+					command: func(c Context, p *Params) (interface{}, Interrupt) {
+						o, err := Map(c, p, cmd.Def)
+						if err != nil {
+							return nil, err
+						}
+						return o.Run(c)
+					},
+					parameters: paramspecs,
 				}
+				cmdspecs = append(cmdspecs, cmdspec)
+
+			case Cmd:
+				paramspecs := extractParams(cmd)
 
 				cmdspec := &commandSpec{
 					name:       cmd.Name,
@@ -223,6 +247,7 @@ func (r *Registry) AddRoutes(routes ...Route) error {
 					return fmt.Errorf("Route '%s' not found.", cmd.Path)
 				}
 				cmdspecs = append(cmdspecs, other.commands...)
+
 			}
 		}
 
@@ -278,18 +303,27 @@ type Include struct {
 	Path string
 }
 
+type CmdDef struct {
+	Name  string
+	Def   CommandDefinition
+	Using Parameters
+}
+
 // A Task can be either an Include or a Cmd. This is a very lame way of
 // making this behavior private.
 
 type Task interface {
-	include() bool
+	getParams() Parameters
 }
 
-func (i Include) include() bool {
-	return true
+func (i Include) getParams() Parameters {
+	return Parameters{}
 }
-func (c Cmd) include() bool {
-	return false
+func (c Cmd) getParams() Parameters {
+	return c.Using
+}
+func (c CmdDef) getParams() Parameters {
+	return c.Using
 }
 
 type Parameters []Param
