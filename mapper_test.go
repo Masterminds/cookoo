@@ -58,6 +58,36 @@ func TestMap(t *testing.T) {
 
 }
 
+func TestMappedRoute(t *testing.T) {
+	reg, router, cxt := Cookoo()
+	reg.AddRoute(Route{
+		Name: "test",
+		Does: Tasks{
+			CmdDef{
+				Name: "cmdDef",
+				Def:  &mystruct{},
+				Using: []Param{
+					{Name: "funty", DefaultValue: 5},
+					{Name: "StrField", DefaultValue: "Batty"},
+				},
+			},
+		},
+	})
+
+	if err := router.HandleRequest("test", cxt, true); err != nil {
+		t.Error(err)
+	}
+
+	cmdDef := cxt.Get("cmdDef", nil).(*mystruct)
+	if cmdDef.IntField != 5 {
+		t.Errorf("Expected 5, got %d", cmdDef.IntField)
+	}
+	if cmdDef.StrField != "Batty" {
+		t.Errorf("Expected Batty, got %s", cmdDef.StrField)
+	}
+
+}
+
 type mystruct struct {
 	IntField       int `coo:"funty"`
 	FloatField     float32
@@ -70,7 +100,7 @@ type mystruct struct {
 }
 
 func (m *mystruct) Run(c Context) (interface{}, Interrupt) {
-	return nil, nil
+	return m, nil
 }
 
 type basic struct {
