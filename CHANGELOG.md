@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.2.0 (Upcomming)
+## v1.2.0 (2015-06-16)
 
 * EXPERIMENTAL: Added support for CmdDef, a tool for writing structs
   that manage types for cookoo commands.
