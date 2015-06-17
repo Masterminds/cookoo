@@ -48,6 +48,26 @@ func (r *Registry) Route(name, description string) *Registry {
 	return r
 }
 
+func (r *Registry) DoesCmdDef(cd CommandDefinition, name string) *Registry {
+	// Configure command spec.
+	spec := new(commandSpec)
+	spec.name = name
+	spec.command = func(c Context, p *Params) (interface{}, Interrupt) {
+		// We don't have to clone cmd.Def because Map builds
+		// a new copy.
+		o, err := Map(c, p, cd)
+		if err != nil {
+			return nil, err
+		}
+		return o.Run(c)
+	}
+
+	// Add command spec.
+	r.currentRoute.commands = append(r.currentRoute.commands, spec)
+
+	return r
+}
+
 // Does adds a command to the end of the chain of commands for the current
 // (most recently specified) route.
 func (r *Registry) Does(cmd Command, commandName string) *Registry {
