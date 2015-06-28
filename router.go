@@ -97,9 +97,9 @@ func (r *Router) ResolveRequest(name string, cxt Context) (string, error) {
 // external client.
 //
 // This will do the following:
-// - resolve the request name into a route name (using a RequestResolver)
-// - look up the route
-// - execute each command on the route in order
+// 	- resolve the request name into a route name (using a RequestResolver)
+// 	- look up the route
+// 	- execute each command on the route in order
 //
 // The following context variables are placed into the context during a run:
 //
@@ -119,7 +119,6 @@ func (r *Router) HandleRequest(name string, cxt Context, taint bool) error {
 	if e != nil {
 		return e
 	}
-
 
 	cxt.Put("route.RequestName", name)
 	cxt.Put("route.Name", routeName)
@@ -179,7 +178,7 @@ func (r *Router) runRoute(route string, cxt Context, taint bool) error {
 				//fmt.Printf("Routing to %s\n", routeName)
 				// MPB: I think re-routes should disable taint mode, since they
 				// are explicitly called from within the code.
-				return r.runRoute(routeName, cxt, /*taint*/ false)
+				return r.runRoute(routeName, cxt /*taint*/, false)
 			}
 
 			_, isType = irq.(*Stop)
