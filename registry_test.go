@@ -28,6 +28,17 @@ func AnotherCommand(cxt Context, params *Params) (interface{}, Interrupt) {
 	return ret, nil
 }
 
+type Dossier struct {
+	Name    string
+	Age     int
+	Alias   string `coo:"AKA"`
+	RealAge int    `coo:"-"`
+}
+
+func (a *Dossier) Run(c Context) (interface{}, Interrupt) {
+	return true, nil
+}
+
 func TestBasicRoute(t *testing.T) {
 	reg := new(Registry)
 	reg.Init()
@@ -217,6 +228,10 @@ func TestAddRoutes(t *testing.T) {
 				},
 				Cmd{
 					Name: "cmd4",
+				},
+				CmdDef{
+					Name: "obj",
+					Def:  &Dossier{},
 				},
 			},
 		},

@@ -1,8 +1,12 @@
 # Changelog
 
-## v1.2.0 (Upcomming)
+## v1.2.0 (2015-06-16)
 
-* Added support for @shutdown routes on web.Serve(). 
+* EXPERIMENTAL: Added support for CmdDef, a tool for writing structs
+  that manage types for cookoo commands.
+* Added support for an alternative Route declaration syntax that does
+  not use method chaining.
+* Added support for @shutdown routes on web.Serve().
 * Added safely.GoDo(cxt, GoDoer)
 * NewReroute(route string) can be used to create Reroutes now.
 * From() now takes an vararg of strings: `From("cxt:foo", "cxt:bar")`.
