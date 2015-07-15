@@ -156,7 +156,7 @@ func Debug(c cookoo.Context, args ...interface{}) {
 	send(c, LogDebug, args...)
 }
 
-// Stack dumps a stack trace to the log. It follows the debug level.
+// Stack dumps a stack trace to the log. It uses the LogDebug level.
 //
 // This limits the size of the returned stack to 4096 bytes.
 func Stack(c cookoo.Context, msg string) {
@@ -166,7 +166,7 @@ func Stack(c cookoo.Context, msg string) {
 }
 
 func send(c cookoo.Context, l LogLevel, args ...interface{}) {
-	if Level < l {
+	if Level >= l {
 		c.Log(Label[l], args...)
 	}
 }
