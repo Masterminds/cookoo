@@ -1,2 +1,5 @@
-export GOPATH=$GOPATH:`pwd`
-export PATH=$PATH:`pwd`/bin
+#!/bin/bash
+
+here=$(pwd)
+export GOPATH=$GOPATH:$here
+export PATH=$PATH:$here/bin
