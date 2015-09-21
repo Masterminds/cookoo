@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path"
@@ -33,6 +34,9 @@ import (
 //
 // Note that this is optimized for writing from strings or arrays, not Readers. For larger
 // objects, you may find it more efficient to use a different command.
+//
+// Context:
+// - If this finds `web.ContentEncoding`, it will set a content-encoding header.
 //
 // Returns
 //
@@ -71,6 +75,12 @@ func Flush(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.Inter
 
 	// Add headers:
 	header.Set(http.CanonicalHeaderKey("content-type"), contentType)
+
+	te := cxt.Get(ContentEncoding, "").(string)
+	if len(te) > 0 {
+		header.Set(http.CanonicalHeaderKey("transfer-encoding"), te)
+	}
+
 	headerO, ok := params.Has("headers")
 	if ok {
 		headers := headerO.(map[string]string)
@@ -165,6 +175,42 @@ func ServerInfo(cxt cookoo.Context, params *cookoo.Params) (interface{}, cookoo.
 	fmt.Fprintf(out, "Request:\n %+v\n", req)
 	fmt.Fprintf(out, "\n\n\nResponse:\n%+v\n", out)
 	return true, nil
+}
+
+const ContentEncoding = "web.ContentEncoding"
+
+// GuessContentType guesses the MIME type of a given name.
+//
+// Name should be a path-like thing with an extension. E.g. foo.html,
+// foo/bar/baz.css
+//
+// If this detects a file with extensions like gz, zip, or Z, it will also
+// set the context `web.ContentEncoding` to the appropriate encoding.
+//
+// Params:
+//	- name (string): The filename-like thing to use to guess the content type.
+// Returns:
+//	string content-type
+func GuessContentType(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
+	n := p.Get("name", "").(string)
+
+	ext := strings.ToLower(path.Ext(n))
+	switch ext {
+	case ".Z":
+		c.Put(ContentEncoding, "compress")
+	case ".gz", ".gzip", ".tgz":
+		c.Put(ContentEncoding, "gzip")
+		if ext == "tgz" {
+			ext = "tar"
+		}
+	case ".bz2", ".bzip2", ".tbz2":
+		c.Put(ContentEncoding, "bzip2")
+		if ext == "tbz2" {
+			ext = "tar"
+		}
+	}
+
+	return mime.TypeByExtension(ext), nil
 }
 
 // ServeFiles is a cookoo command to serve files from a set of filesystem directories.
