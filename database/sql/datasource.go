@@ -91,7 +91,7 @@ func (c *StmtCacheMap) Get(statement string) (*dbsql.Stmt, error) {
 // to deal with locking or synchronization.
 // For compatibility with database/sql.DB.Prepare
 func (c *StmtCacheMap) Prepare(statement string) (*dbsql.Stmt, error) {
-	// Protect the statment cache.
+	// Protect the statement cache.
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
