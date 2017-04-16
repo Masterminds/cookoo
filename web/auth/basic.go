@@ -37,9 +37,9 @@ func Basic(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
 
 	req := c.Get("http.Request", nil).(*http.Request)
 	res := c.Get("http.ResponseWriter", nil).(http.ResponseWriter)
-
+	
 	ds := c.Datasource(dsName).(UserDatasource)
-
+	
 	authz := strings.TrimSpace(req.Header.Get("Authorization"));
 	if len(authz) == 0 || !strings.Contains(authz, "Basic ") {
 		return sendUnauthorized(realm, res)
@@ -50,7 +50,7 @@ func Basic(c cookoo.Context, p *cookoo.Params) (interface{}, cookoo.Interrupt) {
 		c.Logf("info", "Basic authentication parsing failed: %s", err)
 		return sendUnauthorized(realm, res)
 	}
-
+	
 	ok, err := ds.AuthUser(user, pass)
 	if !ok {
 		if err != nil {
